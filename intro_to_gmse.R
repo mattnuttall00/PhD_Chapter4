@@ -1,9 +1,11 @@
 ## This script is for learning and experimenting with GMSE
 
-### Load libraries ###
+### Load libraries ####
 library('GMSE')
 
-## run basic simulation (using defaults)
+## run basic simulation (using defaults) showing ALL parameter settings and explanations ####
+
+
 sim1 <- gmse(
   time_max = 40,
   land_dim_1 = 100,
@@ -83,3 +85,29 @@ sim1 <- gmse(
   usr_yld_budget = 0, # increase in user budget as a result of their yield 
   man_yld_budget = 0, # increase in managers budget as result of mean yield of all users land
 )
+
+
+### plot sim1 ####
+
+plot_gmse_results(sim_results = sim1)
+plot_gmse_effort(sim_results = sim1)
+
+
+### explore sim1 ####
+
+str(sim1$resource)
+sim1$resource[[1]]
+print(sim1$resource)
+
+str(sim1$observation)
+
+str(sim1$paras)
+sim1$paras
+
+str(sim1$land)
+
+str(sim1$time_taken)
+
+str(sim1$agents)
+
+str(sim1$cost)
