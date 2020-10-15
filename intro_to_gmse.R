@@ -87,13 +87,13 @@ sim1 <- gmse(
 )
 
 
-### plot sim1 ####
+# plot sim1 ####
 
 plot_gmse_results(sim_results = sim1)
 plot_gmse_effort(sim_results = sim1)
 
 
-### explore sim1 ####
+# explore sim1 ####
 
 str(sim1$resource)
 sim1$resource[[1]]
@@ -111,3 +111,19 @@ str(sim1$time_taken)
 str(sim1$agents)
 
 str(sim1$cost)
+
+## Land tenure simulation ####
+
+# here I will have a first crack at setting up a simulation for land tenure. I will do this and then contact Nils and Brad and get their input. 
+
+# in this simulation I want to create a system that broadly reflects a situation inside a Cambodian PA where multiple communities exist, and have different levels of land tenure.  This is common in real life in Cambodia.  Some communities have individual land tenure (i.e. a single family owns farmland), some communities have communally owned land (ICTs), and some communities have no tenure at all.  I am not sure if I can have three different sets of tenure options, but I will try. I am not sure how to represent individual land titles becasue the 'population density' doesn't really work if a single user represents only a single family. 
+
+# big question - do users represent individual families or entire communities? 
+
+# What are the actual differences between tenure types?  Assuming that each user represent a single family: ICTs - the utility of the land and resource is the same across all users, the costs are the same, the goals are all the same, and the budgets are the same. I.e. the group of users all act together. group_think will be set to TRUE.  The users are allowed to clear forest within their land, but not allowed outside their land (i.e. costs will be low up to a certain point, after which costs are high). For individual land titles, the owned land will be contiguous but the users do not act together. The utility of the land and resource will be the same, but the user starting budgets will vary randomly. The goals between users will potentially vary (is this set by the utility?). Again the users are allowed to clear their own land (low cost) but not allowed outside their land (high cost). For communities with no land tenure, I guess everything is the same as the individual land titled communities except that they are not allowed to clear any forest (i.e. costs are always high)? Perhaps the goal is different - perhaps they want to clear more land as fast as possible (to increase chances of getting tenure) rather than focussing on farming?  With all of the different tenures, the common factor is that budgets will increase each time step to simulate increasing population density. This will reflect increasing number of people living on the land, and therefore more pressure to increase farm yield and increasing ability to clear forest and farm (i.e. more hands). Perhaps the yield that can be achieved from farming can increase as budgets increase (to reflect more intensive farming) up to a point (maximum potential yield) after which they will need to clear more forest to increase their farmland.   
+
+# I am not sure how I would replicate the above scenarios if a single user represented an entire community. The ability to make the users act together or separately I think is key.  
+
+# Will it be too complicated to have all three tenure options in the same landscape/simulation?  Or would it be better to run them in separate simulations?  
+
+
