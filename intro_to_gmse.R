@@ -16,7 +16,7 @@ sim1 <- gmse(
   agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
   agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
   res_birth_K = 100000, # carrying capactiy for births (i.e. max number of new births in a timestep)
-  res_death_K = 2000, # carrying capacity on resources in population. As pop approaches this, mortality prob increases
+  res_death_K = 50000, # carrying capacity on resources in population. As pop approaches this, mortality prob increases
   edge_effect = 1, # only option - torus landscape (i.e. no edge)  
   res_move_type = 1, # 0=no move, 1=rand uniform any dir, 2=poisson xy, 3=unif but times=res_movement per time step
   res_birth_type = 2, # only option
@@ -137,7 +137,7 @@ ten1 <- gmse(
   agent_view = 10, # KEEP THIS AS DEFAULT FOR NOW
   agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
   res_birth_K = 100000, # carrying capactiy for births (i.e. max number of new births in a timestep)
-  res_death_K = 2000, # SHOULD DO NOTHING AS MORTALITY IS 0
+  res_death_K = 50000, # SET CARRYING CAPACITY WELL ABOVE STARTING POP SO THERE IS NO DENSITY-DEPENDENT MORTALITY
   edge_effect = 1, # only option - torus landscape (i.e. no edge)  
   res_move_type = 0, # TREES DON'T MOVE
   res_birth_type = 2, # only option
@@ -206,4 +206,15 @@ ten1 <- gmse(
   man_yld_budget = 0, # increase in managers budget as result of mean yield of all users land
 )
 
+plot_gmse_results(sim_results = ten1)
 
+  # Explore ten1 ####
+
+
+# questions for Brad - in the default plots are the resource locations in the final time step the white dots or the black dots?  I assumed they were the white dots based on the paper/vignettes, but in this case it makes more sense that the black dots are the resource...
+
+# I think I have missed some paramter that controls death, because there seems to be a steady decrease in the resource population, even when the farmers are tending crops. Maybe res_death_K?
+
+# Why do I not see total % of landscape cells yield in the middle left panel?
+
+# What is making the farmers yield fluctuate so much? 
