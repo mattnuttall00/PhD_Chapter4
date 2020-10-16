@@ -150,7 +150,7 @@ ten1 <- gmse(
   res_min_age = 0, # age of resources before agents record/act on them
   res_move_obs = FALSE, # TREES DON'T MOVE BETWEEN TIME STEPS
   Euclidean_dist = FALSE, # should distance be judged as euclidean distance or number of cells
-  plotting = TRUE, # Should simulation results be plotted?
+  plotting = FALSE, # Should simulation results be plotted?
   hunt = FALSE, # whether simulation stops to ask user how many resources they want to hunt
   start_hunting = 95, # the time step in which the human is allowed to start hunting (if hunt=TRUE)
   res_consume = 0.25, # ASSUMING 4 FOREST PATCHES PER CELL, EACH PATCH CONSUMES 25% OF CELL I.E. NO YIELD IF ALL TREES
@@ -163,7 +163,7 @@ ten1 <- gmse(
   #ga_mutation    # mutation rate of any action within an agents strategy (no default listed)
   #ga_crossover   # rate of any action within agents strategy with a randomly selected different strategy (no default)
   move_agents = FALSE, # AGENTS DON'T MOVE BETWEEN TIME STEPS
-  max_ages = 100, # TREES DON'T NATURALLY DIE OF OLD AGE 
+  max_ages = 1000, # TREES DON'T NATURALLY DIE OF OLD AGE 
   minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
   user_budget = 1000, # LEAVE AS DEFAULT FOR NOW
   manager_budget = 1000, # LEAVE AS DEFAULT FOR NOW
@@ -213,7 +213,7 @@ plot_gmse_results(sim_results = ten1)
 
 # questions for Brad - in the default plots are the resource locations in the final time step the white dots or the black dots?  I assumed they were the white dots based on the paper/vignettes, but in this case it makes more sense that the black dots are the resource...
 
-# I think I have missed some paramter that controls death, because there seems to be a steady decrease in the resource population, even when the farmers are tending crops. Maybe res_death_K?
+# I think I have missed some paramter that controls death, because there seems to be a steady decrease in the resource population, even when the farmers are tending crops. Maybe res_death_K? Ok Brad says that tree age is allocated randomly, and there is no way in the current version to entirely turn death off (i.e. death by old age still happens). Until that is fixed, increase max_ages to something really high
 
 # Why do I not see total % of landscape cells yield in the middle left panel?
 
