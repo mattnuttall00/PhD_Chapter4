@@ -50,7 +50,7 @@ sim1 <- gmse(
   manage_target = 1000, # target resource abundance
   RESOURCE_ini = 1000, # initial abundance of resources
   scaring = FALSE, # is scaring an option
-  culling = TRUE, # is castration an option
+  culling = TRUE, # is culling an option
   castration = FALSE, # is castration an option
   feeding = FALSE, # is feeding an option
   help_offspring = FALSE, # is supporting resource offspring an option
@@ -167,10 +167,10 @@ ten1 <- gmse(
   minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
   user_budget = 1000, # LEAVE AS DEFAULT FOR NOW
   manager_budget = 1000, # LEAVE AS DEFAULT FOR NOW
-  manage_target = 1000, # NOT SURE ABOUT THIS
-  RESOURCE_ini = 1000, # NOT SURE ABOUT THIS
+  manage_target = 28000, # 10,000 CELLS, 3,000 OWNED BY COMMUNITY, SO 7,000 ARE PA AND NOT ALLOWED TO BE CLEARED X 4 PATCHES
+  RESOURCE_ini = 40000, # 10,000 CELLS X 4 RESOURCES PER CELL
   scaring = FALSE, # is scaring an option
-  culling = TRUE, # is castration an option
+  culling = TRUE, # CUTTING DOWN TREES IS THE ONLY OPTION
   castration = FALSE, # is castration an option
   feeding = FALSE, # is feeding an option
   help_offspring = FALSE, # is supporting resource offspring an option
