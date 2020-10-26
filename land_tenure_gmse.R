@@ -17,7 +17,7 @@
 library('GMSE')
 
 
-### ten_rep_1 - 20 reps, multiple users, no land ownership, low cost, low manager budget, no yeild increases ####
+### ten_rep_1 - 20 reps, multiple users, no land ownership, low cost, low manager budget, no yield increases ####
 
 # In this simulation I want the users to be able to clear forest easily, and the manager to have very little power to stop them. Users will not gain any additional yeild from tending crops (i.e. no real benefit in tending crops)
 
