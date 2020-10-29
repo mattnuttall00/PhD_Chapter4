@@ -130,6 +130,8 @@ system.time(ten_rep_2 <- gmse_replicates(
 
 
 print(ten_rep_2)
+ten_rep_2_summary <- data.frame(ten_rep_2)
+write.csv(ten_rep_2_summary, file="outputs/Land_tenure/ten_rep_2/ten_rep_2_summary.csv")
 
 ### ten_rep_3 & 4 - 10 reps, multiple users, no land ownshp, low cost, higer manager budget, no yield increases ####
   ## Details ####
@@ -190,6 +192,7 @@ write.csv(ten_rep_3_summary,  file="outputs/Land_tenure/ten_rep_3/ten_rep_3_summ
 
   ## Replicates ####
 
+# 1hr 24 mins
 system.time(ten_rep_4 <- gmse_replicates(
   replicates = 10,
   all_time = TRUE,
@@ -230,3 +233,8 @@ system.time(ten_rep_4 <- gmse_replicates(
   group_think = FALSE, # users act independently
 ))
 
+ten_rep_4_summary <- data.frame(ten_rep_4)
+ten_rep_4_summary$sim <- rep(c(1:10), each=40)
+write.csv(ten_rep_4_summary, file="outputs/Land_tenure/ten_rep_4/ten_rep_4_summary.csv")
+
+plot_gmse_results(sim_results = ten_rep_4)
