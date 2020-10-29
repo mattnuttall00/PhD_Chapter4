@@ -17,8 +17,7 @@
 library('GMSE')
 
 
-### ten_rep_1 - 20 reps, multiple users, no land ownership, low cost, low manager budget, no yield increases ####
-
+### ten_rep_1 & 2 - 10 reps, multiple users, no land ownership, low cost, low manager budget, no yield increases ####
   ## Details ####
 
 # In this simulation I want the users to be able to clear forest easily, and the manager to have very little power to stop them, but will have the goal of preserving as much as possible. Users will not gain any additional yield from tending crops (i.e. no real benefit in tending crops)
@@ -88,9 +87,10 @@ write.csv(ten_rep_1_summary,  file="outputs/Land_tenure/ten_rep_1/ten_rep_1_summ
 
   ## Replicates ####
 
-
+# Took 1 hour 55 mins
 system.time(ten_rep_2 <- gmse_replicates(
   replicates = 10,
+  all_time = TRUE,
   time_max = 40,
   land_dim_1 = 50,
   land_dim_2 = 50, # landscape is 2500ha or 25km2
@@ -127,3 +127,106 @@ system.time(ten_rep_2 <- gmse_replicates(
   manage_freq = 1, # frequency of manager setting policy 
   group_think = FALSE, # users act independently
 ))
+
+
+print(ten_rep_2)
+
+### ten_rep_3 & 4 - 10 reps, multiple users, no land ownshp, low cost, higer manager budget, no yield increases ####
+  ## Details ####
+
+# this is the same as above but now I will give the manager 50% of the budget of the users, to see what impact this has.
+
+
+  ## Single call ####
+
+
+# first run one simulation (i.e. no replicates) - 9 mins to run
+system.time(ten_rep_3 <- gmse(
+  time_max = 40,
+  land_dim_1 = 50,
+  land_dim_2 = 50, # landscape is 2500ha or 25km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
+  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 500000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, # observes once
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.02, # For now I am saying each tree reduces cell yield by 2%. This means that if all of the 50 trees on a cell are standing, then yield is reduced to 0.36% of the total (vaguely plausible for an open forest e.g. deciduous diptercarp landscape).  Cutting down 10 trees (20% of the trees) increases yield to 0.44, cutting down 20 trees (40%) increases yield to 0.54% etc. This is based on the exponential function Brad sent: yield = (1 - %yield reduction per tree)^remaining trees
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
+  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
+  user_budget = 1000, # total budget of each stakeholder for performing actions
+  manager_budget = 500, # Manager has little power (50% of user)
+  manage_target = 125000, # target resource abundance (same as starting value)
+  RESOURCE_ini = 125000, # initial abundance of resources - 50 trees per cell
+  culling = TRUE, # culling is only option
+  tend_crops = FALSE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
+  stakeholders = 50, # a village with 50 families
+  land_ownership = FALSE, # no land ownership
+  manage_freq = 1, # frequency of manager setting policy 
+  group_think = FALSE, # users act independently
+))
+
+
+# plot results
+plot_gmse_results(sim_results = ten_rep_3)
+
+# key results summary
+ten_rep_3_summary <- data.frame(gmse_table(ten_rep_3, hide_unused_options = TRUE, all_time = TRUE))
+write.csv(ten_rep_3_summary,  file="outputs/Land_tenure/ten_rep_3/ten_rep_3_summary.csv")
+
+
+  ## Replicates ####
+
+system.time(ten_rep_4 <- gmse_replicates(
+  replicates = 10,
+  all_time = TRUE,
+  time_max = 40,
+  land_dim_1 = 50,
+  land_dim_2 = 50, # landscape is 2500ha or 25km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
+  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 500000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, # observes once
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.02, # For now I am saying each tree reduces cell yield by 2%. This means that if all of the 50 trees on a cell are standing, then yield is reduced to 0.36% of the total (vaguely plausible for an open forest e.g. deciduous diptercarp landscape).  Cutting down 10 trees (20% of the trees) increases yield to 0.44, cutting down 20 trees (40%) increases yield to 0.54% etc. This is based on the exponential function Brad sent: yield = (1 - %yield reduction per tree)^remaining trees
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
+  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
+  user_budget = 1000, # total budget of each stakeholder for performing actions
+  manager_budget = 500, # Manager has very little power (10% of user)
+  manage_target = 125000, # target resource abundance (same as starting value)
+  RESOURCE_ini = 125000, # initial abundance of resources - 50 trees per cell
+  culling = TRUE, # culling is only option
+  tend_crops = FALSE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
+  stakeholders = 50, # a village with 50 families
+  land_ownership = FALSE, # no land ownership
+  manage_freq = 1, # frequency of manager setting policy 
+  group_think = FALSE, # users act independently
+))
+
