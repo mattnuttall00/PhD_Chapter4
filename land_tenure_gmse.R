@@ -29,8 +29,9 @@ library('GMSE')
 
 # I am keeping the landscape small to reduce the run time, as each cell has 50 trees
 
+# first run one simulation (i.e. no replicates)
 
-ten_rep_1 <- gmse_replicates(
+system.time(ten_rep_1 <- gmse(
   time_max = 40,
   land_dim_1 = 50,
   land_dim_2 = 50,
@@ -39,8 +40,8 @@ ten_rep_1 <- gmse_replicates(
   lambda = 0, # assume no growth
   agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
   agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
-  res_birth_K = 0, # no new births
-  res_death_K = 3000000, # carrying capacity set to way above starting number of resources
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 500000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
   res_death_type = 1, # 1=density-independent 
   observe_type = 0, # 0=density-based sampling 
@@ -66,4 +67,4 @@ ten_rep_1 <- gmse_replicates(
   land_ownership = FALSE, # no land ownership
   manage_freq = 1, # frequency of manager setting policy 
   group_think = FALSE, # users act independently
-)
+))
