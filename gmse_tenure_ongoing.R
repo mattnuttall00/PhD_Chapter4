@@ -405,6 +405,9 @@ ten_rep_7_summary$label <- "+100 / time step"
 
 comp_5_6_7 <- rbind(ten_rep_5_summary, ten_rep_6_summary, ten_rep_7_summary)
 
+comp_5_6_7$label <- as.factor(comp_5_6_7$label)
+comp_5_6_7$label <- factor(comp_5_6_7$label, levels = c("+100 / time step","+50 / time step","+20 / time step"))
+
 lostplot_comp <- ggplot(comp_5_6_7, aes(x=Manager_budget, y=Pop_diff, group=label, colour=label))+
                   geom_line(size=1)+
                   theme(panel.background = element_blank())+
@@ -422,7 +425,8 @@ lostplot_comp_time <- ggplot(comp_5_6_7, aes(x=Time, y=Pop_diff, group=label, co
 lostplot_comp + lostplot_comp_time
 
 
-#' In the above plots I have plotted the number of trees lost per time step against manager budget (left) and time (right) for the three simulations with dynamic manager budgets.  All three simulations have very different numbers lost in the first time step, but this is likely due to the variation in number of actions taken in time step 1 resulting from the genetic algorithm still revving up (as Brad explained). The plot on the left shows that the numbers of resources lost per time step decreases as manager budgets increase, which is what I expected. We can see that the blue and green lines stop before they flatten, suggesting that the minimum number of trees lost had not been reached. Whereas the pink line looks as though it has flattened out (still with some small fluctuations) suggesting that further manager budget increases will likely have negligible impacts on culling.  The plot ont he right shows the same thing (the slope of the lines at time 40), and also that, as I would have expected, the higher the manager budget, the fewer trees get cut down. 
+#' In the above plots I have plotted the number of trees lost per time step against manager budget (left) and time (right) for the three simulations with dynamic manager budgets.  All three simulations have very different numbers lost in the first time step, but this is likely due to the variation in number of actions taken in time step 1 resulting from the genetic algorithm still revving up (as Brad explained). The plot on the left shows that the numbers of resources lost per time step decreases as manager budgets increase, which is what I expected. We can see that the blue and green lines stop before they flatten, suggesting that the optimal manager budget for reducing the number of trees lost has not been reached yet. Whereas the pink line looks as though it has flattened out (still with some small fluctuations) suggesting that further manager budget increases will likely have negligible impacts on culling.  The plot on the right shows the same thing (the slopes of the lines at time 40 show the green and blue still decreasing, and the pink flattened out), and also that, as I would have expected, the higher the manager budget, the fewer trees get cut down. 
+#' 
 #+ ten_rep_7 budget proportion plot, echo=FALSE
 
 ten_rep_7_summary$budget_prop <- (ten_rep_7_summary$Manager_budget/1000)*100
