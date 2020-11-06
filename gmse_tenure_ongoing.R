@@ -422,4 +422,19 @@ lostplot_comp_time <- ggplot(comp_5_6_7, aes(x=Time, y=Pop_diff, group=label, co
 lostplot_comp + lostplot_comp_time
 
 
-#' In the above plots I have plotted the number of trees lost per time step against manager budget (left) and time (right) for the three simulations with dynamic manager budgets.  All three simulations have very different numbers lost in the first time step, but this is likely due to the variation in number of actions taken in time step 1 resulting from the genetic algorithm still revving up (as Brad explained). The plot on the left shows that the numbers of resources lost per time step decreases as manager budgets increase, which is what I expected. We can see that the blue and green lines stop before they flatten, suggesting that the minimum number of trees lost had not been reached. Whereas the pink line looks as though it has flattened out (still with some small fluctuations) suggesting that further manager budget increases will likely have negligible impacts on culling.  The plot ont he right shows the same thing (the slope of the lines at time 40), and also that, as I would have expected, the higher the manager budget, the fewer trees get cut down.  
+#' In the above plots I have plotted the number of trees lost per time step against manager budget (left) and time (right) for the three simulations with dynamic manager budgets.  All three simulations have very different numbers lost in the first time step, but this is likely due to the variation in number of actions taken in time step 1 resulting from the genetic algorithm still revving up (as Brad explained). The plot on the left shows that the numbers of resources lost per time step decreases as manager budgets increase, which is what I expected. We can see that the blue and green lines stop before they flatten, suggesting that the minimum number of trees lost had not been reached. Whereas the pink line looks as though it has flattened out (still with some small fluctuations) suggesting that further manager budget increases will likely have negligible impacts on culling.  The plot ont he right shows the same thing (the slope of the lines at time 40), and also that, as I would have expected, the higher the manager budget, the fewer trees get cut down. 
+#+ ten_rep_7 budget proportion plot, echo=FALSE
+
+ten_rep_7_summary$budget_prop <- (ten_rep_7_summary$Manager_budget/1000)*100
+
+ggplot(ten_rep_7_summary, aes(x=budget_prop, y=Pop_diff))+
+geom_line(size=1)+
+theme(panel.background = element_blank())+
+theme(axis.line = element_line(colour = "black"))+
+ylim(0,2300)+
+ylab("Resources lost per time step")+
+xlab("Manager budget as % of user budget")
+          
+
+#' The above plot shows the number of trees lost against the manager's budget as a percentage of the users' budget, and we can see that in this scenario, where users do not own land and are therefore trying their hardest to cull, when the the manager's budget reaches ~300% of the users' budget, the gains in reducing culling essentially disappear i.e. increasing the manager's budget further make little different to the number of trees lost.    
+          
