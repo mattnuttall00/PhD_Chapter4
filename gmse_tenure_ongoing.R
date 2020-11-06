@@ -21,6 +21,7 @@ ten_rep_2_summary <- read.csv("outputs/Land_tenure/ten_rep_2/ten_rep_2_summary.c
 ten_rep_3_summary <- read.csv("outputs/Land_tenure/ten_rep_3/ten_rep_3_summary.csv")
 ten_rep_4_summary <- read.csv("outputs/Land_tenure/ten_rep_4/ten_rep_4_summary.csv")
 ten_rep_5_summary <- read.csv("outputs/Land_tenure/ten_rep_5/ten_rep_5_summary.csv")
+ten_rep_6_summary <- read.csv("outputs/Land_tenure/ten_rep_6/ten_rep_6_summary.csv")
 
 #' This is a summary of my ongoing GMSE analysis which will investigate the social-ecological dynamics surrounding land tenure in a hypothetical conservation landscape that is loosely based on a Cambodian protected area.
 #' 
@@ -354,4 +355,34 @@ lostplot <- ggplot(ten_rep_5_summary, aes(x=Manager_budget, y=Pop_diff))+
 #' 
 #' This simulation is exactly the same as the one above, but here I have increased the manager budget by 50 in each time step rather than 20.  I am trying to see where the threshold is for the manager to have a signficant impact in reducing culling.
 #' 
-#+ ten_rep_6, echo=FALSE,  
+#+ ten_rep_6 plots, echo=FALSE
+
+costplot <- ggplot(ten_rep_5_summary, aes(x=Manager_budget, y=Cull_cost))+
+            geom_line()+
+            theme(panel.background = element_blank())+
+            theme(axis.line = element_line(colour = "black"))+
+            ylab("Cost of culling")
+
+countplot <- ggplot(ten_rep_6_summary, aes(x=Manager_budget, y=Cull_count))+
+              geom_line()+
+              theme(panel.background = element_blank())+
+              theme(axis.line = element_line(colour = "black"))+
+              ylab("Count of cull actions")
+
+lostplot <- ggplot(ten_rep_5_summary, aes(x=Manager_budget, y=Pop_diff))+
+            geom_line()+
+            theme(panel.background = element_blank())+
+            theme(axis.line = element_line(colour = "black"))+
+            ylim(0,1600)+
+            ylab("Resources lost per time step")
+
+ten_rep_5_summary$label <- "Lower manager budget"
+ten_rep_6_summary$label <- "Higher manager budget"
+comp_5_6 <- rbind(ten_rep_5_summary, ten_rep_6_summary)
+
+lostplot_comp <- ggplot(comp_5_6, aes(x=))+
+                  
+                  theme(panel.background = element_blank())+
+                  theme(axis.line = element_line(colour = "black"))+
+                  ylim(0,1600)+
+                  ylab("Resources lost per time step")
