@@ -22,6 +22,7 @@ ten_rep_3_summary <- read.csv("outputs/Land_tenure/ten_rep_3/ten_rep_3_summary.c
 ten_rep_4_summary <- read.csv("outputs/Land_tenure/ten_rep_4/ten_rep_4_summary.csv")
 ten_rep_5_summary <- read.csv("outputs/Land_tenure/ten_rep_5/ten_rep_5_summary.csv")
 ten_rep_6_summary <- read.csv("outputs/Land_tenure/ten_rep_6/ten_rep_6_summary.csv")
+ten_rep_7_summary <- read.csv("outputs/Land_tenure/ten_rep_7/ten_rep_7_summary.csv")
 
 #' This is a summary of my ongoing GMSE analysis which will investigate the social-ecological dynamics surrounding land tenure in a hypothetical conservation landscape that is loosely based on a Cambodian protected area.
 #' 
@@ -351,38 +352,74 @@ lostplot <- ggplot(ten_rep_5_summary, aes(x=Manager_budget, y=Pop_diff))+
 #' 
 #' I have clearly not yet found the value of manager budget that is high enough to completely eliminate culling all together. I had assumed that this would be when the manager budget went above the user budget, but this is not the case. I am not yet clear on how the manager budget relates to the cost of actions. 
 #' 
-#' ## Simulation 6 (ten_rep_6)
+#' ## Simulations 6 & 7 (ten_rep_6, ten_rep_7)
 #' 
-#' This simulation is exactly the same as the one above, but here I have increased the manager budget by 50 in each time step rather than 20.  I am trying to see where the threshold is for the manager to have a signficant impact in reducing culling.
+#' These simulations are exactly the same as the one above, but here I have increased the manager budgets by 50 and 100 in each time step rather than 20.  I am trying to see where the threshold is for the manager to have a signficant impact in reducing culling.
 #' 
-#+ ten_rep_6 plots, echo=FALSE
+#+ ten_rep_6 & 7 cost plots, echo=FALSE
 
-costplot <- ggplot(ten_rep_5_summary, aes(x=Manager_budget, y=Cull_cost))+
+costplot6 <- ggplot(ten_rep_6_summary, aes(x=Manager_budget, y=Cull_cost))+
             geom_line()+
             theme(panel.background = element_blank())+
             theme(axis.line = element_line(colour = "black"))+
-            ylab("Cost of culling")
+            ylab("Cost of culling")+
+            ggtitle("ten_rep_6 (+50)")
 
-countplot <- ggplot(ten_rep_6_summary, aes(x=Manager_budget, y=Cull_count))+
+costplot7 <- ggplot(ten_rep_7_summary, aes(x=Manager_budget, y=Cull_cost))+
               geom_line()+
               theme(panel.background = element_blank())+
               theme(axis.line = element_line(colour = "black"))+
-              ylab("Count of cull actions")
+              ylab("Cost of culling")+
+              ggtitle("ten_rep_7 (+100)")
 
-lostplot <- ggplot(ten_rep_5_summary, aes(x=Manager_budget, y=Pop_diff))+
-            geom_line()+
-            theme(panel.background = element_blank())+
-            theme(axis.line = element_line(colour = "black"))+
-            ylim(0,1600)+
-            ylab("Resources lost per time step")
+costplot6 + costplot7
 
-ten_rep_5_summary$label <- "Lower manager budget"
-ten_rep_6_summary$label <- "Higher manager budget"
-comp_5_6 <- rbind(ten_rep_5_summary, ten_rep_6_summary)
+#' The above plots show that the relationship between the manager's budget and the cost of culling is still linear regardless of the size of the budget increases, but when the manager has more budget the increases are larger (note the y axis scales).
+#' 
+#+ ten_rep_6 & 7 count plots, echo=FALSE
 
-lostplot_comp <- ggplot(comp_5_6, aes(x=))+
-                  
+countplot6 <- ggplot(ten_rep_6_summary, aes(x=Manager_budget, y=Cull_count))+
+              geom_line()+
+              theme(panel.background = element_blank())+
+              theme(axis.line = element_line(colour = "black"))+
+              ylab("Count of cull actions")+
+              ggtitle("ten_rep_6 (+50)")
+
+countplot7 <- ggplot(ten_rep_7_summary, aes(x=Manager_budget, y=Cull_count))+
+              geom_line()+
+              theme(panel.background = element_blank())+
+              theme(axis.line = element_line(colour = "black"))+
+              ylab("Count of cull actions")+
+              ggtitle("ten_rep_7 (+100)")
+
+countplot6 + countplot7
+
+#' In the above plots we see the same steps (pause in the decline of the cull counts) as we did for ten_rep_5, but they are different shapes. When the manager's budget is increased by larger increments (right hand plot), the steps  don't appear until the manager's budget is higher, when compared to the smaller increments simulation (left plot).  I guess this is something to do with the smaller incremental increase in the manager's budget having less of an impact on the ability of the users to cull, and so between any given two time steps, the users may still be able to take the same actions. Whereas when the manager's budget increase is larger, it is more likely to impact on the users ability to take action from one time step to the next. I am not sure why the steps get larger as the manager's budget gets larger though.  
+#' Interestingly, I think that ten_rep_7 has identified the manager budget required to force the minimum number of posible culls.  The cull count reaches 100 when the manager's budget is 3300, and then remaines at 100 until the end of the simulation when the manager's budget is 4400. I guess there is a possibility that it is just another arger step, and that the cull count might continue to fall if the simulation continued.  However, a loss of 100 trees per year equates to 0.08% of the population which is pretty good in a Cambodian PA! 
+#' 
+#+ ten_rep_5, 6 & 7 lost plots, echo=FALSE       
+
+ten_rep_5_summary$label <- "+20 / time step"
+ten_rep_6_summary$label <- "+50 / time step"
+ten_rep_7_summary$label <- "+100 / time step"
+
+comp_5_6_7 <- rbind(ten_rep_5_summary, ten_rep_6_summary, ten_rep_7_summary)
+
+lostplot_comp <- ggplot(comp_5_6_7, aes(x=Manager_budget, y=Pop_diff, group=label, colour=label))+
+                  geom_line(size=1)+
                   theme(panel.background = element_blank())+
                   theme(axis.line = element_line(colour = "black"))+
-                  ylim(0,1600)+
+                  ylim(0,2300)+
                   ylab("Resources lost per time step")
+
+lostplot_comp_time <- ggplot(comp_5_6_7, aes(x=Time, y=Pop_diff, group=label, colour=label))+
+                      geom_line(size=1)+
+                      theme(panel.background = element_blank())+
+                      theme(axis.line = element_line(colour = "black"))+
+                      ylim(0,2300)+
+                      ylab("Resources lost per time step")
+
+lostplot_comp + lostplot_comp_time
+
+
+#' In the above plots I have plotted the number of trees lost per time step against manager budget (left) and time (right) for the three simulations with dynamic manager budgets.  All three simulations have very different numbers lost in the first time step, but this is likely due to the variation in number of actions taken in time step 1 resulting from the genetic algorithm still revving up (as Brad explained). The plot on the left shows that the numbers of resources lost per time step decreases as manager budgets increase, which is what I expected. We can see that the blue and green lines stop before they flatten, suggesting that the minimum number of trees lost had not been reached. Whereas the pink line looks as though it has flattened out (still with some small fluctuations) suggesting that further manager budget increases will likely have negligible impacts on culling.  The plot ont he right shows the same thing (the slope of the lines at time 40), and also that, as I would have expected, the higher the manager budget, the fewer trees get cut down.  
