@@ -289,7 +289,7 @@ write.csv(ten_rep_4_summary, file="outputs/Land_tenure/ten_rep_4/ten_rep_4_summa
 
 plot_gmse_results(sim_results = ten_rep_4)
 
-### ten_rep_5 & 6 - 10 reps, mutple users, no land ownshp, increasing manager budget, no yield increases ####
+### ten_rep_5 - dynamic manager budget, mutple users, no land ownshp, no yield increases ####
   ## Details ####
 
 # Here I want to explore the threshold for the manager budget of when a manager is able to stop culling.  The details will all be the same as the simulation above, but the manager budget will increase incrementally
@@ -366,7 +366,9 @@ colnames(ten_rep_5) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count
                          "Manager_budget")
 ten_rep_5_summary <- data.frame(ten_rep_5)
 write.csv(ten_rep_5, file="outputs/Land_tenure/ten_rep_5/ten_rep_5_summary.csv")
-### ten_rep_7 - as above, increasing manager budget further ####
+
+
+### ten_rep_6 - as above, increasing manager budget further ####
   ## Details ####
 
 # In ten_rep_5 I didn't find the manager budget which was high enough to eliminate (or nearly eliminate) cutting of trees. So here I will increase the budget futher to see if I can find that theshold.
@@ -374,7 +376,11 @@ write.csv(ten_rep_5, file="outputs/Land_tenure/ten_rep_5/ten_rep_5_summary.csv")
   ## Call ####
 
 
-ten_rep_7_simold <- gmse_apply(
+# manager budget
+mb <- 500
+
+# sim_old
+ten_rep_6_simold <- gmse_apply(
   res_mod = resource,
   obs_mod = observation,
   man_mod = manager,
@@ -401,11 +407,11 @@ ten_rep_7_simold <- gmse_apply(
   
   # all genetic algorithm parameters left to default
   
-  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
   move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
   minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
   user_budget = 1000, # total budget of each stakeholder for performing actions
-  manager_budget = mb, # Manager budget to incrementally change
+  manager_budget = mb, # Manager has little power (50% of user)
   manage_target = 125000, # target resource abundance (same as starting value)
   RESOURCE_ini = 125000, # initial abundance of resources - 50 trees per cell
   culling = TRUE, # culling is only option
@@ -416,31 +422,30 @@ ten_rep_7_simold <- gmse_apply(
   group_think = FALSE # users act independently
 )
 
-# assign manager budget
-mb <- 500
+# matrix for results
+ten_rep_6 <- matrix(data=NA, nrow=40, ncol=6)
 
-# initialise empty results matrix
-sim_sum_1 <- matrix(data = NA, nrow = 20, ncol = 7);
-
+# loop the simulation. Took 11 mins
 for(time_step in 1:40){
-    sim_new <- gmse_apply(get_res = "Full", old_list = ten_rep_7_simold)
   
-    sim_sum_1[time_step, 1] <- time_step
-    sim_sum_1[time_step, 2] <- sim_new$basic_output$resource_results[1]
-    sim_sum_1[time_step, 3] <- sim_new$basic_output$observation_results[1]
-    sim_sum_1[time_step, 4] <- sim_new$basic_output$manager_results[2]
-    sim_sum_1[time_step, 5] <- sim_new$basic_output$manager_results[3]
-    sim_sum_1[time_step, 6] <- sum(sim_new$basic_output$user_results[,2])
-    sim_sum_1[time_step, 7] <- sum(sim_new$basic_output$user_results[,3])
-    sim_old <- sim_new
-    
-    mb <- mb+50
-    
+  sim_new <- gmse_apply(get_res = "Full", old_list = ten_rep_6_simold, manager_budget=mb)
+  
+  ten_rep_6[time_step, 1] <- time_step
+  ten_rep_6[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  ten_rep_6[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  ten_rep_6[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  ten_rep_6[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  ten_rep_6[time_step, 6] <- mb
+  
+  ten_rep_6_simold <- sim_new
+  mb <- mb + 50
+  
 }
 
-colnames(sim_sum_1) <- c("Time", "Pop_size", "Pop_est", "Scare_cost",
-"Cull_cost", "Scare_count", "Cull_count")
-
+colnames(ten_rep_6) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
+                         "Manager_budget")
+ten_rep_6_summary <- data.frame(ten_rep_6)
+write.csv(ten_rep_6, file="outputs/Land_tenure/ten_rep_6/ten_rep_6_summary.csv")
 
 
 

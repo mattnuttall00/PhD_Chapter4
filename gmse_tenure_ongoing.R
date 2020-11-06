@@ -39,7 +39,7 @@ ten_rep_5_summary <- read.csv("outputs/Land_tenure/ten_rep_5/ten_rep_5_summary.c
 #' 
 #' ## Simulation 0 (ten_rep_0)
 #' 
-#' Here I have set res_consume = 0.  I wanted to start with the presence of trees on a cell not impacting yield at all, i.e. to remove any incentive for the users to clear forest.  
+#' Here I have set res_consume = 0.  I wanted to start with the presence of trees on a cell not impacting yield at all, i.e. to remove any incentive for the users to clear forest. Although Brad has since confirmed that when land_ownership = FALSE then the users are essentially hunters and will try to cull as much as possible regardless of the effect of trees on yield.
 #' 
 #' Model set up:
 #' 
@@ -84,13 +84,13 @@ ten_rep_0 <- gmse(
 #+ ten_rep_0_plot, eval=TRUE, echo=FALSE
 plot_gmse_results(sim_results = ten_rep_0)
 
-#' This is not what I was expecting. I had assumed that if there was no impact on yield, then users would have no incentive to cull trees. Yet in this simulation they continue to do so. What are the other parameters/mechanisms that drive the incentives for users to cull?
+#' This is not what I was initially expecting. I had assumed that if there was no impact on yield, then users would have no incentive to cull trees. But thanks to Brad's explanation, this is now clear. 
 #' 
 #' ## Simulations 1 and 2 (ten_rep_1, ten_rep_2)
 #'  
-#' In these simulations I have changed res_consume to 0.02. So for now I am saying each tree reduces cell yield by 2%. This means that if all of the 50 trees on a cell are standing, then yield is reduced to 0.36% of the total (vaguely plausible for an open forest e.g. deciduous diptercarp landscape).  Cutting down 10 trees (20% of the trees) increases yield to 0.44, cutting down 20 trees (40%) increases yield to 0.54% etc. This is assuming I have correctly understood the exponential function Brad sent: yield = (1 - %yield reduction per tree)^remaining trees 
+#' In these simulations I have changed res_consume to 0.02. So for now I am saying each tree reduces cell yield by 2%. This means that if there are 50 trees on a cell, then yield is reduced to 0.36% of the total (vaguely plausible for an open forest e.g. deciduous diptercarp landscape).  Cutting down 10 trees (20% of the trees) increases yield to 0.44, cutting down 20 trees (40%) increases yield to 0.54% etc. This is assuming I have correctly understood the exponential function Brad sent: yield = (1 - %yield reduction per tree)^remaining trees 
 #' 
-#' First I will run a singel call of gmse() with 40 time steps. Then I will use gmse_replicate() to run the simulation 10 times to see the variation in outcomes.
+#' First I will run a single call of gmse() with 40 time steps. Then I will use gmse_replicate() to run the simulation 10 times to see the variation in outcomes.
 #' 
 #' ### Single call
 #' 
@@ -228,7 +228,7 @@ ggplot(ten_rep_4_summary, aes(x=time_step, y=act_culling, group=sim, colour=sim)
   ylab("Number of culling actions")
   
 
-#' I am not clear what is behind this variation. Is this driven by the fact that, by chance, some users will find themselves on a cell with more resources than othes?  If there are more resources on a cell, will the user try to cull more, and vice versa?
+#' I was not clear what was behind this variation. I thought perhaps it was driven by the fact that, by chance, some users will find themselves on a cell with more resources than othes. Brad has since clarified that this is proabbly due to the genetic algorithm not finding the optimal harvesting solution right away (or the users taking a time step to "learn").  
 #' 
 #' ## Simulation 5 (ten_rep_5)
 #' 
@@ -325,7 +325,7 @@ lostplot <- ggplot(ten_rep_5_summary, aes(x=Manager_budget, y=Pop_diff))+
             theme(panel.background = element_blank())+
             theme(axis.line = element_line(colour = "black"))+
             ylim(0,1600)+
-            ylab("Resources lost")
+            ylab("Resources lost per time step")
 
 #ggplot(ten_rep_5_summary, aes(x=Cull_cost, y=Cull_count))+
   #geom_line()+
@@ -344,8 +344,14 @@ lostplot <- ggplot(ten_rep_5_summary, aes(x=Manager_budget, y=Pop_diff))+
 
 #' The top left plot shows that there is a linear relationship between the manager's budget and the cost of culling. In other words, because the manager is trying to stop ALL culling, as soon as they have more budget they will use it to increase the cost of culling.
 #' 
-#' The plot on the top right I was not quite expecting. There appear to be budget/cost thresholds for increases in culling.  This can be seen in the "steps".  For a given manager budget/cull cost, there will be a certain number of culling actions. The number of culling actions will stay the same for a number of time steps, even when the manager budget (and therefore the cost) increases. Then there will be a drop to another level of culling actions. Interestingly, when manager budgets/costs are relatively low, the count of culling actions decrease more quickly in response to increases in cost. Whereas when costs are high, the number of culling actions stay at the same level for longer, despite increases in cost. 
+#' The plot on the top right I was not quite expecting. There appear to be budget/cost thresholds for increases in culling.  This can be seen in the "steps".  For a given manager budget/cull cost, there will be a certain number of culling actions. The number of culling actions will stay the same for a number of time steps, even when the manager budget (and therefore the cost) increases. Then there will be a drop to another level of culling actions. Interestingly, when manager budgets/costs are relatively low, the count of culling actions decrease more quickly in response to increases in cost. Whereas when costs are relatively high, the number of culling actions stay at the same level for longer, despite increases in cost. In other words, the manager's budget appears to have a larger relative impact when it is lower. I am not sure why this is. 
 #' 
-#' The bottom plot shows how the number of trees lost per time step decreases as manager budgets increase. In other words, as the manager gains power to enact policy, the fewer trees are lost. I guess the stochasticity that can be seen is a result of the changes in the natural die off of trees (otherwise I would expect to see steps, as in the top right plot).  
+#' The bottom plot shows how the number of trees lost per time step decreases as manager budgets increase. In other words, as the manager gains power to enact policy, the fewer trees are lost. I guess the stochasticity that can be seen is a result of the changes in the natural die off of trees (otherwise I would expect to see steps, as in the top right plot).  The large decrease between time step 1 and 2 will be presumably because the users will cull as much as possible in the beginning before the manager increases the cost in the next time step.
 #' 
 #' I have clearly not yet found the value of manager budget that is high enough to completely eliminate culling all together. I had assumed that this would be when the manager budget went above the user budget, but this is not the case. I am not yet clear on how the manager budget relates to the cost of actions. 
+#' 
+#' ## Simulation 6 (ten_rep_6)
+#' 
+#' This simulation is exactly the same as the one above, but here I have increased the manager budget by 50 in each time step rather than 20.  I am trying to see where the threshold is for the manager to have a signficant impact in reducing culling.
+#' 
+#+ ten_rep_6, echo=FALSE,  
