@@ -1,11 +1,11 @@
-base
 methods
 datasets
 utils
 grDevices
-graphics
 stats
+graphics
 GMSE
-ggplot2
 knitr
+ggplot2
 patchwork
+base
