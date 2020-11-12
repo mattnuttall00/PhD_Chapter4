@@ -451,7 +451,7 @@ write.csv(ten_rep_6, file="outputs/Land_tenure/ten_rep_6/ten_rep_6_summary.csv")
 
 
 ### ten_rep_7 - as above, increasing manager budget further ####
-  ## Details ###
+  ## Details ####
 
 # increasing manager budget even further
 
@@ -529,3 +529,82 @@ colnames(ten_rep_7) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count
 ten_rep_7_summary <- data.frame(ten_rep_7)
 write.csv(ten_rep_7, file="outputs/Land_tenure/ten_rep_7/ten_rep_7_summary.csv")
 
+
+### ten_rep_8 - as ten_rep_7 but increasing variation in user budget (usr_budget_rng) ####
+  ## Details ####
+
+# Here I will introduce some variation in user budgets to try and reduce the appearance of steps in the plot of manager budget versus cull counts
+
+  ## Call ####
+
+# manager budget
+mb <- 500
+
+# sim_old
+ten_rep_8_simold <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  land_dim_1 = 50,
+  land_dim_2 = 50, # landscape is 2500ha or 25km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
+  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 500000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, # observes once
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.02, # For now I am saying each tree reduces cell yield by 2%. This means that if all of the 50 trees on a cell are standing, then yield is reduced to 0.36% of the total (vaguely plausible for an open forest e.g. deciduous diptercarp landscape).  Cutting down 10 trees (20% of the trees) increases yield to 0.44, cutting down 20 trees (40%) increases yield to 0.54% etc. This is based on the exponential function Brad sent: yield = (1 - %yield reduction per tree)^remaining trees
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
+  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
+  user_budget = 1000, # total budget of each stakeholder for performing actions
+  usr_budget_rng = 100, # introduce a range of 100 (budget units) around the mean user budget
+  manager_budget = mb, # Manager has little power (50% of user)
+  manage_target = 125000, # target resource abundance (same as starting value)
+  RESOURCE_ini = 125000, # initial abundance of resources - 50 trees per cell
+  culling = TRUE, # culling is only option
+  tend_crops = FALSE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
+  stakeholders = 50, # a village with 50 families
+  land_ownership = FALSE, # no land ownership
+  manage_freq = 1, # frequency of manager setting policy 
+  group_think = FALSE # users act independently
+)
+
+# matrix for results
+ten_rep_8 <- matrix(data=NA, nrow=40, ncol=6)
+
+# loop the simulation. Took 11 mins
+for(time_step in 1:40){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = ten_rep_8_simold, manager_budget=mb)
+  
+  ten_rep_8[time_step, 1] <- time_step
+  ten_rep_8[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  ten_rep_8[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  ten_rep_8[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  ten_rep_8[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  ten_rep_8[time_step, 6] <- mb
+  
+  ten_rep_8_simold <- sim_new
+  mb <- mb + 100
+  
+}
+
+colnames(ten_rep_8) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
+                         "Manager_budget")
+ten_rep_8_summary <- data.frame(ten_rep_8)
+write.csv(ten_rep_8, file="outputs/Land_tenure/ten_rep_8/ten_rep_8_summary.csv")
