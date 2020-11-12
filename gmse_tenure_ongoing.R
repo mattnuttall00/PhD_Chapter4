@@ -23,6 +23,7 @@ ten_rep_4_summary <- read.csv("outputs/Land_tenure/ten_rep_4/ten_rep_4_summary.c
 ten_rep_5_summary <- read.csv("outputs/Land_tenure/ten_rep_5/ten_rep_5_summary.csv")
 ten_rep_6_summary <- read.csv("outputs/Land_tenure/ten_rep_6/ten_rep_6_summary.csv")
 ten_rep_7_summary <- read.csv("outputs/Land_tenure/ten_rep_7/ten_rep_7_summary.csv")
+ten_rep_8_summary <- read.csv("outputs/Land_tenure/ten_rep_8/ten_rep_8_summary.csv")
 
 #' This is a summary of my ongoing GMSE analysis which will investigate the social-ecological dynamics surrounding land tenure in a hypothetical conservation landscape that is loosely based on a Cambodian protected area.
 #' 
@@ -446,76 +447,14 @@ xlab("Manager budget as % of user budget")
 #' 
 #' Here I test the inclusion of a range of 100 user budget units around the mean of 1000 to see what difference it makes to the steps we saw in the plot above.
 #' 
-#+ ten_rep_8, eval=TRUE, echo=FALSE, cache=TRUE
+#+ ten_rep_8_plots, eval=TRUE, echo=FALSE, cache=TRUE
 
-# manager budget
-mb <- 500
-
-# sim_old
-ten_rep_8_simold <- gmse_apply(
-  res_mod = resource,
-  obs_mod = observation,
-  man_mod = manager,
-  use_mod = user,
-  get_res = "FUll",
-  land_dim_1 = 50,
-  land_dim_2 = 50, # landscape is 2500ha or 25km2
-  res_movement = 0, # trees don't move 
-  remove_pr = 0, # Assume no death 
-  lambda = 0, # assume no growth
-  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
-  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
-  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
-  res_death_K = 500000, # carrying capacity set to way above starting number of resources
-  res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
-  observe_type = 0, # 0=density-based sampling 
-  times_observe = 1, # observes once
-  obs_move_type = 1, # uniform in any direction
-  res_min_age = 0, # age of resources before agents record/act on them
-  res_move_obs = FALSE, # trees don't move
-  plotting = FALSE, 
-  res_consume = 0.02, # For now I am saying each tree reduces cell yield by 2%. This means that if all of the 50 trees on a cell are standing, then yield is reduced to 0.36% of the total (vaguely plausible for an open forest e.g. deciduous diptercarp landscape).  Cutting down 10 trees (20% of the trees) increases yield to 0.44, cutting down 20 trees (40%) increases yield to 0.54% etc. This is based on the exponential function Brad sent: yield = (1 - %yield reduction per tree)^remaining trees
-  
-  # all genetic algorithm parameters left to default
-  
-  move_agents = TRUE, # should agents move at the end of each time step?
-  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
-  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
-  user_budget = 1000, # total budget of each stakeholder for performing actions
-  usr_budget_rng = 100, # introduce a range of 100 (budget units) around the mean user budget
-  manager_budget = mb, # Manager has little power (50% of user)
-  manage_target = 125000, # target resource abundance (same as starting value)
-  RESOURCE_ini = 125000, # initial abundance of resources - 50 trees per cell
-  culling = TRUE, # culling is only option
-  tend_crops = FALSE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
-  stakeholders = 50, # a village with 50 families
-  land_ownership = FALSE, # no land ownership
-  manage_freq = 1, # frequency of manager setting policy 
-  group_think = FALSE # users act independently
-)
-
-# matrix for results
-ten_rep_8 <- matrix(data=NA, nrow=40, ncol=6)
-
-# loop the simulation. Took 11 mins
-for(time_step in 1:40){
-  
-  sim_new <- gmse_apply(get_res = "Full", old_list = ten_rep_8_simold, manager_budget=mb)
-  
-  ten_rep_8[time_step, 1] <- time_step
-  ten_rep_8[time_step, 2] <- sim_new$basic_output$resource_results[1]
-  ten_rep_8[time_step, 3] <- sim_new$basic_output$observation_results[1]
-  ten_rep_8[time_step, 4] <- sim_new$basic_output$manager_results[3]
-  ten_rep_8[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
-  ten_rep_8[time_step, 6] <- mb
-  
-  ten_rep_8_simold <- sim_new
-  mb <- mb + 100
-  
-}
-
-colnames(ten_rep_8) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
-                         "Manager_budget")
-ten_rep_8_summary <- data.frame(ten_rep_8)
-          
+ggplot(ten_rep_8_summary, aes(x=Manager_budget, y=Cull_count))+
+  geom_line(size=1)+
+  theme(panel.background = element_blank())+
+  theme(axis.line = element_line(colour = "black"))+
+  ylim(0,1000)+
+  ylab("Count of cull actions")+
+  xlab("Manager budget")
+ 
+#' We can see that by adding some variation around the user budgets, we smooth out the steps. This is because for any given manager budget there will be some users who can cull more, and some users who can cull less (due to user budget variation), and so there is no absolute number of possible culls for a given manager budget.          
