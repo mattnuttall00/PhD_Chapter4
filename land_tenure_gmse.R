@@ -617,11 +617,7 @@ write.csv(ten_rep_8, file="outputs/Land_tenure/ten_rep_8/ten_rep_8_summary.csv")
 
 # ten_rep_9 (manager budget=1000, user budget=100)
 ten_rep_9 <- gmse(
-  res_mod = resource,
-  obs_mod = observation,
-  man_mod = manager,
-  use_mod = user,
-  get_res = "FUll",
+  time_max = 40,
   land_dim_1 = 50,
   land_dim_2 = 50, # landscape is 2500ha or 25km2
   res_movement = 0, # trees don't move 
@@ -648,7 +644,7 @@ ten_rep_9 <- gmse(
   minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
   user_budget = 100, # total budget of each stakeholder for performing actions
   usr_budget_rng = 10, # 10% range
-  manager_budget = 1000, # Manager has little power (50% of user)
+  manager_budget = 1000, # manage has lots of power
   manage_target = 125000, # target resource abundance (same as starting value)
   RESOURCE_ini = 125000, # initial abundance of resources - 50 trees per cell
   culling = TRUE, # culling is only option
@@ -668,12 +664,8 @@ write.csv(ten_rep_9_summary,  file="outputs/Land_tenure/ten_rep_9/ten_rep_9_summ
 
 
 # ten_rep_10 (manager and user budgets are the same)
-ten_rep_9 <- gmse(
-  res_mod = resource,
-  obs_mod = observation,
-  man_mod = manager,
-  use_mod = user,
-  get_res = "FUll",
+ten_rep_10 <- gmse(
+  time_max = 40,
   land_dim_1 = 50,
   land_dim_2 = 50, # landscape is 2500ha or 25km2
   res_movement = 0, # trees don't move 
@@ -720,12 +712,8 @@ write.csv(ten_rep_10_summary,  file="outputs/Land_tenure/ten_rep_10/ten_rep_10_s
 
 
 # ten_rep_11 (manager budget 1000, user budget 10,000)
-ten_rep_9 <- gmse(
-  res_mod = resource,
-  obs_mod = observation,
-  man_mod = manager,
-  use_mod = user,
-  get_res = "FUll",
+ten_rep_11 <- gmse(
+  time_max = 40,
   land_dim_1 = 50,
   land_dim_2 = 50, # landscape is 2500ha or 25km2
   res_movement = 0, # trees don't move 

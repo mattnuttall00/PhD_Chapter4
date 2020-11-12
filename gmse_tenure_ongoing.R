@@ -24,6 +24,9 @@ ten_rep_5_summary <- read.csv("outputs/Land_tenure/ten_rep_5/ten_rep_5_summary.c
 ten_rep_6_summary <- read.csv("outputs/Land_tenure/ten_rep_6/ten_rep_6_summary.csv")
 ten_rep_7_summary <- read.csv("outputs/Land_tenure/ten_rep_7/ten_rep_7_summary.csv")
 ten_rep_8_summary <- read.csv("outputs/Land_tenure/ten_rep_8/ten_rep_8_summary.csv")
+ten_rep_9_summary <- read.csv("outputs/Land_tenure/ten_rep_9/ten_rep_9_summary.csv")
+ten_rep_10_summary <- read.csv("outputs/Land_tenure/ten_rep_10/ten_rep_10_summary.csv")
+ten_rep_11_summary <- read.csv("outputs/Land_tenure/ten_rep_11/ten_rep_11_summary.csv")
 
 #' This is a summary of my ongoing GMSE analysis which will investigate the social-ecological dynamics surrounding land tenure in a hypothetical conservation landscape that is loosely based on a Cambodian protected area.
 #' 
@@ -457,4 +460,35 @@ ggplot(ten_rep_8_summary, aes(x=Manager_budget, y=Cull_count))+
   ylab("Count of cull actions")+
   xlab("Manager budget")
  
-#' We can see that by adding some variation around the user budgets, we smooth out the steps. This is because for any given manager budget there will be some users who can cull more, and some users who can cull less (due to user budget variation), and so there is no absolute number of possible culls for a given manager budget.          
+#' We can see that by adding some variation around the user budgets, we smooth out the steps. This is because for any given manager budget there will be some users who can cull more, and some users who can cull less (due to user budget variation), and so there is no absolute number of possible culls for a given manager budget.    
+#' 
+#' ## Simulations 9, 10, 11 
+#' 
+#' Here I have done three simple simulations. I have kept the manager's budget fixed at 1000, and then run a simulation where the user budget is 10% of the manager's, a simulation where the user and manager budget is the same, and then a simulation where the manager's budget is 10% of the users'.
+#' 
+#+ plot resources ten_reps 9:11, eval=TRUE, echo=FALSE, cache=TRUE
+
+ten_rep_9_summary$sim <- "User budget 10% of Manager"
+ten_rep_10_summary$sim <- "Equal budget"
+ten_rep_11_summary$sim <- "Manager budget 10% of User"
+ten_rep_9_10_11 <- rbind(ten_rep_9_summary,ten_rep_10_summary,ten_rep_11_summary)
+
+ggplot(ten_rep_9_10_11, aes(x=time_step, y=resources, group=sim, colour=sim))+
+  geom_line(size=1)+
+  theme(panel.background = element_blank())+
+  theme(axis.line = element_line(colour = "black"))+
+  ylab("Resources")+
+  xlab("Time step")
+
+#' The above plot shows that when the users' budget is only 10% of the manager's, then the manager is able to keep tree loss quite low.  When the user and manager budgets are equal, there is still a fair amount of tree loss (although you could argue that having 82% of your forest left after 40 years is actually quite the conservation win, especially in Cambodia!).  When the manager's budget is only 10% of the users' budget then the resource population goes extinct before the end. 
+#' 
+#+ plot cost_culling ten_rep_9:11, eval=TRUE, echo=FALSE,cache=TRUE
+
+ggplot(ten_rep_9_10_11, aes(x=sim, y=cost_culling))+
+  geom_boxplot()+
+  theme(panel.background = element_blank())+
+  theme(axis.line = element_line(colour = "black"))+
+  xlab("Simulation")+
+  ylab("Cost of culling")
+
+#' The above plot shows that when the user budget is the same, or much higher, than the manager's budget, the cost of culling does not vary as the manager is using all their budget to prevent culling. But when the user budget is way below the manager's (10%), then the manager more dynamic 
