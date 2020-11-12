@@ -757,12 +757,14 @@ plot_gmse_results(sim_results = ten_rep_11)
 # key results summary
 ten_rep_11_summary <- data.frame(gmse_table(ten_rep_11, hide_unused_options = TRUE, all_time = TRUE))
 write.csv(ten_rep_11_summary,  file="outputs/Land_tenure/ten_rep_11/ten_rep_11_summary.csv")
-### ten_rep_12 - dynamic user budget ####
+### ten_rep_12 & 13 - dynamic user budgets ####
   ## Details ####
 
-# here I will use gmse_apply to start the user budget well below the manager's, and the increase it incrementally so that it overtakes the manager budget by quite a lot
+# here I will use gmse_apply to start the user budget well below the manager's, and the increase it incrementally so that it overtakes the manager budget by quite a lot.  I will test two different static manager budgets
 
-  ## Call ####
+  ## Calls ####
+
+## ten_rep_12
 
 # user budget
 ub <- 100
@@ -849,7 +851,7 @@ ggplot(ten_rep_12_summary, aes(x=User_budget, y=Pop_size))+
 
 
 
-
+## ten_rep_13
 
 # user budget
 ub <- 100
@@ -924,3 +926,15 @@ for(time_step in 1:40){
 
 colnames(ten_rep_13) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
                           "User_budget")
+ten_rep_13_summary <- data.frame(ten_rep_13)
+ten_rep_13_summary$Manager_budget <- 2000
+
+write.csv(ten_rep_13_summary, file="outputs/Land_tenure/ten_rep_13/ten_rep_13_summary.csv")
+
+
+## plot both
+ggplot()+
+  geom_line(data=ten_rep_13_summary,aes(x=User_budget, y=Pop_size))+
+  geom_line(data=ten_rep_13_summary,aes(Manager_budget, y=Pop_size))+
+  geom_line(data=ten_rep_12_summary,aes(x=User_budget, y=Pop_size))+
+  geom_line(data=ten_rep_12_summary,aes(Manager_budget, y=Pop_size))
