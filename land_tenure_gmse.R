@@ -828,7 +828,7 @@ for(time_step in 1:40){
   ten_rep_12[time_step, 3] <- sim_new$basic_output$observation_results[1]
   ten_rep_12[time_step, 4] <- sim_new$basic_output$manager_results[3]
   ten_rep_12[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
-  ten_rep_12[time_step, 6] <- mb
+  ten_rep_12[time_step, 6] <- ub
   
   ten_rep_12_simold <- sim_new
   ub <- ub + 100
@@ -838,4 +838,89 @@ for(time_step in 1:40){
 colnames(ten_rep_12) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
                          "Manager_budget")
 ten_rep_12_summary <- data.frame(ten_rep_12)
+ten_rep_12_summary$User_budget <- seq(100, 4000, length.out = 40)
+ten_rep_12_summary$Manager_budget <- 1000
 write.csv(ten_rep_12, file="outputs/Land_tenure/ten_rep_12/ten_rep_12_summary.csv")
+
+ggplot(ten_rep_12_summary, aes(x=User_budget, y=Pop_size))+
+  geom_line()+
+  geom_line(aes(x=Manager_budget))
+
+
+
+
+
+
+# user budget
+ub <- 100
+
+# user budget range (10% of user budget)
+ubr <- (ub/100)*10
+
+# sim_old
+ten_rep_13_simold <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  land_dim_1 = 50,
+  land_dim_2 = 50, # landscape is 2500ha or 25km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
+  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 500000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, # observes once
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.02, # For now I am saying each tree reduces cell yield by 2%. This means that if all of the 50 trees on a cell are standing, then yield is reduced to 0.36% of the total (vaguely plausible for an open forest e.g. deciduous diptercarp landscape).  Cutting down 10 trees (20% of the trees) increases yield to 0.44, cutting down 20 trees (40%) increases yield to 0.54% etc. This is based on the exponential function Brad sent: yield = (1 - %yield reduction per tree)^remaining trees
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
+  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
+  user_budget = ub, # total budget of each stakeholder for performing actions
+  usr_budget_rng = ubr, # 10% of ub
+  manager_budget = 2000, # Manager has static budget
+  manage_target = 125000, # target resource abundance (same as starting value)
+  RESOURCE_ini = 125000, # initial abundance of resources - 50 trees per cell
+  culling = TRUE, # culling is only option
+  tend_crops = FALSE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
+  stakeholders = 50, # a village with 50 families
+  land_ownership = FALSE, # no land ownership
+  manage_freq = 1, # frequency of manager setting policy 
+  group_think = FALSE # users act independently
+)
+
+# matrix for results
+ten_rep_13 <- matrix(data=NA, nrow=40, ncol=6)
+
+# loop the simulation. Took 11 mins
+for(time_step in 1:40){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = ten_rep_13_simold, user_budget=ub, 
+                        usr_budget_rng = ubr)
+  
+  ten_rep_13[time_step, 1] <- time_step
+  ten_rep_13[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  ten_rep_13[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  ten_rep_13[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  ten_rep_13[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  ten_rep_13[time_step, 6] <- ub
+  
+  ten_rep_13_simold <- sim_new
+  ub <- ub + 100
+  
+}
+
+colnames(ten_rep_13) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
+                          "User_budget")
