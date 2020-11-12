@@ -491,4 +491,4 @@ ggplot(ten_rep_9_10_11, aes(x=sim, y=cost_culling))+
   xlab("Simulation")+
   ylab("Cost of culling")
 
-#' The above plot shows that when the user budget is the same, or much higher, than the manager's budget, the cost of culling does not vary as the manager is using all their budget to prevent culling. But when the user budget is way below the manager's (10%), then the manager more dynamic 
+#' The above plot shows that when the user budget is the same, or much higher, than the manager's budget, the cost of culling does not vary as the manager is using all their budget in each time step to prevent culling. But when the user budget is way below the manager's (10%), then the manager is more dynamic with the costs. This is because the manager has the budget to almost completely stop culling in a time step, which then allows them to lower the cost of culling for the next time step. This encourages more culling, which prompts another increase in cost and so on and so forth. 
