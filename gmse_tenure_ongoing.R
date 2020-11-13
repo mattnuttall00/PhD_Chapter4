@@ -27,6 +27,8 @@ ten_rep_8_summary <- read.csv("outputs/Land_tenure/ten_rep_8/ten_rep_8_summary.c
 ten_rep_9_summary <- read.csv("outputs/Land_tenure/ten_rep_9/ten_rep_9_summary.csv")
 ten_rep_10_summary <- read.csv("outputs/Land_tenure/ten_rep_10/ten_rep_10_summary.csv")
 ten_rep_11_summary <- read.csv("outputs/Land_tenure/ten_rep_11/ten_rep_11_summary.csv")
+ten_rep_12_summary <- read.csv("outputs/Land_tenure/ten_rep_12/ten_rep_11_summary.csv")
+ten_rep_13_summary <- read.csv("outputs/Land_tenure/ten_rep_13/ten_rep_11_summary.csv")
 
 #' This is a summary of my ongoing GMSE analysis which will investigate the social-ecological dynamics surrounding land tenure in a hypothetical conservation landscape that is loosely based on a Cambodian protected area.
 #' 
@@ -480,7 +482,7 @@ ggplot(ten_rep_9_10_11, aes(x=time_step, y=resources, group=sim, colour=sim))+
   ylab("Resources")+
   xlab("Time step")
 
-#' The above plot shows that when the users' budget is only 10% of the manager's, then the manager is able to keep tree loss quite low.  When the user and manager budgets are equal, there is still a fair amount of tree loss (although you could argue that having 82% of your forest left after 40 years is actually quite the conservation win, especially in Cambodia!).  When the manager's budget is only 10% of the users' budget then the resource population goes extinct before the end. 
+#' The above plot shows that when the users' budget is only 10% of the manager's, then the manager is able to keep tree loss quite low.  When the user and manager budgets are equal, there is still a fair amount of tree loss (although you could argue that having 82% of your forest left after 40 years is actually quite the conservation win, especially in Cambodia!).  When the manager's budget is only 10% of the users' budget then the resource population goes extinct before the end of the time period. 
 #' 
 #+ plot cost_culling ten_rep_9:11, eval=TRUE, echo=FALSE,cache=TRUE
 
@@ -491,4 +493,29 @@ ggplot(ten_rep_9_10_11, aes(x=sim, y=cost_culling))+
   xlab("Simulation")+
   ylab("Cost of culling")
 
-#' The above plot shows that when the user budget is the same, or much higher, than the manager's budget, the cost of culling does not vary as the manager is using all their budget in each time step to prevent culling. But when the user budget is way below the manager's (10%), then the manager is more dynamic with the costs. This is because the manager has the budget to almost completely stop culling in a time step, which then allows them to lower the cost of culling for the next time step. This encourages more culling, which prompts another increase in cost and so on and so forth. 
+#' The above plot shows that when the user budget is the same, or much higher, than the manager's budget, the cost of culling does not vary as the manager is using all their budget in each time step to prevent culling. But when the user budget is well below the manager's (10%), then the manager is more dynamic with the costs. This is because the manager has the budget to almost completely stop culling in a time step, which then allows them to lower the cost of culling for the next time step. This encourages more culling, which prompts another increase in cost and so on and so forth. 
+#' 
+#' ## Dynamic user budgets (ten_rep_12 & 13)
+#' 
+#' In the next two simulations I have used gmse_apply() to increase user budgets throughout the time period.  This is important because this is potentially how I am going to try and simulate increases in human population density in the villages over time.  
+#' 
+#' I have started with two simulations, one with a static manager budget of 1000 and one with a static manager budget of 2000.  In both simulations the users' budgets start well below the manager's budget, but overtake it at some point during the simulation. 
+#' 
+#+ ten_rep_12 & 13 plot, eval=TRUE, echo=FALSE, cache=TRUE
+
+# temp df to force manager budget line all the way down the plot
+mb_df <- data.frame(Manager_budget = rep(2000, times=40),
+                    Pop_size = seq(125000, 85000, length.out = 40))
+
+ggplot()+
+  geom_line(data=ten_rep_13_summary,aes(x=User_budget, y=Pop_size), colour="red", size=1)+
+  geom_line(data=mb_df,aes(Manager_budget, y=Pop_size),linetype="dashed",colour="red", size=1)+
+  geom_line(data=ten_rep_12_summary,aes(x=User_budget, y=Pop_size),colour="blue", size=1)+
+  geom_line(data=ten_rep_12_summary,aes(Manager_budget, y=Pop_size),colour="blue",
+            linetype="dashed", size=1)+
+  theme(panel.background = element_blank())+
+  theme(axis.line = element_line(colour = "black"))+
+  xlab("User budget")+
+  ylab("Resource population")
+
+#' In the above plot the vertical dashed lines show the static manager budgets.  We can see the interaction effect of the manager budget i.e. when the manager budget is lower, the user budget has a larger negative effect on the resource population, whereas when the manager budget is higher, the effect of user budget on the resource population is weaker.   

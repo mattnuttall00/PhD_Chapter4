@@ -906,7 +906,7 @@ ten_rep_13_simold <- gmse_apply(
 # matrix for results
 ten_rep_13 <- matrix(data=NA, nrow=40, ncol=6)
 
-# loop the simulation. Took 11 mins
+# loop the simulation. 
 for(time_step in 1:40){
   
   sim_new <- gmse_apply(get_res = "Full", old_list = ten_rep_13_simold, user_budget=ub, 
@@ -931,10 +931,18 @@ ten_rep_13_summary$Manager_budget <- 2000
 
 write.csv(ten_rep_13_summary, file="outputs/Land_tenure/ten_rep_13/ten_rep_13_summary.csv")
 
+# temp df to force manager budget line all the way down the plot
+mb_df <- data.frame(Manager_budget = rep(2000, times=40),
+                    Pop_size = seq(125000, 85000, length.out = 40))
 
 ## plot both
 ggplot()+
-  geom_line(data=ten_rep_13_summary,aes(x=User_budget, y=Pop_size))+
-  geom_line(data=ten_rep_13_summary,aes(Manager_budget, y=Pop_size))+
-  geom_line(data=ten_rep_12_summary,aes(x=User_budget, y=Pop_size))+
-  geom_line(data=ten_rep_12_summary,aes(Manager_budget, y=Pop_size))
+  geom_line(data=ten_rep_13_summary,aes(x=User_budget, y=Pop_size), colour="red", size=1)+
+  geom_line(data=mb_df,aes(Manager_budget, y=Pop_size),linetype="dashed",colour="red", size=1)+
+  geom_line(data=ten_rep_12_summary,aes(x=User_budget, y=Pop_size),colour="blue", size=1)+
+  geom_line(data=ten_rep_12_summary,aes(Manager_budget, y=Pop_size),colour="blue",
+                                        linetype="dashed", size=1)+
+  theme(panel.background = element_blank())+
+  theme(axis.line = element_line(colour = "black"))+
+  xlab("User budget")+
+  ylab("Resource population")
