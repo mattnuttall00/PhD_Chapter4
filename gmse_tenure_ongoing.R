@@ -1,9 +1,9 @@
 #' ---
 #' title: GMSE ongoing analysis
 #' author: Matt Nuttall
-#' date: 30/10/20
+#' date: 13/11/20
 #' output:
-#'    pdf_document:
+#'    word_document:
 #'      toc: true
 #'      highlight: zenburn
 #' ---
@@ -27,8 +27,8 @@ ten_rep_8_summary <- read.csv("outputs/Land_tenure/ten_rep_8/ten_rep_8_summary.c
 ten_rep_9_summary <- read.csv("outputs/Land_tenure/ten_rep_9/ten_rep_9_summary.csv")
 ten_rep_10_summary <- read.csv("outputs/Land_tenure/ten_rep_10/ten_rep_10_summary.csv")
 ten_rep_11_summary <- read.csv("outputs/Land_tenure/ten_rep_11/ten_rep_11_summary.csv")
-ten_rep_12_summary <- read.csv("outputs/Land_tenure/ten_rep_12/ten_rep_11_summary.csv")
-ten_rep_13_summary <- read.csv("outputs/Land_tenure/ten_rep_13/ten_rep_11_summary.csv")
+ten_rep_12_summary <- read.csv("outputs/Land_tenure/ten_rep_12/ten_rep_12_summary.csv")
+ten_rep_13_summary <- read.csv("outputs/Land_tenure/ten_rep_13/ten_rep_13_summary.csv")
 ten_rep_14_summary <- read.csv("outputs/Land_tenure/ten_rep_14_15_16/ten_rep_14_summary.csv")
 ten_rep_15_summary <- read.csv("outputs/Land_tenure/ten_rep_14_15_16/ten_rep_15_summary.csv")
 ten_rep_16_summary <- read.csv("outputs/Land_tenure/ten_rep_14_15_16/ten_rep_16_summary.csv")
