@@ -1039,7 +1039,7 @@ for(time_step in 1:40){
 colnames(ten_rep_14) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
                           "User_budget", "Manager_budget")
 ten_rep_14_summary <- data.frame(ten_rep_14)
-
+write.csv(ten_rep_14_summary, file="outputs/Land_tenure/ten_rep_14_15_16/ten_rep_14_summary.csv")
 
 
 
@@ -1123,7 +1123,7 @@ for(time_step in 1:40){
 colnames(ten_rep_15) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
                           "User_budget", "Manager_budget")
 ten_rep_15_summary <- data.frame(ten_rep_15)
-
+write.csv(ten_rep_15_summary, file="outputs/Land_tenure/ten_rep_14_15_16/ten_rep_15_summary.csv")
 
 
 
@@ -1206,3 +1206,4 @@ for(time_step in 1:40){
 colnames(ten_rep_16) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
                           "User_budget", "Manager_budget")
 ten_rep_16_summary <- data.frame(ten_rep_16)
+write.csv(ten_rep_16_summary, file="outputs/Land_tenure/ten_rep_14_15_16/ten_rep_16_summary.csv")

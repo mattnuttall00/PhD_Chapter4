@@ -29,6 +29,9 @@ ten_rep_10_summary <- read.csv("outputs/Land_tenure/ten_rep_10/ten_rep_10_summar
 ten_rep_11_summary <- read.csv("outputs/Land_tenure/ten_rep_11/ten_rep_11_summary.csv")
 ten_rep_12_summary <- read.csv("outputs/Land_tenure/ten_rep_12/ten_rep_11_summary.csv")
 ten_rep_13_summary <- read.csv("outputs/Land_tenure/ten_rep_13/ten_rep_11_summary.csv")
+ten_rep_14_summary <- read.csv("outputs/Land_tenure/ten_rep_14_15_16/ten_rep_14_summary.csv")
+ten_rep_15_summary <- read.csv("outputs/Land_tenure/ten_rep_14_15_16/ten_rep_15_summary.csv")
+ten_rep_16_summary <- read.csv("outputs/Land_tenure/ten_rep_14_15_16/ten_rep_16_summary.csv")
 
 #' This is a summary of my ongoing GMSE analysis which will investigate the social-ecological dynamics surrounding land tenure in a hypothetical conservation landscape that is loosely based on a Cambodian protected area.
 #' 
@@ -524,6 +527,82 @@ ggplot()+
 #'  
 #' It would be useful to be able to run multiple gmse_apply() calls in one go, each with a varying range of manager and user budgets.  I will attempt to write a function that does this further down the line, once I am closer to the final land tenure set up.
 #' 
+#' ## Dynamic user and manager budgets (ten_rep_14,15,16)
+#' 
+#' In the next three simulations I have sued gmse_apply() to run simulations where both the user and the manager busgets vary over time. I have constructed three scenarios which could be plausible situations in a conservation landscape.
+#' 
+#' ten_rep_14 - in this simulation I have made the manager and user budgets increase at the same rate. This is almost a null scenario, but also could represent a conservation landscape where human population density (or resources available to the human population) is increasing, but so is the investment / resources of the manager or authority, and that they are increasing in a relatively equal fashion.
+#' 
+#' ten_rep_15 - in this simulation the manager starts with a much higher budget than the users, representing a PA manager / authority that has significantly more power/resources than the communities. The manager's budget increases slowly (representing small but steady increase in investment), but the users' budget increases quickly, representing rapid inreases in population density or community wealth/resources. 
+#' 
+#' ten_rep_16 - in this simulation the manager starts with a higher budget as above, but the manager's budget slowly decreases representing falling investment or loss of funds over time. The users' budget increases, representing increases in population density or community wealth/resources.
+#' 
+#+ ten_rep_14_15_16 plots, eval=TRUE, echo=FALSE, cache=TRUE
 
+# merge the summary files
+ten_rep_14_summary$sim <- "ten_rep_14"
+ten_rep_15_summary$sim <- "ten_rep_15"
+ten_rep_16_summary$sim <- "ten_rep_16"
+ten_rep_14_16 <- rbind(ten_rep_14_summary,ten_rep_15_summary,ten_rep_16_summary)
 
+# set factor plotting order
+ten_rep_14_16$sim <- as.factor(ten_rep_14_16$sim)
+ten_rep_14_16$sim <- factor(ten_rep_14_16$sim, levels=c("ten_rep_14","ten_rep_15","ten_rep_16"))
 
+mbub_plot <- ggplot(ten_rep_14_16, aes(x=User_budget, y=Manager_budget, group=sim, colour=sim))+
+            geom_line(size=1)+
+            theme(panel.background = element_blank())+
+            theme(axis.line = element_line(colour = "black"))+
+            xlab("User budget")+
+            ylab("Manager budget")
+
+res_plot <- ggplot(ten_rep_14_16, aes(x=Time, y=Pop_size, group=sim, colour=sim))+
+            geom_line(size=1)+
+            theme(panel.background = element_blank())+
+            theme(axis.line = element_line(colour = "black"))+
+            xlab("Time step")+
+            ylab("Resource population")
+
+cullcost_plot <- ggplot(ten_rep_14_16, aes(x=Time, y=Cull_cost, group=sim, colour=sim))+
+                  geom_line(size=1)+
+                  theme(panel.background = element_blank())+
+                  theme(axis.line = element_line(colour = "black"))+
+                  xlab("Time step")+
+                  ylab("Cost of culling")
+
+cullcnt_plot <- ggplot(ten_rep_14_16, aes(x=Time, y=Cull_count, group=sim, colour=sim))+
+                geom_line(size=1)+
+                theme(panel.background = element_blank())+
+                theme(axis.line = element_line(colour = "black"))+
+                xlab("Time step")+
+                ylab("Count of cull actions")
+
+mbub_plot + res_plot + cullcost_plot + cullcnt_plot + plot_layout(ncol=2)
+
+#' In the top left plot we see the relationship between the user budget and the manager budget for the three simulations. These all look how I would expect. In the top right plot we see that the forest gets reduced in all of the simulations, but less so in the last simulation (16). This is interesting because it is the only simulation where the manager's budget is decreasing. But the manager's budget never decreases below the users' budget, and in the other scenarios the user budget is closer (or exceeds) the manager's budget in more time steps. This suggests that the manager needs a budget that is consistently quite a lot higher than the users' budget to maintain decent forest cover. This is what I discovered in the sections above when I was varying the manager budget too.  
+#' In the bottom left plot we see what I would expect - when the manager's budget increases, the cost of culling increases too, to meet the demands of the increasing user budgets and trying to maintain as many trees as possible. In the final simulation, the managers budget is decreasing and so teh cost of culling decreases. 
+#' In the bottom right plot, we see that in the first simulation the cull count reaches a plateau after 9 time steps. I guess the plateau makes sense - becuase the user and manager budgets are increasing in line which each other, neither user nor manager ever has an advantage over the other relative to the previous time step, and so a sort of equalibrium of the number of cull actions is found.  I am not sure though why it takes 9 time steps to reach that point. I am also not sure why there is a mini plateau between time steps 4 and 8. In the other two scenarios the cull counts are continuously increasing, which makes sense because in both of those scenarios the gap between the user budget and the manager budget is continually closing, and therefore ther users have more and more power to cull in each time step.
+#' We see the step pattern hsa returned again, which I wasn't expecting as I had set the usr_budget_rng to be 10% of whatever the user budget was in each time step and scenario. Perhaps 10% isn't enough to remove that pattern in these cases?
+#' 
+#+ ten_rep_14,15,16 proportion, echo=FALSE, eval=TRUE, cache=TRUE
+
+# create proportion column
+ten_rep_14_16$prop <- ten_rep_14_16$User_budget/ten_rep_14_16$Manager_budget 
+
+prop1 <- ggplot(ten_rep_14_16, aes(x=prop, y=Cull_count, group=sim, colour=sim))+
+          geom_line(size=1)+
+          theme(panel.background = element_blank())+
+          theme(axis.line = element_line(colour = "black"))+
+          xlab("User budget as proportion of manager budget")+
+          ylab("Count of cull actions")
+
+prop2 <- ggplot(ten_rep_14_16, aes(x=prop, y=Pop_size, group=sim, colour=sim))+
+          geom_line(size=1)+
+          theme(panel.background = element_blank())+
+          theme(axis.line = element_line(colour = "black"))+
+          xlab("User budget as proportion of manager budget")+
+          ylab("Resource population")
+
+prop1 + prop2
+
+#' The above plot on the left show the increase in culling actions as the users' budget gets closer to the manager's budget.  We can see that culling actions are always high when the users' budget is close to the manager's budget. The plot on the left shows that regardless of the proportion of the users budget, it is better for the manager to have a higher budget in absolute terms.  I was initially expecting the lines to be the same, because if the proportions between user and manager budget are the same then the impact on resources should be the same. But I guess that absolute budgets are higher, then more trees can be culled (user) or protected (manager). This means that in order to set up a realistic scenario, I'll need to test a range of budget ranges to find ones that represent realistic numbers of trees being lost.   
