@@ -499,7 +499,7 @@ ggplot(ten_rep_9_10_11, aes(x=sim, y=cost_culling))+
 #' 
 #' In the next two simulations I have used gmse_apply() to increase user budgets throughout the time period.  This is important because this is potentially how I am going to try and simulate increases in human population density in the villages over time.  
 #' 
-#' I have started with two simulations, one with a static manager budget of 1000 and one with a static manager budget of 2000.  In both simulations the users' budgets start well below the manager's budget, but overtake it at some point during the simulation. 
+#' I have started with two simulations, one with a static manager budget of 1000 and one with a static manager budget of 2000.  In both simulations the users' budgets start below the manager's budget, but overtake it at some point during the simulation. 
 #' 
 #+ ten_rep_12 & 13 plot, eval=TRUE, echo=FALSE, cache=TRUE
 
@@ -518,4 +518,12 @@ ggplot()+
   xlab("User budget")+
   ylab("Resource population")
 
-#' In the above plot the vertical dashed lines show the static manager budgets.  We can see the interaction effect of the manager budget i.e. when the manager budget is lower, the user budget has a larger negative effect on the resource population, whereas when the manager budget is higher, the effect of user budget on the resource population is weaker.   
+#' In the above plot the vertical dashed lines show the static manager budgets.  We can see the interaction effect of the manager budget i.e. when the manager budget is lower, the user budget has a larger negative effect on the resource population, whereas when the manager budget is higher, the effect of user budget on the resource population is weaker.  
+#' 
+#'  I think these simulations show how user budget could be used as a proxy for population density. If we assume that increases in population density means more pressure on the land via a stronger drive for communities to increase their farmland, and more resources (both physical resources and financial resources) to clear forest, then increasing user budgets seems like it would work.  
+#'  
+#' It would be useful to be able to run multiple gmse_apply() calls in one go, each with a varying range of manager and user budgets.  I will attempt to write a function that does this further down the line, once I am closer to the final land tenure set up.
+#' 
+
+
+
