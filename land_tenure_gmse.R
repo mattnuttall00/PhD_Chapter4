@@ -838,11 +838,10 @@ for(time_step in 1:40){
 }
 
 colnames(ten_rep_12) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_count",
-                         "Manager_budget")
+                         "User_budget")
 ten_rep_12_summary <- data.frame(ten_rep_12)
-ten_rep_12_summary$User_budget <- seq(100, 4000, length.out = 40)
 ten_rep_12_summary$Manager_budget <- 1000
-write.csv(ten_rep_12, file="outputs/Land_tenure/ten_rep_12/ten_rep_12_summary.csv")
+write.csv(ten_rep_12_summary, file="outputs/Land_tenure/ten_rep_12/ten_rep_12_summary.csv")
 
 ggplot(ten_rep_12_summary, aes(x=User_budget, y=Pop_size))+
   geom_line()+
