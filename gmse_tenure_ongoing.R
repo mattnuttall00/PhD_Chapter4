@@ -406,7 +406,7 @@ countplot6 + countplot7
 #' In the above plots we see the same steps (pause in the decline of the cull counts) as we did for ten_rep_5, but they are different shapes. When the manager's budget is increased by larger increments (right hand plot), the steps  don't appear until the manager's budget is higher, when compared to the smaller increments simulation (left plot).  I guess this is something to do with the smaller incremental increase in the manager's budget having less of an impact on the ability of the users to cull, and so between any given two time steps, the users may still be able to take the same actions. Whereas when the manager's budget increase is larger, it is more likely to impact on the users ability to take action from one time step to the next. I am not sure why the steps get larger as the manager's budget gets larger though.  
 #' Interestingly, I think that ten_rep_7 has identified the manager budget required to force the minimum number of posible culls.  The cull count reaches 100 when the manager's budget is 3300, and then remaines at 100 until the end of the simulation when the manager's budget is 4400. I guess there is a possibility that it is just another arger step, and that the cull count might continue to fall if the simulation continued.  However, a loss of 100 trees per year equates to 0.08% of the population which is pretty good in a Cambodian PA! 
 #' 
-#+ ten_rep_5, 6 & 7 lost plots, echo=FALSE       
+#+ ten_rep_5, 6 & 7 lost plots, echo=FALSE, fig.width=7, fig.height=5       
 
 ten_rep_5_summary$label <- "+20 / time step"
 ten_rep_6_summary$label <- "+50 / time step"
@@ -537,7 +537,7 @@ ggplot()+
 #' 
 #' ten_rep_16 - in this simulation the manager starts with a higher budget as above, but the manager's budget slowly decreases representing falling investment or loss of funds over time. The users' budget increases, representing increases in population density or community wealth/resources.
 #' 
-#+ ten_rep_14_15_16 plots, eval=TRUE, echo=FALSE, cache=TRUE
+#+ ten_rep_14_15_16 plots, eval=TRUE, echo=FALSE, cache=TRUE,fig.width=8, fig.height=6
 
 # merge the summary files
 ten_rep_14_summary$sim <- "ten_rep_14"
