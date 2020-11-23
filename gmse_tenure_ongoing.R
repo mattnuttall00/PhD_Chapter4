@@ -54,7 +54,7 @@ ten_rep_16_summary <- read.csv("outputs/Land_tenure/ten_rep_14_15_16/ten_rep_16_
 #' 
 #' Model set up:
 #' 
-#+ ten_rep_0, eval=FALSE, cache=TRUE
+#+ ten_rep_0, eval=FALSE
 
 ten_rep_0 <- gmse(
   time_max = 40,
@@ -107,7 +107,7 @@ plot_gmse_results(sim_results = ten_rep_0)
 #' 
 #' Model set up:
 #' 
-#+ ten_rep_1_single, eval=TRUE, echo=TRUE, cache=TRUE
+#+ ten_rep_1_single, eval=FALSE, echo=TRUE
 
 ten_rep_1 <- gmse(
   time_max = 40,
@@ -147,7 +147,7 @@ ten_rep_1 <- gmse(
   group_think = FALSE # users act independently
 )
 
-#+ ten_rep_1_plot, echo=FALSE, eval=TRUE
+#+ ten_rep_1_plot, echo=FALSE, eval=FALSE
 plot_gmse_results(ten_rep_1)
 
 #' Here we see what I was expecting. The manager uses what little power they have to prevent culling, but is not very effective. Users want to reduce the trees in the cells as they are reducing yield. As trees are culled, the resource population declines and the users yield increases. 
@@ -171,7 +171,7 @@ knitr::kable(ten_rep_2_summary)
 #' 
 #' First I ran a single gmse() call
 #' 
-#+ ten_rep_3_single, echo=FALSE, eval=TRUE, cache=TRUE
+#+ ten_rep_3_single, echo=FALSE, eval=FALSE
 ten_rep_3 <- gmse(
   time_max = 40,
   land_dim_1 = 50,
@@ -211,7 +211,7 @@ ten_rep_3 <- gmse(
 )
 
  
-#+ ten_rep_3_plot, echo=FALSE, eval=TRUE
+#+ ten_rep_3_plot, echo=FALSE, eval=FALSE
 plot_gmse_results(ten_rep_3)
 
 #' Here we see the loss of trees is much less than before, as the manager has more power to reduce culling by setting higher costs. Users are still able to clear forest though, with 800 trees being lost each time step once the manager has applied their policy.  
@@ -455,7 +455,7 @@ xlab("Manager budget as % of user budget")
 #' 
 #' Here I test the inclusion of a range of 100 user budget units around the mean of 1000 to see what difference it makes to the steps we saw in the plot above.
 #' 
-#+ ten_rep_8_plots, eval=TRUE, echo=FALSE, cache=TRUE
+#+ ten_rep_8_plots, eval=TRUE, echo=FALSE
 
 ggplot(ten_rep_8_summary, aes(x=Manager_budget, y=Cull_count))+
   geom_line(size=1)+
@@ -471,7 +471,7 @@ ggplot(ten_rep_8_summary, aes(x=Manager_budget, y=Cull_count))+
 #' 
 #' Here I have done three simple simulations. I have kept the manager's budget fixed at 1000, and then run a simulation where the user budget is 10% of the manager's, a simulation where the user and manager budget is the same, and then a simulation where the manager's budget is 10% of the users'.
 #' 
-#+ plot resources ten_reps 9:11, eval=TRUE, echo=FALSE, cache=TRUE
+#+ plot resources ten_reps 9:11, eval=TRUE, echo=FALSE
 
 ten_rep_9_summary$sim <- "User budget 10% of Manager"
 ten_rep_10_summary$sim <- "Equal budget"
@@ -487,7 +487,7 @@ ggplot(ten_rep_9_10_11, aes(x=time_step, y=resources, group=sim, colour=sim))+
 
 #' The above plot shows that when the users' budget is only 10% of the manager's, then the manager is able to keep tree loss quite low.  When the user and manager budgets are equal, there is still a fair amount of tree loss (although you could argue that having 82% of your forest left after 40 years is actually quite the conservation win, especially in Cambodia!).  When the manager's budget is only 10% of the users' budget then the resource population goes extinct before the end of the time period. 
 #' 
-#+ plot cost_culling ten_rep_9:11, eval=TRUE, echo=FALSE,cache=TRUE
+#+ plot cost_culling ten_rep_9:11, eval=TRUE, echo=FALSE
 
 ggplot(ten_rep_9_10_11, aes(x=sim, y=cost_culling))+
   geom_boxplot()+
@@ -504,7 +504,7 @@ ggplot(ten_rep_9_10_11, aes(x=sim, y=cost_culling))+
 #' 
 #' I have started with two simulations, one with a static manager budget of 1000 and one with a static manager budget of 2000.  In both simulations the users' budgets start below the manager's budget, but overtake it at some point during the simulation. 
 #' 
-#+ ten_rep_12 & 13 plot, eval=TRUE, echo=FALSE, cache=TRUE
+#+ ten_rep_12 & 13 plot, eval=TRUE, echo=FALSE
 
 # temp df to force manager budget line all the way down the plot
 mb_df <- data.frame(Manager_budget = rep(2000, times=40),
@@ -537,7 +537,7 @@ ggplot()+
 #' 
 #' ten_rep_16 - in this simulation the manager starts with a higher budget as above, but the manager's budget slowly decreases representing falling investment or loss of funds over time. The users' budget increases, representing increases in population density or community wealth/resources.
 #' 
-#+ ten_rep_14_15_16 plots, eval=TRUE, echo=FALSE, cache=TRUE,fig.width=8, fig.height=6
+#+ ten_rep_14_15_16 plots, eval=TRUE, echo=FALSE, fig.width=8, fig.height=6
 
 # merge the summary files
 ten_rep_14_summary$sim <- "ten_rep_14"
@@ -584,7 +584,7 @@ mbub_plot + res_plot + cullcost_plot + cullcnt_plot + plot_layout(ncol=2)
 #' In the bottom right plot, we see that in the first simulation the cull count reaches a plateau after 9 time steps. I guess the plateau makes sense - becuase the user and manager budgets are increasing in line which each other, neither user nor manager ever has an advantage over the other relative to the previous time step, and so a sort of equalibrium of the number of cull actions is found.  I am not sure though why it takes 9 time steps to reach that point. I am also not sure why there is a mini plateau between time steps 4 and 8. In the other two scenarios the cull counts are continuously increasing, which makes sense because in both of those scenarios the gap between the user budget and the manager budget is continually closing, and therefore ther users have more and more power to cull in each time step.
 #' We see the step pattern hsa returned again, which I wasn't expecting as I had set the usr_budget_rng to be 10% of whatever the user budget was in each time step and scenario. Perhaps 10% isn't enough to remove that pattern in these cases?
 #' 
-#+ ten_rep_14,15,16 proportion, echo=FALSE, eval=TRUE, cache=TRUE
+#+ ten_rep_14,15,16 proportion, echo=FALSE, eval=TRUE, fig.width=8, fig.height=6
 
 # create proportion column
 ten_rep_14_16$prop <- ten_rep_14_16$User_budget/ten_rep_14_16$Manager_budget 
