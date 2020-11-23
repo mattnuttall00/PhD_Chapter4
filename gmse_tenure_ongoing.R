@@ -1,7 +1,7 @@
 #' ---
 #' title: GMSE ongoing analysis
 #' author: Matt Nuttall
-#' date: 13/11/20
+#' date: 23/11/20
 #' output:
 #'    word_document:
 #'      toc: true
@@ -158,7 +158,7 @@ plot_gmse_results(ten_rep_1)
 #' 
 #' Here I repeat the above call 10 times and extract summary data.  The model set up is the same as above, just using gmse_replicates()
 #' 
-#+ ten_rep_2_table
+#+ ten_rep_2_table, echo=FALSE, include=TRUE
 knitr::kable(ten_rep_2_summary)
 
 #' The amount of forest remaining at the end of each simulation is very similar, and the costs and actions do not appear to vary. 
@@ -406,7 +406,7 @@ countplot6 + countplot7
 #' In the above plots we see the same steps (pause in the decline of the cull counts) as we did for ten_rep_5, but they are different shapes. When the manager's budget is increased by larger increments (right hand plot), the steps  don't appear until the manager's budget is higher, when compared to the smaller increments simulation (left plot).  I guess this is something to do with the smaller incremental increase in the manager's budget having less of an impact on the ability of the users to cull, and so between any given two time steps, the users may still be able to take the same actions. Whereas when the manager's budget increase is larger, it is more likely to impact on the users ability to take action from one time step to the next. I am not sure why the steps get larger as the manager's budget gets larger though.  
 #' Interestingly, I think that ten_rep_7 has identified the manager budget required to force the minimum number of posible culls.  The cull count reaches 100 when the manager's budget is 3300, and then remaines at 100 until the end of the simulation when the manager's budget is 4400. I guess there is a possibility that it is just another arger step, and that the cull count might continue to fall if the simulation continued.  However, a loss of 100 trees per year equates to 0.08% of the population which is pretty good in a Cambodian PA! 
 #' 
-#+ ten_rep_5, 6 & 7 lost plots, echo=FALSE, fig.width=7, fig.height=5       
+#+ ten_rep_5, 6 & 7 lost plots, echo=FALSE, fig.width=9, fig.height=5       
 
 ten_rep_5_summary$label <- "+20 / time step"
 ten_rep_6_summary$label <- "+50 / time step"
@@ -431,7 +431,7 @@ lostplot_comp_time <- ggplot(comp_5_6_7, aes(x=Time, y=Pop_diff, group=label, co
                       ylim(0,2300)+
                       ylab("Resources lost per time step")
 
-lostplot_comp + lostplot_comp_time
+lostplot_comp + lostplot_comp_time + plot_layout(ncol=1)
 
 
 #' In the above plots I have plotted the number of trees lost per time step against manager budget (left) and time (right) for the three simulations with dynamic manager budgets.  All three simulations have very different numbers lost in the first time step, but this is likely due to the variation in number of actions taken in time step 1 resulting from the genetic algorithm still revving up (as Brad explained). The plot on the left shows that the numbers of resources lost per time step decreases as manager budgets increase, which is what I expected. We can see that the blue and green lines stop before they flatten, suggesting that the optimal manager budget for reducing the number of trees lost has not been reached yet. Whereas the pink line looks as though it has flattened out (still with some small fluctuations) suggesting that further manager budget increases will likely have negligible impacts on culling.  The plot on the right shows the same thing (the slopes of the lines at time 40 show the green and blue still decreasing, and the pink flattened out), and also that, as I would have expected, the higher the manager budget, the fewer trees get cut down. 
@@ -580,9 +580,9 @@ cullcnt_plot <- ggplot(ten_rep_14_16, aes(x=Time, y=Cull_count, group=sim, colou
 mbub_plot + res_plot + cullcost_plot + cullcnt_plot + plot_layout(ncol=2)
 
 #' In the top left plot we see the relationship between the user budget and the manager budget for the three simulations. These all look how I would expect. In the top right plot we see that the forest gets reduced in all of the simulations, but less so in the last simulation (16). This is interesting because it is the only simulation where the manager's budget is decreasing. But the manager's budget never decreases below the users' budget, and in the other scenarios the user budget is closer (or exceeds) the manager's budget in more time steps. This suggests that the manager needs a budget that is consistently quite a lot higher than the users' budget to maintain decent forest cover. This is what I discovered in the sections above when I was varying the manager budget too.  
-#' In the bottom left plot we see what I would expect - when the manager's budget increases, the cost of culling increases too, to meet the demands of the increasing user budgets and trying to maintain as many trees as possible. In the final simulation, the managers budget is decreasing and so teh cost of culling decreases. 
-#' In the bottom right plot, we see that in the first simulation the cull count reaches a plateau after 9 time steps. I guess the plateau makes sense - becuase the user and manager budgets are increasing in line which each other, neither user nor manager ever has an advantage over the other relative to the previous time step, and so a sort of equalibrium of the number of cull actions is found.  I am not sure though why it takes 9 time steps to reach that point. I am also not sure why there is a mini plateau between time steps 4 and 8. In the other two scenarios the cull counts are continuously increasing, which makes sense because in both of those scenarios the gap between the user budget and the manager budget is continually closing, and therefore ther users have more and more power to cull in each time step.
-#' We see the step pattern hsa returned again, which I wasn't expecting as I had set the usr_budget_rng to be 10% of whatever the user budget was in each time step and scenario. Perhaps 10% isn't enough to remove that pattern in these cases?
+#' In the bottom left plot we see what I would expect - when the manager's budget increases, the cost of culling increases too, to meet the demands of the increasing user budgets and trying to maintain as many trees as possible. In the final simulation, the managers budget is decreasing and so the cost of culling decreases. 
+#' In the bottom right plot, we see that in the first simulation the cull count reaches a plateau after 9 time steps. I guess the plateau makes sense - becuase the user and manager budgets are increasing in line with each other, neither user nor manager ever has an advantage over the other relative to the previous time step, and so a sort of equalibrium of the number of cull actions is found.  I am not sure though why it takes 9 time steps to reach that point. I am also not sure why there is a mini plateau between time steps 4 and 8. In the other two scenarios the cull counts are continuously increasing, which makes sense because in both of those scenarios the gap between the user budget and the manager budget is continually closing, and therefore the users have more and more power to cull in each time step.
+#' We see the step pattern has returned again, which I wasn't expecting as I had set the usr_budget_rng to be 10% of whatever the user budget was in each time step and scenario. Perhaps 10% isn't enough to remove that pattern in these cases?
 #' 
 #+ ten_rep_14,15,16 proportion, echo=FALSE, eval=TRUE, fig.width=8, fig.height=6
 
@@ -605,4 +605,4 @@ prop2 <- ggplot(ten_rep_14_16, aes(x=prop, y=Pop_size, group=sim, colour=sim))+
 
 prop1 + prop2
 
-#' The above plot on the left show the increase in culling actions as the users' budget gets closer to the manager's budget.  We can see that culling actions are always high when the users' budget is close to the manager's budget. The plot on the left shows that regardless of the proportion of the users budget, it is better for the manager to have a higher budget in absolute terms.  I was initially expecting the lines to be the same, because if the proportions between user and manager budget are the same then the impact on resources should be the same. But I guess that absolute budgets are higher, then more trees can be culled (user) or protected (manager). This means that in order to set up a realistic scenario, I'll need to test a range of budget ranges to find ones that represent realistic numbers of trees being lost.   
+#' The above plot on the left show the increase in culling actions as the users' budget gets closer to the manager's budget.  We can see that culling actions are always high when the users' budget is close to the manager's budget. The plot on the right shows that regardless of the proportion of the users budget, it is better for the manager to have a higher budget in absolute terms.  I was initially expecting the lines to be the same, because if the proportions between user and manager budget are the same then the impact on resources should be the same. But I guess that absolute budgets are higher, then more trees can be culled (user) or protected (manager). This means that in order to set up a realistic scenario, I'll need to test a range of budget ranges to find ones that represent realistic numbers of trees being lost.   
