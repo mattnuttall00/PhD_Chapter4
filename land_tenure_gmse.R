@@ -14,8 +14,9 @@
 # current thinking is to treat an individual resource as an individual tree.  Brad says this will make more sense in the current set up of GMSE.  
 
 ### Load libraries ####
+library('tidyverse')
 library('GMSE')
-
+library('patchwork')
 
 ### ten_rep_0 - single call, resources do not reduce yield, low manager budget ####
   ## Details ####
@@ -1207,7 +1208,7 @@ colnames(ten_rep_16) <- c("Time", "Pop_size", "Pop_est", "Cull_cost", "Cull_coun
 ten_rep_16_summary <- data.frame(ten_rep_16)
 write.csv(ten_rep_16_summary, file="outputs/Land_tenure/ten_rep_14_15_16/ten_rep_16_summary.csv")
 
-### ten_rep_17 - construction of more realistic landscape ####
+### ten_rep_17,18,19 - construction of more realistic landscape ####
   ## Details ####
 
 # Here I am going to start constructing a landscape that more closely resembles what I think the final analysis landscape might look like.
@@ -1216,7 +1217,12 @@ write.csv(ten_rep_16_summary, file="outputs/Land_tenure/ten_rep_14_15_16/ten_rep
 
 # I will increase the number of trees on the landscape to 2 million (50 trees per ha)
 
-  ## call ####
+ 
+
+  ## ten_rep_17 call ####
+
+
+# when I ran the below call with the user budget around the same value as I have been doing above, the number of resources lost was very small because I have only set the number of stakeholders to 4, as in this case they represent a community. I have now set the budget to 10K to see what difference this makes.
 
 system.time(ten_rep_17 <- gmse(
   time_max = 40,
@@ -1245,7 +1251,7 @@ system.time(ten_rep_17 <- gmse(
   max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
   minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
   user_budget = 10000, # total budget of each stakeholder for performing actions
-  manager_budget = 20000, # Manager has little power (50% of user)
+  manager_budget = 20000, # 
   manage_target = 2000000, # target resource abundance (same as starting value)
   RESOURCE_ini = 2000000, # initial abundance of resources - 50 trees per cell
   culling = TRUE, # culling is only option
@@ -1259,4 +1265,262 @@ system.time(ten_rep_17 <- gmse(
 
 plot_gmse_results(sim_results = ten_rep_17)
 ten_rep_17_summary <- gmse_table(ten_rep_17)
-write.csv(ten_rep_0_summary, file="outputs/Land_tenure/ten_rep_0/ten_rep_0_summary.csv")
+
+
+# I used jobs to run this (just as a test) so below I have to extract the results from the job results
+ten_rep_17_summary <- as.data.frame(ten_rep_17_job_results$ten_rep_17_summary)
+
+# plots
+time_cost_p17 <- ggplot(ten_rep_17_summary, aes(x=time_step,y=cost_culling))+
+                geom_line()+
+                theme_classic()
+
+time_cull_p17 <- ggplot(ten_rep_17_summary, aes(x=time_step, y=act_culling))+
+                geom_line()+
+                theme_classic()
+
+time_res_p17 <- ggplot(ten_rep_17_summary, aes(x=time_step, y=resources))+
+              geom_line()+
+              ylim(0,2000000)+
+              theme_classic()
+
+time_yield_p17 <- ggplot(ten_rep_17_summary, aes(x=time_step, y=crop_yield))+
+                geom_line()+
+                theme_classic()
+
+time_harvest_p17 <- ggplot(ten_rep_17_summary, aes(x=time_step, y=harvested))+
+                  geom_line()+
+                  theme_classic()
+
+time_cost_p17 + time_cull_p17 + time_res_p17 + time_yield_p17 + time_harvest_p17
+
+# very little culling beyond the first couple of time steps. 
+# crop yield goes up very quickly in the first couple of time steps then plateaus
+# crop harvest spikes in first couple of time steps then goes to 0
+
+# Why are they not culling?
+# harvesting is the same as culling
+
+write.csv(ten_rep_17_summary, file="outputs/Land_tenure/ten_rep_17-20/ten_rep_17_summary.csv")
+
+  ## ten_rep_18 call ####
+
+# I am gong to increase the user budget to see what that does to culling
+
+system.time(ten_rep_18 <- gmse(
+  time_max = 40,
+  land_dim_1 = 200,
+  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
+  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, # observes once
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0, # Trees have no impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
+  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
+  user_budget = 20000, # total budget of each stakeholder for performing actions
+  manager_budget = 20000, # 
+  manage_target = 2000000, # target resource abundance (same as starting value)
+  RESOURCE_ini = 2000000, # initial abundance of resources - 50 trees per cell
+  culling = TRUE, # culling is only option
+  tend_crops = TRUE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
+  stakeholders = 4, # a village with 50 families
+  land_ownership = TRUE, # land ownership
+  public_land = 0.6, # 60% of the land is PA, 40% is community land
+  manage_freq = 1, # frequency of manager setting policy 
+  group_think = FALSE # users act independently
+))
+
+ten_rep_18_summary <- as.data.frame(gmse_table(ten_rep_18))
+
+# plots
+time_cost_p18 <- ggplot(ten_rep_18_summary, aes(x=time_step,y=cost_culling))+
+  geom_line()+
+  theme_classic()
+
+time_cull_p18 <- ggplot(ten_rep_18_summary, aes(x=time_step, y=act_culling))+
+  geom_line()+
+  theme_classic()
+
+time_res_p18 <- ggplot(ten_rep_18_summary, aes(x=time_step, y=resources))+
+  geom_line()+
+  ylim(0,2000000)+
+  theme_classic()
+
+time_yield_p18 <- ggplot(ten_rep_18_summary, aes(x=time_step, y=crop_yield))+
+  geom_line()+
+  theme_classic()
+
+time_harvest_p18 <- ggplot(ten_rep_18_summary, aes(x=time_step, y=harvested))+
+  geom_line()+
+  theme_classic()
+
+time_cost_p18 + time_cull_p18 + time_res_p18 + time_yield_p18 + time_harvest_p18
+
+# there is more culling, but it is still stopped by time step 10 through increases in costs.
+
+write.csv(ten_rep_18_summary, file="outputs/Land_tenure/ten_rep_17-20/ten_rep_18_summary.csv")
+
+  # ten_rep_19 call ####
+
+# as ten_rep_18 but increase the number of communities to 8
+
+system.time(ten_rep_19 <- gmse(
+  time_max = 40,
+  land_dim_1 = 200,
+  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
+  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, # observes once
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0, # Trees have no impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
+  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
+  user_budget = 20000, # total budget of each stakeholder for performing actions
+  manager_budget = 20000, # 
+  manage_target = 2000000, # target resource abundance (same as starting value)
+  RESOURCE_ini = 2000000, # initial abundance of resources - 50 trees per cell
+  culling = TRUE, # culling is only option
+  tend_crops = TRUE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
+  stakeholders = 8, # a village with 50 families
+  land_ownership = TRUE, # land ownership
+  public_land = 0.6, # 60% of the land is PA, 40% is community land
+  manage_freq = 1, # frequency of manager setting policy 
+  group_think = FALSE # users act independently
+))
+
+ten_rep_19_summary <- as.data.frame(gmse_table(ten_rep_19))
+write.csv(ten_rep_19_summary, file="outputs/Land_tenure/ten_rep_17-20/ten_rep_19_summary.csv")
+
+# plots
+time_cost_p19 <- ggplot(ten_rep_19_summary, aes(x=time_step,y=cost_culling))+
+  geom_line()+
+  theme_classic()
+
+time_cull_p19 <- ggplot(ten_rep_19_summary, aes(x=time_step, y=act_culling))+
+  geom_line()+
+  theme_classic()
+
+time_res_p19 <- ggplot(ten_rep_19_summary, aes(x=time_step, y=resources))+
+  geom_line()+
+  ylim(0,2000000)+
+  theme_classic()
+
+time_yield_p19 <- ggplot(ten_rep_19_summary, aes(x=time_step, y=crop_yield))+
+  geom_line()+
+  theme_classic()
+
+time_harvest_p19 <- ggplot(ten_rep_19_summary, aes(x=time_step, y=harvested))+
+  geom_line()+
+  theme_classic()
+
+time_cost_p19 + time_cull_p19 + time_res_p19 + time_yield_p19 + time_harvest_p19
+
+
+# plot resources between 17, 18, 19
+ggplot()+
+  geom_line(data=ten_rep_17_summary, aes(x=time_step, y=resources), color="green")+
+  geom_line(data=ten_rep_18_summary, aes(x=time_step, y=resources), color="red")+
+  geom_line(data=ten_rep_19_summary, aes(x=time_step, y=resources), color="blue")+
+  ylim(0,2000000)
+
+# So increasing the user budget, and increasing the number of stakeholders makes virtually no difference to the number of tress lost 
+
+  # ten_rep_20 call ####
+
+# as ten_rep_19 but now the trees reduce yield. Each tree (50/cell) reduces yield by 2%. So if all trees are standing then the cell's yield is reduced by 0.36%.
+
+system.time(ten_rep_20 <- gmse(
+  time_max = 40,
+  land_dim_1 = 200,
+  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
+  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, # observes once
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.02, # Trees have no impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
+  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
+  user_budget = 20000, # total budget of each stakeholder for performing actions
+  manager_budget = 20000, # 
+  manage_target = 2000000, # target resource abundance (same as starting value)
+  RESOURCE_ini = 2000000, # initial abundance of resources - 50 trees per cell
+  culling = TRUE, # culling is only option
+  tend_crops = TRUE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
+  stakeholders = 8, # a village with 50 families
+  land_ownership = TRUE, # land ownership
+  public_land = 0.6, # 60% of the land is PA, 40% is community land
+  manage_freq = 1, # frequency of manager setting policy 
+  group_think = FALSE # users act independently
+))
+
+ten_rep_20_summary <- as.data.frame(gmse_table(ten_rep_20))
+write.csv(ten_rep_20_summary, file="outputs/Land_tenure/ten_rep_17-20/ten_rep_20_summary.csv")
+
+# plots
+time_cost_p20 <- ggplot(ten_rep_20_summary, aes(x=time_step,y=cost_culling))+
+  geom_line()+
+  theme_classic()
+
+time_cull_p20 <- ggplot(ten_rep_20_summary, aes(x=time_step, y=act_culling))+
+  geom_line()+
+  theme_classic()
+
+time_res_p20 <- ggplot(ten_rep_20_summary, aes(x=time_step, y=resources))+
+  geom_line()+
+  ylim(0,2000000)+
+  theme_classic()
+
+time_yield_p20 <- ggplot(ten_rep_20_summary, aes(x=time_step, y=crop_yield))+
+  geom_line()+
+  theme_classic()
+
+
+time_cost_p20 + time_cull_p20 + time_res_p20 + time_yield_p20 
+
+# culling still gets stopped around time step 10 by sustained high costs set by manager. Trees don't appear to have been reduced by much more or less than the above runs. Crop yield is increasing steadily though, rather than levelling off.
