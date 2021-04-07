@@ -1,6 +1,6 @@
 require(GMSE)
 
-system.time(ten_rep_18 <- gmse(
+system.time(ten_rep_17 <- gmse(
   time_max = 40,
   land_dim_1 = 200,
   land_dim_2 = 200, # landscape is 40,000ha or 400km2
@@ -38,3 +38,6 @@ system.time(ten_rep_18 <- gmse(
   manage_freq = 1, # frequency of manager setting policy 
   group_think = FALSE # users act independently
 ))
+
+ten_rep_17_plot <- plot_gmse_results(sim_results = ten_rep_17)
+ten_rep_17_summary <- gmse_table(ten_rep_17)
