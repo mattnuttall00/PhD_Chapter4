@@ -16,10 +16,9 @@ library('patchwork')
 # 60% of the landscape is owned by the communities (stakeholders), 40% is public land (i.e. protected from deforestation)
 
 # Stakekholders - There are 20 "stakeholders" which in these scenarios equates to 20 villages. That means that each village controls 12km2 of land (60% of the total landscape divided by 20 - see above). 
+# "Resources" are trees. The resources therefore do not move.
 
 # The density of trees in tropical forest landscapes vary hugely. In previous simulations I have assumed 50 stems/ha which is low, but not implausible (e.g. deciduous dipterocarp woodland). A reference for this value can be found here:https://www.jstor.org/stable/44521915. I am keeping this density of trees as it is for now, as this value means that there are already 2,000,000 trees on the landscape, and increasing them will increase run time. Note that the trees are distributed randomly across the landscape, and so there will not be exactly 50/cell. This reflects reality. 
-
-# "Resources" are trees. The resources therefore do not move.
 
 # Trees in a cell reduce the farmer's yield. The amount a tree reduces yield is governed by an exponential function: yield = (1 - % yield reduction per tree) ^ remaining trees. I want a farmer's yield to be reduced by a significant amount if all trees in a cell are standing. But the trees do not completely eliminate yield. This is a balance between the farmer being able to farm and increase their yield even when there are trees on their cell, but also providing an incentive to cull where possible. I have set each tree on a cell to reduce yield by 2%. Therefore if there are 50 trees on a cell yield is reduced to 36% of the total available yield. Cutting down 10 trees (20% of the trees) increases yield to 0.44, cutting down 20 trees (40%) increases yield to 0.54% etc.
 
@@ -37,7 +36,13 @@ library('patchwork')
 
 # Agents are permitted to move at the end of each time step. Because land_ownership==TRUE I believe this then only relates to the manager.
 
-# User and manager budgets will vary based on the scenario.
+# User and manager budgets will vary based on the scenario. But the total amount of budget available to the manager for the whole study period will be the same. The total 
+
+# Currently, group_think == FALSE, and so users act independently
+
+# Only culling is allowed (i.e. cutting down of trees)
+
+# farming is allowed (tend_crops==TRUE, i.e. farmers can increase their yield by tending their crops rather than felling trees)
 
 
 
@@ -47,7 +52,7 @@ library('patchwork')
 
 # I will do the following scenarios:
 
-# N1 - Null - Manager and user budgets do not change, and are equal
+# N1 - Null - Manager and user budgets do not change throughout the study period, and are equal
 
 # N2 - Optimistic Null - Manager and user budgets both increase linearly over time, at the same rate and from the same starting point
 
@@ -61,41 +66,72 @@ library('patchwork')
 
 # This null scenario has the manager and user budgets remaining static over the entire study period
 
-N1 <- gmse(
+N1a <- gmse(
   time_max = 50,
   land_dim_1 = 200,
   land_dim_2 = 200, # landscape is 40,000ha or 400km2
   res_movement = 0, # trees don't move 
   remove_pr = 0, # Assume no death 
   lambda = 0, # assume no growth
-  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
-  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  agent_view = 10, 
+  agent_move = 50, 
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
   res_death_type = 1, # 1=density-independent 
   observe_type = 0, # 0=density-based sampling 
-  times_observe = 1, # observes once
+  times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
   res_min_age = 0, # age of resources before agents record/act on them
   res_move_obs = FALSE, # trees don't move
   plotting = FALSE, 
-  res_consume = 0.02, # Trees have no impact on yield
+  res_consume = 0.02, # Trees have 2% impact on yield
   
   # all genetic algorithm parameters left to default
   
-  move_agents = TRUE, # should agents move at the end of each time step?
-  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
-  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
-  user_budget = 20000, # total budget of each stakeholder for performing actions
-  manager_budget = 20000, # 
-  manage_target = 2000000, # target resource abundance (same as starting value)
-  RESOURCE_ini = 2000000, # initial abundance of resources - 50 trees per cell
-  culling = TRUE, # culling is only option
-  tend_crops = TRUE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
-  stakeholders = 16, # a village with 50 families
-  land_ownership = TRUE, # land ownership
-  public_land = 0.6, # 60% of the land is PA, 40% is community land
-  manage_freq = 1, # frequency of manager setting policy 
-  group_think = FALSE # users act independently
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 1000, 
+  manager_budget = 200, 
+  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 2000000, 
+  RESOURCE_ini = 2000000, 
+  culling = TRUE, 
+  tend_crops = TRUE, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0.4, 
+  manage_freq = 1, 
+  group_think = FALSE
 )
+
+N1a_summary <- as.data.frame(gmse_table(N1a))
+
+# save summary
+N1_summary <- as.data.frame(gmse_table(N1))
+write.csv(N1_summary, file="outputs/investment/null_scenarios/N1_summary.csv")
+
+# load data
+#N1_summary <- read.csv("outputs/investment/null_scenarios/N1_summary.csv")
+
+# plots
+time_cost_N1 <- ggplot(N1_summary, aes(x=time_step,y=cost_culling))+
+  geom_line()+
+  theme_classic()
+
+time_cull_N1 <- ggplot(N1_summary, aes(x=time_step, y=act_culling))+
+  geom_line()+
+  theme_classic()
+
+time_res_N1 <- ggplot(N1_summary, aes(x=time_step, y=resources))+
+  geom_line()+
+  ylim(0,2000000)+
+  theme_classic()
+
+time_yield_N1 <- ggplot(N1_summary, aes(x=time_step, y=crop_yield))+
+  geom_line()+
+  theme_classic()
+
+
+time_cost_N1 + time_cull_N1 + time_res_N1 + time_yield_N1 
