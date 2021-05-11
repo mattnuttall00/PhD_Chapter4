@@ -1601,3 +1601,80 @@ time_cost_p21 + time_cull_p21 + time_res_p21 + time_yield_p21
 
 # 
 
+
+  ## ten_rep_22 call ####
+
+
+# as ten_rep_21 but I am switching res_death_type to 2 (density dependent) and increasing carrying capacity. I want to see if this reduces/removes natural deaths
+
+system.time(ten_rep_22 <- gmse(
+  time_max = 40,
+  land_dim_1 = 200,
+  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, # distance (cells) agent can see (currently only manager during obs process)
+  agent_move = 50, # distance (cells) agents can travel (mostly affects managers during obs process)
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 10000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 2, # density-dependent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, # observes once
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.02, # Trees have no impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, # should agents move at the end of each time step?
+  max_ages = 1000, # maximum ages of resources - set very high to reduce natural death
+  minimum_cost = 10, # minimum cost of any action in user & manager models - improves precision of manager policy(?)
+  user_budget = 20000, # total budget of each stakeholder for performing actions
+  manager_budget = 20000, # 
+  manage_target = 2000000, # target resource abundance (same as starting value)
+  RESOURCE_ini = 2000000, # initial abundance of resources - 50 trees per cell
+  culling = TRUE, # culling is only option
+  tend_crops = TRUE, # is tending crops on landscape allowed. if TRUE, user can increase yield each time step
+  stakeholders = 16, # a village with 50 families
+  land_ownership = TRUE, # land ownership
+  public_land = 0.6, # 60% of the land is PA, 40% is community land
+  manage_freq = 1, # frequency of manager setting policy 
+  group_think = FALSE # users act independently
+))
+
+ten_rep_22_summary <- as.data.frame(gmse_table(ten_rep_22))
+write.csv(ten_rep_22_summary, file="outputs/Land_tenure/ten_rep_17-20/ten_rep_22_summary.csv")
+
+# load data
+ten_rep_22_summary <- read.csv("outputs/Land_tenure/ten_rep_17-20/ten_rep_22_summary.csv")
+
+# plots
+time_cost_p22 <- ggplot(ten_rep_22_summary, aes(x=time_step,y=cost_culling))+
+  geom_line()+
+  theme_classic()
+
+time_cull_p22 <- ggplot(ten_rep_22_summary, aes(x=time_step, y=act_culling))+
+  geom_line()+
+  theme_classic()
+
+time_res_p22 <- ggplot(ten_rep_22_summary, aes(x=time_step, y=resources))+
+  geom_line()+
+  ylim(0,2000000)+
+  theme_classic()
+
+time_yield_p22 <- ggplot(ten_rep_22_summary, aes(x=time_step, y=crop_yield))+
+  geom_line()+
+  theme_classic()
+
+
+time_cost_p22 + time_cull_p22 + time_res_p22 + time_yield_p22 
+
+# hasn't made any difference. Chatting to Brad, and the reason is that all resources are randomly allocated an age at the start, and so some will die of old age, regardless of what you set the max age to be. Brad is going to tweak the code so that we can eliminate all natural deaths.
+
+# check the error around manager's estimates
+error.perc <- 100 - (ten_rep_22_summary$resources/ten_rep_22_summary$estimate*100)
+summary(error.perc)
