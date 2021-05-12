@@ -66,7 +66,7 @@ library('patchwork')
 
 # This null scenario has the manager and user budgets remaining static over the entire study period
 
-N1a <- gmse(
+N1 <- gmse(
   time_max = 50,
   land_dim_1 = 200,
   land_dim_2 = 200, # landscape is 40,000ha or 400km2
@@ -92,13 +92,13 @@ N1a <- gmse(
   move_agents = TRUE, 
   max_ages = 1000, 
   minimum_cost = 10, 
-  user_budget = 1000, 
+  user_budget = 200, 
   manager_budget = 200, 
   usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
   manage_target = 2000000, 
   RESOURCE_ini = 2000000, 
   culling = TRUE, 
-  tend_crops = TRUE, 
+  tend_crops = FALSE, 
   stakeholders = 20, 
   land_ownership = TRUE, 
   public_land = 0.4, 
@@ -113,7 +113,7 @@ N1_summary <- as.data.frame(gmse_table(N1))
 write.csv(N1_summary, file="outputs/investment/null_scenarios/N1_summary.csv")
 
 # load data
-#N1_summary <- read.csv("outputs/investment/null_scenarios/N1_summary.csv")
+N1_summary <- read.csv("outputs/investment/null_scenarios/N1_summary.csv")
 
 # plots
 time_cost_N1 <- ggplot(N1_summary, aes(x=time_step,y=cost_culling))+
@@ -130,6 +130,28 @@ time_res_N1 <- ggplot(N1_summary, aes(x=time_step, y=resources))+
   theme_classic()
 
 time_yield_N1 <- ggplot(N1_summary, aes(x=time_step, y=crop_yield))+
+  geom_line()+
+  theme_classic()
+
+
+time_cost_N1 + time_cull_N1 + time_res_N1 + time_yield_N1 
+
+
+
+time_cost_N1 <- ggplot(N1a_summary, aes(x=time_step,y=cost_culling))+
+  geom_line()+
+  theme_classic()
+
+time_cull_N1 <- ggplot(N1a_summary, aes(x=time_step, y=act_culling))+
+  geom_line()+
+  theme_classic()
+
+time_res_N1 <- ggplot(N1a_summary, aes(x=time_step, y=resources))+
+  geom_line()+
+  ylim(0,2000000)+
+  theme_classic()
+
+time_yield_N1 <- ggplot(N1a_summary, aes(x=time_step, y=crop_yield))+
   geom_line()+
   theme_classic()
 
