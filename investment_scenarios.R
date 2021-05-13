@@ -66,6 +66,12 @@ library('patchwork')
 
 # This null scenario has the manager and user budgets remaining static over the entire study period
 
+# Currently, the below simulation has each tree reducing yield on a cell by 5%. And by tending crops in a time step, users can increase their yield by 2%. Therefore cutting trees will increase their yield more than tending crops. This seems correct, becuase in reality, clearing more land will increase your yield more than simply farming existing land. In this setup, the users should prioritise cutting trees where possible. 
+
+# The other option, is to have the yield benefits of cutting trees and tending crops equal. This doesn't make logical sense to me, because it doesn't quite match reality, and it will also mean that users will rarely choose to cut trees because tending crops will always be cheaper. 
+
+# I guess though that I still need to decide the ratio between yield increases from tending crops and felling trees. What is the most realistic? 
+
 N1 <- gmse(
   time_max = 50,
   land_dim_1 = 200,
@@ -85,7 +91,7 @@ N1 <- gmse(
   res_min_age = 0, # age of resources before agents record/act on them
   res_move_obs = FALSE, # trees don't move
   plotting = FALSE, 
-  res_consume = 0.02, # Trees have 2% impact on yield
+  res_consume = 0.05, # Trees have 5% impact on yield
   
   # all genetic algorithm parameters left to default
   
@@ -98,7 +104,8 @@ N1 <- gmse(
   manage_target = 2000000, 
   RESOURCE_ini = 2000000, 
   culling = TRUE, 
-  tend_crops = FALSE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.02, # tending crops increases yield by 2% - less than that of culling trees
   stakeholders = 20, 
   land_ownership = TRUE, 
   public_land = 0.4, 
@@ -106,14 +113,13 @@ N1 <- gmse(
   group_think = FALSE
 )
 
-N1a_summary <- as.data.frame(gmse_table(N1a))
 
 # save summary
 N1_summary <- as.data.frame(gmse_table(N1))
-write.csv(N1_summary, file="outputs/investment/null_scenarios/N1_summary.csv")
+#write.csv(N1_summary, file="outputs/investment/null_scenarios/N1_summary.csv")
 
 # load data
-N1_summary <- read.csv("outputs/investment/null_scenarios/N1_summary.csv")
+#N1_summary <- read.csv("outputs/investment/null_scenarios/N1_summary.csv")
 
 # plots
 time_cost_N1 <- ggplot(N1_summary, aes(x=time_step,y=cost_culling))+
@@ -135,25 +141,50 @@ time_yield_N1 <- ggplot(N1_summary, aes(x=time_step, y=crop_yield))+
 
 
 time_cost_N1 + time_cull_N1 + time_res_N1 + time_yield_N1 
+plot_gmse_results(sim_results = N1)
 
 
 
-time_cost_N1 <- ggplot(N1a_summary, aes(x=time_step,y=cost_culling))+
+
+### N1a - here I have made the yield increases from tending crops and felling trees equal. 
+
+# As predicted, there is less felling of trees by the users becuase there is no real incentive to do so. 
+
+N1a_summary <- as.data.frame(gmse_table(N1a))
+#write.csv(N1a_summary, file="outputs/investment/null_scenarios/N1/N1a_summary.csv")
+
+time_cost_N1a <- ggplot(N1a_summary, aes(x=time_step,y=cost_culling))+
   geom_line()+
   theme_classic()
 
-time_cull_N1 <- ggplot(N1a_summary, aes(x=time_step, y=act_culling))+
+time_cull_N1a <- ggplot(N1a_summary, aes(x=time_step, y=act_culling))+
   geom_line()+
   theme_classic()
 
-time_res_N1 <- ggplot(N1a_summary, aes(x=time_step, y=resources))+
+time_res_N1a <- ggplot(N1a_summary, aes(x=time_step, y=resources))+
   geom_line()+
   ylim(0,2000000)+
   theme_classic()
 
-time_yield_N1 <- ggplot(N1a_summary, aes(x=time_step, y=crop_yield))+
+time_yield_N1a <- ggplot(N1a_summary, aes(x=time_step, y=crop_yield))+
   geom_line()+
   theme_classic()
 
 
-time_cost_N1 + time_cull_N1 + time_res_N1 + time_yield_N1 
+time_cost_N1a + time_cull_N1a + time_res_N1a + time_yield_N1a 
+plot_gmse_results(sim_results = N1a)
+
+
+### calculate the % yield for each timestep
+
+N1a$land[[1]][1:8,1:8,2]
+
+# function to pull out the total yield from all cells in a given time step
+yldSum <- function(ts){
+  Total_sum <- sum(N1a$land[[ts]][,,2])
+  return(Total_sum)
+}
+
+yield_ts <- lapply(1:length(N1a$land), yldSum)
+
+
