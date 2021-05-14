@@ -56,13 +56,14 @@ library('patchwork')
 
 # N1 - Null - Manager and user budgets do not change throughout the study period, and are equal
 
-# N2 - Optimistic Null - Manager and user budgets both increase linearly over time, at the same rate and from the same starting point
+# N2a - Decreasing Null - Manager budget remains constant, user budget decreases linearly
+# N2b - Decreasing Null - User budget remains constant, manager budget decreases linearly
 
-# N2a - Optimistic Null - Variation of N2. Manager and user budget increase linearly over time, but the manager budget rate of increase is lower than the user rate of increase
+# N3 - Optimistic Null - Manager and user budgets both increase linearly over time, at the same          rate and from the same starting point
+# N3a - Optimistic Null - Variation of N3. Manager and user budget increase linearly over time,           but the manager budget rate of increase is lower than the user rate of increase
+# N3b - optimistic Null - Variation of N3. Manager and user budget increase linearly over time,           but the manager budget rate of increase is higher than the user rate of increase
 
-# N2b - optimistic Null - Variation of N2. Manager and user budget increase linearly over time, but the manager budget rate of increase is higher than the user rate of increase
-
-# N3 - Pessimistic Null - Manager budget remains constant, but user budgets increase linearly 
+# N4 - Pessimistic Null - Manager budget remains constant, but user budgets increase linearly 
 
 #### N1 ####
 
@@ -119,7 +120,7 @@ N1_summary <- as.data.frame(gmse_table(N1))
 #write.csv(N1_summary, file="outputs/investment/null_scenarios/N1_summary.csv")
 
 # load data
-#N1_summary <- read.csv("outputs/investment/null_scenarios/N1_summary.csv")
+#N1_summary <- read.csv("outputs/investment/null_scenarios/N1/N1_summary.csv")
 
 # plots
 time_cost_N1 <- ggplot(N1_summary, aes(x=time_step,y=cost_culling))+
@@ -195,6 +196,10 @@ N1a <- gmse(
 N1a_summary <- as.data.frame(gmse_table(N1a))
 #write.csv(N1a_summary, file="outputs/investment/null_scenarios/N1/N1a_summary.csv")
 
+# load
+#N1a_summary <- read.csv("outputs/investment/null_scenarios/N1/N1a_summary.csv")
+
+# plots
 time_cost_N1a <- ggplot(N1a_summary, aes(x=time_step,y=cost_culling))+
   geom_line()+
   theme_classic()
@@ -281,13 +286,124 @@ N1b <- gmse(
 N1b_summary <- as.data.frame(gmse_table(N1b))
 #write.csv(N1b_summary, file="outputs/investment/null_scenarios/N1/N1b_summary.csv")
 
+# load
+N1b_summary <- read.csv("outputs/investment/null_scenarios/N1/N1b_summary.csv")
 
-  ## Comparison between N1, N1a, N1b ####
+  ## N1c ####
 
-# Here I want to compare the differences in yields at each time step between N1, where res_consume is 0.05 and tend_crops_yld is 0.2, N1a, where res_consume and tend_crop_yld are equal, and N1b, where res_consume is 0.08 and tend_crop_yld is 0,02.
+# Following on from Nils' email, I am going to run another scenario with more extreme parameters for res_consume and tend_crop_yld. This is to add further contrast so we can better tease apart the scenarios.
 
-# To do the below you need to have the N1 and N1a sims run and as objects in the environment. I will save the resulting dataframe so that this is not required
+# Here I have increased the res_consume to 0.1 (10%)
 
+N1c <- gmse(
+  time_max = 50,
+  land_dim_1 = 200,
+  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.1, # Trees have 10% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 200, 
+  manager_budget = 200, 
+  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 2000000, 
+  RESOURCE_ini = 2000000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.02, # tending crops increases yield by 2% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0.4, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+N1c_summary <- as.data.frame(gmse_table(N1c))
+write.csv(N1c_summary, file="outputs/investment/null_scenarios/N1/N1c_summary.csv")
+yield_ts_N1c <- sapply(1:length(N1c$land), function(x) sum(N1c$land[[x]][,,2]))
+rm(N1c)
+
+
+  ## N1d ####
+
+# Following on from Nils' email, I am going to run another scenario with more extreme parameters for res_consume and tend_crop_yld. This is to add further contrast so we can better tease apart the scenarios.
+
+# Here I have kept res_consume at 0.08 (8%) but reduced tend_crop_yld to 0.01 (1%)
+
+N1d <- gmse(
+  time_max = 50,
+  land_dim_1 = 200,
+  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.08, # Trees have 8% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 200, 
+  manager_budget = 200, 
+  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 2000000, 
+  RESOURCE_ini = 2000000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0.4, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+N1d_summary <- as.data.frame(gmse_table(N1d))
+write.csv(N1d_summary, file="outputs/investment/null_scenarios/N1/N1d_summary.csv")
+yield_ts_N1d <- sapply(1:length(N1d$land), function(x) sum(N1d$land[[x]][,,2]))
+rm(N1c)
+
+
+
+  ## Comparison between N1, N1a, N1b, N1c, and N1d ####
+
+# Here I want to compare the differences in yields at each time step between N1, where res_consume is 0.05 and tend_crops_yld is 0.2, N1a, where res_consume and tend_crop_yld are equal, N1b where res_consume is 0.08 and tend_crop_yld is 0.02, N1c where res_consume is 0.1 and tend_crop_yld is 0.02, and N1d where res_consume is 0.08 and tend_crop_yld is 0.01. 
+
+# To create the dataframe as below you need to have the N1 and N1a sims run and as objects in the environment. I will save the resulting dataframe so that this is not required
+
+# load the pre-made dataframe
+yield.df <- read.csv("outputs/investment/null_scenarios/N1/yield_df_N1-N1b.csv")
 
 
 # calculate the % yield for each timestep
@@ -336,6 +452,12 @@ N1a_summary$sim <- "N1a"
 N1b_summary$sim <- "N1b"
 Nx_summary <- rbind(N1_summary, N1a_summary, N1b_summary)
 
+# save
+#write.csv(Nx_summary, file="outputs/investment/null_scenarios/N1/Nx_summary.csv")
+
+# load
+Nx_summary <- read.csv("outputs/investment/null_scenarios/N1/Nx_summary.csv")
+
 # number of cull actions
 p_cull <- ggplot(Nx_summary, aes(x=time_step, y=act_culling, group=sim, colour=sim))+
           geom_line(size=1.5)+
@@ -352,3 +474,155 @@ p_cost <- ggplot(Nx_summary, aes(x=time_step, y=cost_culling, group=sim, colour=
 # The costs of N1 and N1b look as I would expect - mirroring the culling actions. I am not sure exactly why the manager continues to fluctuate the cost of culling in N1a, when there are no cull actions at all?  
 
 (p1 + p2) / (p_cull + p_cost)
+
+  ## N1x - reduced landscape ####
+
+# I want to see what the results look like when I remove the public land, reduce the size of the landscape. I am not sure what purpose the public land is serving, and at the moment it is making the landscape larger, and increasing the number of trees, which is making seeing differences in tree loss more difficult. 
+
+# I will try a landscape ppf 150 x 150 cells. This results in 22,500 cells (or ha). With 20 villages, this results in 1,125 ha or 11.25km2 per village. This seems plausible. This means the number of trees will be 1,125,000
+
+N1c <- gmse(
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.05, # Trees have 5% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 200, 
+  manager_budget = 200, 
+  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.02, # tending crops increases yield by 2% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+plot_gmse_results(sim_results=N1c)
+plot_gmse_effort(sim_results = N1c)
+
+N1c_summary <- as.data.frame(gmse_table(N1c))
+#write.csv(N1c_summary, file="outputs/investment/null_scenarios/N1/N1c_summary.csv")
+
+# plots
+time_cost_N1c <- ggplot(N1c_summary, aes(x=time_step,y=cost_culling))+
+  geom_line()+
+  theme_classic()
+
+time_cull_N1c <- ggplot(N1c_summary, aes(x=time_step, y=act_culling))+
+  geom_line()+
+  theme_classic()
+
+time_res_N1c <- ggplot(N1c_summary, aes(x=time_step, y=resources))+
+  geom_line()+
+  ylim(0,1125000)+
+  theme_classic()
+
+time_yield_N1c <- ggplot(N1c_summary, aes(x=time_step, y=crop_yield))+
+  geom_line()+
+  theme_classic()
+
+
+time_cost_N1c + time_cull_N1c + time_res_N1c + time_yield_N1c 
+
+
+#### N2 ####
+
+# The below calls are for the N2a and N2b null scenarios (see details above in "NULL SCENARIOS"). Currently I am using the reduced landscape from N1c.
+
+  ## N2a ####
+
+
+UB  <- 200
+UBR <- 20
+
+N2a_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.05, # Trees have 5% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 200, 
+  usr_budget_rng = UBR, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.02, # tending crops increases yield by 2% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+N2a <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = N2a_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  N2a[time_step, 1] <- time_step
+  N2a[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  N2a[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  N2a[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  N2a[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  N2a[time_step, 6] <- UB
+  
+  N2a_sim_old <- sim_new
+  UB <- UB - 3
+  UBR <- UB/10
+}
