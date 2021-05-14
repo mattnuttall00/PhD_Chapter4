@@ -338,7 +338,7 @@ N1c <- gmse(
 
 N1c_summary <- as.data.frame(gmse_table(N1c))
 write.csv(N1c_summary, file="outputs/investment/null_scenarios/N1/N1c_summary.csv")
-yield_ts_N1c <- sapply(1:length(N1c$land), function(x) sum(N1c$land[[x]][,,2]))
+
 rm(N1c)
 
 
@@ -391,8 +391,8 @@ N1d <- gmse(
 
 N1d_summary <- as.data.frame(gmse_table(N1d))
 write.csv(N1d_summary, file="outputs/investment/null_scenarios/N1/N1d_summary.csv")
-yield_ts_N1d <- sapply(1:length(N1d$land), function(x) sum(N1d$land[[x]][,,2]))
-rm(N1c)
+
+rm(N1d)
 
 
 
@@ -400,7 +400,7 @@ rm(N1c)
 
 # Here I want to compare the differences in yields at each time step between N1, where res_consume is 0.05 and tend_crops_yld is 0.2, N1a, where res_consume and tend_crop_yld are equal, N1b where res_consume is 0.08 and tend_crop_yld is 0.02, N1c where res_consume is 0.1 and tend_crop_yld is 0.02, and N1d where res_consume is 0.08 and tend_crop_yld is 0.01. 
 
-# To create the dataframe as below you need to have the N1 and N1a sims run and as objects in the environment. I will save the resulting dataframe so that this is not required
+# To create the dataframe as below you need to have all of the sims run and as objects in the environment. I will save the resulting dataframe so that this is not required
 
 # load the pre-made dataframe
 yield.df <- read.csv("outputs/investment/null_scenarios/N1/yield_df_N1-N1b.csv")
@@ -412,21 +412,25 @@ yield.df <- read.csv("outputs/investment/null_scenarios/N1/yield_df_N1-N1b.csv")
 yield_ts     <- sapply(1:length(N1a$land), function(x) sum(N1a$land[[x]][,,2]))
 yield_ts_N1  <- sapply(1:length(N1$land), function(x) sum(N1$land[[x]][,,2]))
 yield_ts_N1b <- sapply(1:length(N1b$land), function(x) sum(N1b$land[[x]][,,2]))
+yield_ts_N1c <- sapply(1:length(N1c$land), function(x) sum(N1c$land[[x]][,,2]))
+yield_ts_N1d <- sapply(1:length(N1d$land), function(x) sum(N1d$land[[x]][,,2]))
 
 # into dataframe
-sim <- c("N1","N1a","N1b")
+sim <- c("N1","N1a","N1b", "N1c", "N1d")
 yield.df <- data.frame(time_step = 1:50,
                        sim = rep(sim, each=50),
                        available_yld = 24000,
-                       sim_yield = c(yield_ts_N1, yield_ts, yield_ts_N1b),
-                       trees = c(N1_summary$resources, N1a_summary$resources, N1b_summary$resources))
-
-# save dataframe
-#write.csv(yield.df, file="outputs/investment/null_scenarios/N1/yield_df_N1-N1b.csv")
+                       sim_yield = c(yield_ts_N1, yield_ts, yield_ts_N1b,yield_ts_N1c,yield_ts_N1d),
+                       trees = c(N1_summary$resources, N1a_summary$resources, N1b_summary$resources,
+                                 N1c_summary$resources, N1d_summary$resources))
 
 
 # add % yield to df
 yield.df$perc_yld <- yield.df$sim_yield/yield.df$available_yld*100
+
+# save dataframe
+write.csv(yield.df, file="outputs/investment/null_scenarios/N1/yield_df_N1-N1d.csv")
+
 
 # plot
 p1 <- ggplot(yield.df, aes(x=time_step, y=trees, group=sim, color=sim))+
@@ -444,13 +448,16 @@ p2 <- ggplot(yield.df, aes(x=time_step, y=perc_yld, group=sim, color=sim))+
 p1 + p2
 
 
-## more comparison plots between N1, N1a, N1b
+## more comparison plots between N1, N1a, N1b, N1c, N1d
 
 # combine the simulation summaries for easier plotting
 N1_summary$sim  <- "N1"
 N1a_summary$sim <- "N1a"
 N1b_summary$sim <- "N1b"
-Nx_summary <- rbind(N1_summary, N1a_summary, N1b_summary)
+N1c_summary$sim <- "N1c"
+N1d_summary$sim <- "N1d"
+Nx_summary <- rbind(N1_summary, N1a_summary, N1b_summary, N1c_summary, N1d_summary)
+
 
 # save
 #write.csv(Nx_summary, file="outputs/investment/null_scenarios/N1/Nx_summary.csv")
@@ -626,3 +633,9 @@ for(time_step in 1:50){
   UB <- UB - 3
   UBR <- UB/10
 }
+
+colnames(N2a) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
+                         "User_budget")
+N2a_summary <- data.frame(N2a)
+
+write.csv(N2a_summary, file = "outputs/investment/null_scenarios/N2/N2a_summary.csv")
