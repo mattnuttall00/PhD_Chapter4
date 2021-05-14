@@ -396,7 +396,115 @@ rm(N1d)
 
 
 
-  ## Comparison between N1, N1a, N1b, N1c, and N1d ####
+  ## N1e ####
+
+# After comparing N1:N1d below, there appeared to be a difference between N1:N1a, and N1b:N1d. The latter resulted in users felling as often as possible (see the non-zero plateau in the plot of number of cull actions), whereas the former resulted in the users sometimes choosing to tend crops. N1b:N1d have parameter settings with distance between the values of 0.06, 0.07, and 0.08. N1 and N1a have parameter distances of 0 and 0.03. Therefore, I want to test what happens when the distance between the parameter values are 0.04 and 0.05.
+
+# I am going to keep tend_crop_yld low, at 0.01 and rather change the value of res_consume. This is becuase conceptually, just tending your existing crops is unlikely to have any dramatic increase on your yield beyond what you already produce on that existing land. 
+
+# below I will set res_consume to 0.05 and tend_crop_yld 0.01
+
+
+N1e <- gmse(
+  time_max = 50,
+  land_dim_1 = 200,
+  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.05, # Trees have 5% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 200, 
+  manager_budget = 200, 
+  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 2000000, 
+  RESOURCE_ini = 2000000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0.4, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+N1e_summary <- as.data.frame(gmse_table(N1e))
+write.csv(N1e_summary, file="outputs/investment/null_scenarios/N1/N1e_summary.csv")
+rm(N1e)
+
+
+  ## N1f ####
+
+# see explanation above in N1e
+
+# Here res_consume is 0.06 and tend_crop_yld is 0.01
+
+N1f <- gmse(
+  time_max = 50,
+  land_dim_1 = 200,
+  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 1, # 1=density-independent 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.06, # Trees have 6% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 200, 
+  manager_budget = 200, 
+  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 2000000, 
+  RESOURCE_ini = 2000000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0.4, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+N1f_summary <- as.data.frame(gmse_table(N1f))
+write.csv(N1f_summary, file="outputs/investment/null_scenarios/N1/N1f_summary.csv")
+
+rm(N1f)
+
+
+  ## Comparison N1:N1f ####
 
 # Here I want to compare the differences in yields at each time step between N1, where res_consume is 0.05 and tend_crops_yld is 0.2, N1a, where res_consume and tend_crop_yld are equal, N1b where res_consume is 0.08 and tend_crop_yld is 0.02, N1c where res_consume is 0.1 and tend_crop_yld is 0.02, and N1d where res_consume is 0.08 and tend_crop_yld is 0.01. 
 
@@ -414,22 +522,27 @@ yield_ts_N1  <- sapply(1:length(N1$land), function(x) sum(N1$land[[x]][,,2]))
 yield_ts_N1b <- sapply(1:length(N1b$land), function(x) sum(N1b$land[[x]][,,2]))
 yield_ts_N1c <- sapply(1:length(N1c$land), function(x) sum(N1c$land[[x]][,,2]))
 yield_ts_N1d <- sapply(1:length(N1d$land), function(x) sum(N1d$land[[x]][,,2]))
+yield_ts_N1e <- sapply(1:length(N1e$land), function(x) sum(N1e$land[[x]][,,2]))
+yield_ts_N1f <- sapply(1:length(N1f$land), function(x) sum(N1f$land[[x]][,,2]))
+
 
 # into dataframe
-sim <- c("N1","N1a","N1b", "N1c", "N1d")
+sim <- c("N1","N1a","N1b", "N1c", "N1d","N1e","N1f")
 yield.df <- data.frame(time_step = 1:50,
                        sim = rep(sim, each=50),
                        available_yld = 24000,
-                       sim_yield = c(yield_ts_N1, yield_ts, yield_ts_N1b,yield_ts_N1c,yield_ts_N1d),
+                       sim_yield = c(yield_ts_N1, yield_ts, yield_ts_N1b,yield_ts_N1c,yield_ts_N1d,
+                                     yield_ts_N1e, yield_ts_N1f),
                        trees = c(N1_summary$resources, N1a_summary$resources, N1b_summary$resources,
-                                 N1c_summary$resources, N1d_summary$resources))
+                                 N1c_summary$resources, N1d_summary$resources, N1e_summary$resources,
+                                 N1f_summary$resources))
 
 
 # add % yield to df
 yield.df$perc_yld <- yield.df$sim_yield/yield.df$available_yld*100
 
 # save dataframe
-write.csv(yield.df, file="outputs/investment/null_scenarios/N1/yield_df_N1-N1d.csv")
+write.csv(yield.df, file="outputs/investment/null_scenarios/N1/yield_df_N1-N1f.csv")
 
 
 # plot
@@ -438,17 +551,17 @@ p1 <- ggplot(yield.df, aes(x=time_step, y=trees, group=sim, color=sim))+
       theme_classic()+
       ylab("Number of trees")+
       xlab("Time step")
+# N1a and N1 result in the fewest trees being lost, which makes sense as N1a has no incentive to fell trees (equal parameter values), and N1 has the smallest difference in parameter values (difference of 0.03). N1b:f are all virtually identical. Even though the distance between parameter values are different in each scenario, the principal is the same - the incentive to fell trees is large enough that the users will try to fell at every opportunity. 
 
 p2 <- ggplot(yield.df, aes(x=time_step, y=perc_yld, group=sim, color=sim))+
       geom_line(size=2)+
       theme_classic()+
       ylab("% Yield")+
       xlab("Time step")
+# Yield is lowest in N1c, as this simulation has the highest value for res_consume (0.1), followed by N1b and N1d (0.08). N1f then sits on it's own in the middle (0.06). The highest yields are for N1, N1a, and N1e, where res_consume is 0.05 for all. For this last group, we see that N1e is increasing slightly faster, as tend_crop_yld is set lower than N1 and N1a, and so users are more keen to fell trees as tending crops has less value. 
 
-p1 + p2
 
-
-## more comparison plots between N1, N1a, N1b, N1c, N1d
+## more comparison plots between N1, N1a, N1b, N1c, N1d, N1e, N1f
 
 # combine the simulation summaries for easier plotting
 N1_summary$sim  <- "N1"
@@ -456,8 +569,9 @@ N1a_summary$sim <- "N1a"
 N1b_summary$sim <- "N1b"
 N1c_summary$sim <- "N1c"
 N1d_summary$sim <- "N1d"
+N1e_summary$sim <- "N1e"
+N1f_summary$sim <- "N1f"
 Nx_summary <- rbind(N1_summary, N1a_summary, N1b_summary, N1c_summary, N1d_summary)
-
 
 # save
 #write.csv(Nx_summary, file="outputs/investment/null_scenarios/N1/Nx_summary.csv")
@@ -471,14 +585,17 @@ p_cull <- ggplot(Nx_summary, aes(x=time_step, y=act_culling, group=sim, colour=s
           xlab("Time step")+
           ylab("Number of cull actions")+
           theme_classic()
-# N1a is a very low, flat line. This is because the benefits of tending crops are the same as culling, so there is no real incentive to cull and the manager can put a stop to it easily. N1b shows consistently high culling, because the yield increases from culling are high (res_consume=0.08). There is some conflict with the manager in the early time steps, and then an equalibrium is reached where the users are culling as much as possible and the manager is presumably using all their budget to prevent culling. N1 is far more dynamic. Here there is still an incentive to cull trees (res_consume=0.05, tend_crop_yld=0.02), but it is less than N1b. It looks like in this scenarion the users will cull trees where possible, but as soon as the manager raises the costs they go back to tending crops. N1b (blue line) looks more like a conflict-ridden landscape where there is perhaps a lot of in-migration and extansive forest clearance, whereas N1 looks more like a landscape where opportunistic land clearance would occur, but can relatively easily be controlled. 
+# N1a is a very low, flat line. This is because the benefits of tending crops are the same as culling, so there is no real incentive to cull and the manager can put a stop to it easily. N1b, N1c, N1d, N1e, N1f show consistently high culling, because the yield increases from culling are high (res_consume between 0.05-0.1). There is some conflict with the manager in the early time steps, and then an equalibrium is reached where the users are culling as much as possible and the manager is presumably using all their budget to prevent culling. N1 is far more dynamic. Here there is still an incentive to cull trees (res_consume=0.05, tend_crop_yld=0.02), but it is less than N1b. It looks like in this scenario the users will cull trees where possible, but as soon as the manager raises the costs they go back to tending crops. N1b:N1f look more like a conflict-ridden landscape where there is perhaps a lot of in-migration and extansive forest clearance, whereas N1 looks more like a landscape where opportunistic land clearance would occur, but can relatively easily be controlled. 
+
+# The really interesting difference is between N1 and N1e. They both have res_consume set at 0.05, but N1 has tend_crop_yld at 0.2 and N1e has tend_crop_yld at 0.01. Although very similar parameter values, the shapes of the cull_actions plot lines are very different. This suggests that these are the threshold values. 
 
 p_cost <- ggplot(Nx_summary, aes(x=time_step, y=cost_culling, group=sim, colour=sim))+
           geom_line(size=1.5)+
           xlab("Time step")+
           ylab("Cost of cull actions")+
           theme_classic()
-# The costs of N1 and N1b look as I would expect - mirroring the culling actions. I am not sure exactly why the manager continues to fluctuate the cost of culling in N1a, when there are no cull actions at all?  
+# The costs of N1 and N1b look as I would expect - mirroring the culling actions. I am not sure exactly why the manager continues to fluctuate the cost of culling in N1a, when there are no cull actions at all? 
+# in answer to the above, Nils and Brad suggest it is a combination of observation error (so the manager not acting on perfect information) and artefacs of the genetic algorithm.
 
 (p1 + p2) / (p_cull + p_cost)
 
