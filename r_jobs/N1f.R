@@ -1,6 +1,6 @@
 require('GMSE')
 
-N1a <- gmse(
+N1f <- gmse(
   time_max = 50,
   land_dim_1 = 200,
   land_dim_2 = 200, # landscape is 40,000ha or 400km2
@@ -12,14 +12,14 @@ N1a <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 0, # 1=no natural death 
+  res_death_type = 0, # no natural death 
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
   res_min_age = 0, # age of resources before agents record/act on them
   res_move_obs = FALSE, # trees don't move
   plotting = FALSE, 
-  res_consume = 0.05, # Trees have 5% impact on yield
+  res_consume = 0.06, # Trees have 6% impact on yield
   
   # all genetic algorithm parameters left to default
   
@@ -33,7 +33,7 @@ N1a <- gmse(
   RESOURCE_ini = 2000000, 
   culling = TRUE, 
   tend_crops = TRUE,
-  tend_crop_yld = 0.05, # tending crops increases yield by 5% - same as culling trees
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
   stakeholders = 20, 
   land_ownership = TRUE, 
   public_land = 0.4, 
@@ -41,6 +41,7 @@ N1a <- gmse(
   group_think = FALSE
 )
 
-N1a_summary <- as.data.frame(gmse_table(N1a))
-write.csv(N1a_summary, file="outputs/investment/null_scenarios/N1/N1a_summary.csv")
-rm(N1a)
+N1f_summary <- as.data.frame(gmse_table(N1f))
+write.csv(N1f_summary, file="outputs/investment/null_scenarios/N1/N1f_summary.csv")
+
+rm(N1f)
