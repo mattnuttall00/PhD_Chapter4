@@ -85,7 +85,7 @@ N1 <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
@@ -117,7 +117,7 @@ N1 <- gmse(
 
 # save summary
 N1_summary <- as.data.frame(gmse_table(N1))
-#write.csv(N1_summary, file="outputs/investment/null_scenarios/N1_summary.csv")
+write.csv(N1_summary, file="outputs/investment/null_scenarios/N1_summary.csv")
 
 # load data
 #N1_summary <- read.csv("outputs/investment/null_scenarios/N1/N1_summary.csv")
@@ -162,7 +162,7 @@ N1a <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
@@ -254,7 +254,7 @@ N1b <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death 
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
@@ -307,7 +307,7 @@ N1c <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death 
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
@@ -360,7 +360,7 @@ N1d <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death 
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
@@ -417,7 +417,7 @@ N1e <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death 
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
@@ -469,7 +469,7 @@ N1f <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death 
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
@@ -617,7 +617,7 @@ N1c <- gmse(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death 
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
@@ -701,7 +701,7 @@ N2a_sim_old <- gmse_apply(
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
-  res_death_type = 1, # 1=density-independent 
+  res_death_type = 0, # no natural death 
   observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
