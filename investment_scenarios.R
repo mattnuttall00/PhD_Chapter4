@@ -117,12 +117,12 @@ N1 <- gmse(
 
 # save summary
 N1_summary <- as.data.frame(gmse_table(N1))
-write.csv(N1_summary, file="outputs/investment/null_scenarios/N1_summary.csv")
+write.csv(N1_summary, file="outputs/investment/null_scenarios/N1/N1_summary.csv")
 
 # load data
 #N1_summary <- read.csv("outputs/investment/null_scenarios/N1/N1_summary.csv")
 
-# plots
+# custom plots
 time_cost_N1 <- ggplot(N1_summary, aes(x=time_step,y=cost_culling))+
   geom_line()+
   theme_classic()
@@ -141,9 +141,15 @@ time_yield_N1 <- ggplot(N1_summary, aes(x=time_step, y=crop_yield))+
   theme_classic()
 
 
-time_cost_N1 + time_cull_N1 + time_res_N1 + time_yield_N1 
+N1_custom_plots <- time_cost_N1 + time_cull_N1 + time_res_N1 + time_yield_N1 
+ggsave("outputs/investment/null_scenarios/N1/N1_custom_plots.png",
+       width = 30, height = 20, units = "cm", dpi=300)
 
-plot_gmse_results(sim_results = N1)
+# gmse plots
+N1_gmse_plots <- plot_gmse_results(sim_results = N1)
+
+# remove object
+#rm(N1)
 
 
   ## N1a #### 
@@ -197,7 +203,7 @@ N1a_summary <- as.data.frame(gmse_table(N1a))
 #write.csv(N1a_summary, file="outputs/investment/null_scenarios/N1/N1a_summary.csv")
 
 # load
-#N1a_summary <- read.csv("outputs/investment/null_scenarios/N1/N1a_summary.csv")
+N1a_summary <- read.csv("outputs/investment/null_scenarios/N1/N1a_summary.csv")
 
 # plots
 time_cost_N1a <- ggplot(N1a_summary, aes(x=time_step,y=cost_culling))+
@@ -218,7 +224,10 @@ time_yield_N1a <- ggplot(N1a_summary, aes(x=time_step, y=crop_yield))+
   theme_classic()
 
 
-time_cost_N1a + time_cull_N1a + time_res_N1a + time_yield_N1a 
+N1a_custom_plots <- time_cost_N1a + time_cull_N1a + time_res_N1a + time_yield_N1a 
+ggsave("outputs/investment/null_scenarios/N1/N1a_custom_plots.png", N1a_custom_plots,
+       width = 30, height = 20, units="cm", dpi=300)
+
 plot_gmse_results(sim_results = N1a)
 
 
@@ -285,9 +294,11 @@ N1b <- gmse(
 
 N1b_summary <- as.data.frame(gmse_table(N1b))
 #write.csv(N1b_summary, file="outputs/investment/null_scenarios/N1/N1b_summary.csv")
+rm(N1b)
+
 
 # load
-N1b_summary <- read.csv("outputs/investment/null_scenarios/N1/N1b_summary.csv")
+#N1b_summary <- read.csv("outputs/investment/null_scenarios/N1/N1b_summary.csv")
 
   ## N1c ####
 
@@ -506,17 +517,13 @@ rm(N1f)
 
   ## Comparison N1:N1f ####
 
-# Here I want to compare the differences in yields at each time step between N1, where res_consume is 0.05 and tend_crops_yld is 0.2, N1a, where res_consume and tend_crop_yld are equal, N1b where res_consume is 0.08 and tend_crop_yld is 0.02, N1c where res_consume is 0.1 and tend_crop_yld is 0.02, and N1d where res_consume is 0.08 and tend_crop_yld is 0.01. 
+# Here I want to compare the differences in yields at each time step between N1, where res_consume is 0.05 and tend_crops_yld is 0.02, N1a, where res_consume and tend_crop_yld are equal, N1b where res_consume is 0.08 and tend_crop_yld is 0.02, N1c where res_consume is 0.1 and tend_crop_yld is 0.02, N1d where res_consume is 0.08 and tend_crop_yld is 0.01, N1e where res_consume is 0.05 and tend_crop_yld is 0.01, and N1f where res_consume is 0.06 and tend_crop_yld is 0.01. 
 
-# To create the dataframe as below you need to have all of the sims run and as objects in the environment. I will save the resulting dataframe so that this is not required
-
-# load the pre-made dataframe
+# No need to make the dataframe each time. Load the pre-made dataframe
 yield.df <- read.csv("outputs/investment/null_scenarios/N1/yield_df_N1-N1b.csv")
 
 
-# calculate the % yield for each timestep
-
-# Extract total yield for all cells from each timestep for all sims
+# This was just me working out how to find and extraact the yield from the simulation output object. Extract total yield for all cells from each timestep for all sims. This needs the simulation objects to be in the environment, so won't work unles you run all of the sims again
 yield_ts     <- sapply(1:length(N1a$land), function(x) sum(N1a$land[[x]][,,2]))
 yield_ts_N1  <- sapply(1:length(N1$land), function(x) sum(N1$land[[x]][,,2]))
 yield_ts_N1b <- sapply(1:length(N1b$land), function(x) sum(N1b$land[[x]][,,2]))
@@ -526,13 +533,25 @@ yield_ts_N1e <- sapply(1:length(N1e$land), function(x) sum(N1e$land[[x]][,,2]))
 yield_ts_N1f <- sapply(1:length(N1f$land), function(x) sum(N1f$land[[x]][,,2]))
 
 
-# into dataframe
+# load all simulation summaries
+N1_summary  <-  read.csv("outputs/investment/null_scenarios/N1/N1_summary.csv", header=TRUE)
+N1a_summary <- read.csv("outputs/investment/null_scenarios/N1/N1a_summary.csv", header=TRUE)
+N1b_summary <- read.csv("outputs/investment/null_scenarios/N1/N1b_summary.csv", header=TRUE)
+N1c_summary <- read.csv("outputs/investment/null_scenarios/N1/N1c_summary.csv", header=TRUE)
+N1d_summary <- read.csv("outputs/investment/null_scenarios/N1/N1d_summary.csv", header=TRUE)
+N1e_summary <- read.csv("outputs/investment/null_scenarios/N1/N1e_summary.csv", header=TRUE)
+N1f_summary <- read.csv("outputs/investment/null_scenarios/N1/N1f_summary.csv", header=TRUE)
+
+
+# create dataframe
 sim <- c("N1","N1a","N1b", "N1c", "N1d","N1e","N1f")
 yield.df <- data.frame(time_step = 1:50,
                        sim = rep(sim, each=50),
                        available_yld = 24000,
-                       sim_yield = c(yield_ts_N1, yield_ts, yield_ts_N1b,yield_ts_N1c,yield_ts_N1d,
-                                     yield_ts_N1e, yield_ts_N1f),
+                       sim_yield = c(N1_summary$crop_yield, N1a_summary$crop_yield,
+                                     N1b_summary$crop_yield, N1c_summary$crop_yield,
+                                     N1d_summary$crop_yield, N1e_summary$crop_yield,
+                                     N1f_summary$crop_yield),
                        trees = c(N1_summary$resources, N1a_summary$resources, N1b_summary$resources,
                                  N1c_summary$resources, N1d_summary$resources, N1e_summary$resources,
                                  N1f_summary$resources))
@@ -542,7 +561,21 @@ yield.df <- data.frame(time_step = 1:50,
 yield.df$perc_yld <- yield.df$sim_yield/yield.df$available_yld*100
 
 # save dataframe
-write.csv(yield.df, file="outputs/investment/null_scenarios/N1/yield_df_N1-N1f.csv")
+#write.csv(yield.df, file="outputs/investment/null_scenarios/N1/yield_df_N1-N1f.csv")
+
+
+# first make a plot with all of the different sims and the parameter values
+sim.para <- data.frame(sim = c("N1","N1a","N1b", "N1c", "N1d","N1e","N1f"),
+                       res_consume = c(0.05,0.05,0.08,0.1,0.08,0.05,0.06),
+                       tend_crop_yield = c(0.02,0.05,0.02,0.02,0.01,0.01,0.01))
+
+p.sims <- ggplot(sim.para, aes(x=res_consume, y=tend_crop_yield, color=sim))+
+          geom_point(size=7)+
+          theme_classic()+
+          theme(axis.title = element_text(size=17),
+                axis.text = element_text(size=15),
+                legend.text = element_text(size=15))
+
 
 
 # plot
@@ -551,7 +584,8 @@ p1 <- ggplot(yield.df, aes(x=time_step, y=trees, group=sim, color=sim))+
       theme_classic()+
       ylab("Number of trees")+
       xlab("Time step")
-# N1a and N1 result in the fewest trees being lost, which makes sense as N1a has no incentive to fell trees (equal parameter values), and N1 has the smallest difference in parameter values (difference of 0.03). N1b:f are all virtually identical. Even though the distance between parameter values are different in each scenario, the principal is the same - the incentive to fell trees is large enough that the users will try to fell at every opportunity. 
+# N1a results in the fewest trees being lost, which makes sense as N1a has no incentive to fell trees (equal parameter values). N1 and N1b:f are all fairly similar in their loss of trees. Interestingly, the simulation with the highest res_consume (N1c) does not end up with the fewest trees, and that must be because tend_crop_yield is higher than some of the others and so users will be more likely to choose to tend crops when costs of felling are very high. The simulation with the most trees lost is N1d, where tend_crop_yield is very low (0.01) and res_consume is quite high (0.08). This is closely followed by N1f which although has a lower res_consume than N1b and N1c, it also has a lower tend_crop_yield. This quite nicely shows the interaction between the two parameters I think. Essentially, I think this shows that small incremental changes in tend_crop_yield are actually more influential than similar increases in res_consume. 
+ 
 
 p2 <- ggplot(yield.df, aes(x=time_step, y=perc_yld, group=sim, color=sim))+
       geom_line(size=2)+
@@ -571,7 +605,7 @@ N1c_summary$sim <- "N1c"
 N1d_summary$sim <- "N1d"
 N1e_summary$sim <- "N1e"
 N1f_summary$sim <- "N1f"
-Nx_summary <- rbind(N1_summary, N1a_summary, N1b_summary, N1c_summary, N1d_summary)
+Nx_summary <- rbind(N1_summary, N1a_summary, N1b_summary, N1c_summary, N1d_summary, N1e_summary, N1f_summary)
 
 # save
 #write.csv(Nx_summary, file="outputs/investment/null_scenarios/N1/Nx_summary.csv")
@@ -585,9 +619,7 @@ p_cull <- ggplot(Nx_summary, aes(x=time_step, y=act_culling, group=sim, colour=s
           xlab("Time step")+
           ylab("Number of cull actions")+
           theme_classic()
-# N1a is a very low, flat line. This is because the benefits of tending crops are the same as culling, so there is no real incentive to cull and the manager can put a stop to it easily. N1b, N1c, N1d, N1e, N1f show consistently high culling, because the yield increases from culling are high (res_consume between 0.05-0.1). There is some conflict with the manager in the early time steps, and then an equalibrium is reached where the users are culling as much as possible and the manager is presumably using all their budget to prevent culling. N1 is far more dynamic. Here there is still an incentive to cull trees (res_consume=0.05, tend_crop_yld=0.02), but it is less than N1b. It looks like in this scenario the users will cull trees where possible, but as soon as the manager raises the costs they go back to tending crops. N1b:N1f look more like a conflict-ridden landscape where there is perhaps a lot of in-migration and extansive forest clearance, whereas N1 looks more like a landscape where opportunistic land clearance would occur, but can relatively easily be controlled. 
-
-# The really interesting difference is between N1 and N1e. They both have res_consume set at 0.05, but N1 has tend_crop_yld at 0.2 and N1e has tend_crop_yld at 0.01. Although very similar parameter values, the shapes of the cull_actions plot lines are very different. This suggests that these are the threshold values. 
+# This plot has changed significantly since the introduction of the new res_death_type. The simulations do appear to be broadly split between N1 and N1a, and the rest. N1 and N1a show much more variation in the number of cull actions, with the number of cull actions regulalry dropping to 0. N1a, which has the two parameters set equally at 0.05, we see regular spells of 0 cull actions, where the users are choosing to tend crops (as that produces the same benefits in terms of yield). This happens less frequently with N1, and in N1 there are no occasions when number of cull actions remain at 0 for more than a single time step. This is becuase tend_crop_yield is lower than res_consume, and so it is more beneficial to fell trees. For all of the other simualtions though, there appears to be a minimum number of culls below which they never drop (just over 100).  Even N1e, which is very similar to N1 in terms of parameters, never drops below a certain value of cull actions.   
 
 p_cost <- ggplot(Nx_summary, aes(x=time_step, y=cost_culling, group=sim, colour=sim))+
           geom_line(size=1.5)+
@@ -597,7 +629,11 @@ p_cost <- ggplot(Nx_summary, aes(x=time_step, y=cost_culling, group=sim, colour=
 # The costs of N1 and N1b look as I would expect - mirroring the culling actions. I am not sure exactly why the manager continues to fluctuate the cost of culling in N1a, when there are no cull actions at all? 
 # in answer to the above, Nils and Brad suggest it is a combination of observation error (so the manager not acting on perfect information) and artefacs of the genetic algorithm.
 
-(p1 + p2) / (p_cull + p_cost)
+N1_Nf_tests <- p.sims / (p1 + p2) / (p_cull + p_cost)
+
+
+ggsave("outputs/investment/null_scenarios/N1/N1_Nf_param_tests.png", N1_Nf_tests,
+       width = 30, height = 20, units="cm", dpi=300)
 
   ## N1x - reduced landscape ####
 
@@ -676,10 +712,11 @@ time_cost_N1c + time_cull_N1c + time_res_N1c + time_yield_N1c
 
 #### N2 ####
 
-# The below calls are for the N2a and N2b null scenarios (see details above in "NULL SCENARIOS"). Currently I am using the reduced landscape from N1c.
+# The below calls are for the N2a and N2b null scenarios (see details above in "NULL SCENARIOS"). Currently I am using the reduced landscape from N1x.
 
   ## N2a ####
 
+# user budget decreases linearly, manager budget remains constant
 
 UB  <- 200
 UBR <- 20
@@ -756,3 +793,81 @@ colnames(N2a) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
 N2a_summary <- data.frame(N2a)
 
 write.csv(N2a_summary, file = "outputs/investment/null_scenarios/N2/N2a_summary.csv")
+
+  ## N2b ####
+
+# User budget remains constant, manager budge decreases linearly
+
+MB  <- 200
+
+N2b_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 0, # no natural death 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.05, # Trees have 5% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 200, 
+  manager_budget = MB, 
+  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.02, # tending crops increases yield by 2% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+N2b <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = N2b_sim_old, manager_budget=MB)
+  
+  N2b[time_step, 1] <- time_step
+  N2b[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  N2b[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  N2b[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  N2b[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  N2b[time_step, 6] <- MB
+  
+  N2b_sim_old <- sim_new
+  MB <- MB - 3
+
+}
+
+colnames(N2b) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
+                   "Manager_budget")
+N2b_summary <- data.frame(N2b)
+
+write.csv(N2b_summary, file = "outputs/investment/null_scenarios/N2/N2b_summary.csv")
