@@ -134,7 +134,7 @@ time_cull_N1 <- ggplot(N1_summary, aes(x=time_step, y=act_culling))+
 
 time_res_N1 <- ggplot(N1_summary, aes(x=time_step, y=resources))+
   geom_line()+
-  ylim(0,2000000)+
+  #ylim(0,1125000)+
   theme_classic()
 
 time_yield_N1 <- ggplot(N1_summary, aes(x=time_step, y=crop_yield))+
@@ -641,7 +641,7 @@ ggsave("outputs/investment/null_scenarios/N1/N1_Nf_param_tests.png", N1_Nf_tests
 
 # I will try a landscape ppf 150 x 150 cells. This results in 22,500 cells (or ha). With 20 villages, this results in 1,125 ha or 11.25km2 per village. This seems plausible. This means the number of trees will be 1,125,000
 
-N1c <- gmse(
+N1x <- gmse(
   time_max = 50,
   land_dim_1 = 150,
   land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
@@ -710,6 +710,53 @@ time_yield_N1c <- ggplot(N1c_summary, aes(x=time_step, y=crop_yield))+
 time_cost_N1c + time_cull_N1c + time_res_N1c + time_yield_N1c 
 
 
+  ## N1y - test parameters ####
+
+# following Brad's advice, I am going to test a simulation where res_consume=0, tend_crop_yield=0.01 and user_budget=1. This is just to make sure everything behaves as expected. What I expect is that there will be no cull actions, becuase there is no incentive, nor budget, to cull trees
+
+N1y <- gmse(
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 0, # no natural death 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0, # Trees have 0% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 1, 
+  manager_budget = 200, 
+  usr_budget_rng = 1, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+
+
 #### N2 ####
 
 # The below calls are for the N2a and N2b null scenarios (see details above in "NULL SCENARIOS"). Currently I am using the reduced landscape from N1x.
@@ -745,7 +792,7 @@ N2a_sim_old <- gmse_apply(
   res_min_age = 0, # age of resources before agents record/act on them
   res_move_obs = FALSE, # trees don't move
   plotting = FALSE, 
-  res_consume = 0.08, # Trees have 5% impact on yield
+  res_consume = 0.08, # Trees have 8% impact on yield
   
   # all genetic algorithm parameters left to default
   
@@ -759,7 +806,7 @@ N2a_sim_old <- gmse_apply(
   RESOURCE_ini = 1125000, 
   culling = TRUE, 
   tend_crops = TRUE,
-  tend_crop_yld = 0.02, # tending crops increases yield by 2% - less than that of culling trees
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
   stakeholders = 20, 
   land_ownership = TRUE, 
   public_land = 0, 
@@ -792,7 +839,7 @@ colnames(N2a) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
                          "User_budget")
 N2a_summary <- data.frame(N2a)
 
-write.csv(N2a_summary, file = "outputs/investment/null_scenarios/N2/N2a_summary.csv")
+#write.csv(N2a_summary, file = "outputs/investment/null_scenarios/N2/N2a_summary.csv")
 
   ## N2b ####
 
@@ -824,7 +871,7 @@ N2b_sim_old <- gmse_apply(
   res_min_age = 0, # age of resources before agents record/act on them
   res_move_obs = FALSE, # trees don't move
   plotting = FALSE, 
-  res_consume = 0.05, # Trees have 5% impact on yield
+  res_consume = 0.08, # Trees have 8% impact on yield
   
   # all genetic algorithm parameters left to default
   
@@ -838,7 +885,7 @@ N2b_sim_old <- gmse_apply(
   RESOURCE_ini = 1125000, 
   culling = TRUE, 
   tend_crops = TRUE,
-  tend_crop_yld = 0.02, # tending crops increases yield by 2% - less than that of culling trees
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
   stakeholders = 20, 
   land_ownership = TRUE, 
   public_land = 0, 
@@ -871,6 +918,85 @@ colnames(N2b) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
 N2b_summary <- data.frame(N2b)
 
 write.csv(N2b_summary, file = "outputs/investment/null_scenarios/N2/N2b_summary.csv")
+
+N2b_summary <- read.csv("outputs/investment/null_scenarios/N2/N2b_summary.csv", header = TRUE)
+
+  ## N2 plots ####
+
+# load summary data
+N2a_summary <- read.csv("outputs/investment/null_scenarios/N2/N2a_summary.csv", header = TRUE)
+N2b_summary <- read.csv("outputs/investment/null_scenarios/N2/N2b_summary.csv", header = TRUE)
+
+N2a_summary <- N2a_summary[,-1] 
+N2b_summary <- N2b_summary[,-1]
+
+# change name of budget column and add actor column
+N2a_summary <- N2a_summary %>% rename(Budget = User_budget)
+N2a_summary$Actor <- "User"
+N2b_summary <- N2b_summary %>% rename(Budget = Manager_budget)
+N2b_summary$Actor <- "Manager"
+
+# duplicate dataframe without budget and actor columns
+N2a_2 <- N2a_summary[ ,c(1:5)]
+N2b_2 <- N2b_summary[ ,c(1:5)]
+
+# add alternate actor and budget column
+N2a_2$Budget <- 200
+N2a_2$Actor  <- "Manager"
+N2b_2$Budget <- 200
+N2b_2$Actor  <- "User"
+
+# merge
+N2a_summary <- rbind(N2a_summary, N2a_2)
+N2b_summary <- rbind(N2b_summary, N2b_2)
+
+# add sim
+N2a_summary$sim <- "N2a - User budget decline"
+N2b_summary$sim <- "N2b - Manager budget decline"
+
+# merge
+N2_summary <- rbind(N2a_summary, N2b_summary)
+
+
+# plots
+p.budget.a <- ggplot(N2_summary[N2_summary$sim=="N2a - User budget decline",], 
+                     aes(x=Time, y=Budget, group=Actor, color=Actor))+
+              geom_line(size=3)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12),
+                    legend.text = element_text(size=12),
+                    legend.title = element_text(size=15))
+
+p.budget.b <- ggplot(N2_summary[N2_summary$sim=="N2b - Manager budget decline",], 
+                     aes(x=Time, y=Budget, group=Actor, color=Actor))+
+              geom_line(size=3)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12),
+                    legend.text = element_text(size=12),
+                    legend.title = element_text(size=15))
+
+
+p.trees <- ggplot(N2_summary, aes(x=Time, y=Trees, group=sim, color=sim))+
+           geom_line(size=3)+
+           theme_classic()+
+            theme(axis.title = element_text(size=15),
+            axis.text = element_text(size=12),
+            legend.text = element_text(size=12),
+            legend.title = element_text(size=15))
+
+p.cull <- ggplot(N2_summary, aes(x=Time, y=Cull_count, group=sim, color=sim))+
+          geom_line(size=3)+
+          theme_classic()+
+          theme(axis.title = element_text(size=15),
+                axis.text = element_text(size=12),
+                legend.text = element_text(size=12),
+                legend.title = element_text(size=15))
+#
+
+
 #### N3 ####
 
 # N3 and its variants represent the optomistic null - where the manager budget is increasing over time. The variants introduce different rates of increase for the user and the manager. 
+
