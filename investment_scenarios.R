@@ -712,7 +712,7 @@ time_cost_N1c + time_cull_N1c + time_res_N1c + time_yield_N1c
 
   ## N1y - test parameters ####
 
-# following Brad's advice, I am going to test a simulation where res_consume=0, tend_crop_yield=0.01 and user_budget=1. This is just to make sure everything behaves as expected. What I expect is that there will be no cull actions, becuase there is no incentive, nor budget, to cull trees
+# following Brad's advice, I am going to test a simulation where res_consume=0, tend_crop_yield=0.01 and user_budget=1. This is just to make sure everything behaves as expected. What I expect is that there will be no cull actions, becuase there is no incentive, nor budget, to cull trees. There will also be no tending of crops because the user budget is lower than the minimum cost
 
 N1y <- gmse(
   time_max = 50,
@@ -755,7 +755,58 @@ N1y <- gmse(
   group_think = FALSE
 )
 
+N1y_summary <- read.csv("outputs/investment/null_scenarios/N1/N1_comparison_res_versus_tend/N1y_summary.csv")
 
+
+
+
+  ## N1z - test parameters ####
+
+
+N1z <- gmse(
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 10, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 0, # no natural death 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0, # Trees have 0% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 10, 
+  manager_budget = 200, 
+  usr_budget_rng = 1, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+
+N1z_summary <- as.data.frame(gmse_table(N1z))
+write.csv(N1z_summary, file="outputs/investment/null_scenarios/N1/N1z_summary.csv")
 
 #### N2 ####
 
@@ -966,7 +1017,8 @@ p.budget.a <- ggplot(N2_summary[N2_summary$sim=="N2a - User budget decline",],
               theme(axis.title = element_text(size=15),
                     axis.text = element_text(size=12),
                     legend.text = element_text(size=12),
-                    legend.title = element_text(size=15))
+                    legend.title = element_text(size=15))+
+              ggtitle("N2a - User budget decline")
 
 p.budget.b <- ggplot(N2_summary[N2_summary$sim=="N2b - Manager budget decline",], 
                      aes(x=Time, y=Budget, group=Actor, color=Actor))+
@@ -975,7 +1027,8 @@ p.budget.b <- ggplot(N2_summary[N2_summary$sim=="N2b - Manager budget decline",]
               theme(axis.title = element_text(size=15),
                     axis.text = element_text(size=12),
                     legend.text = element_text(size=12),
-                    legend.title = element_text(size=15))
+                    legend.title = element_text(size=15))+
+              ggtitle("N2b - Manager budget decline")
 
 
 p.trees <- ggplot(N2_summary, aes(x=Time, y=Trees, group=sim, color=sim))+
@@ -993,7 +1046,17 @@ p.cull <- ggplot(N2_summary, aes(x=Time, y=Cull_count, group=sim, color=sim))+
                 axis.text = element_text(size=12),
                 legend.text = element_text(size=12),
                 legend.title = element_text(size=15))
-#
+
+
+p.cost <- ggplot(N2_summary, aes(x=Time, y=Cull_cost, group=sim, color=sim))+
+          geom_line(size=3)+
+          theme_classic()+
+          theme(axis.title = element_text(size=15),
+                axis.text = element_text(size=12),
+                legend.text = element_text(size=12),
+                legend.title = element_text(size=15))
+
+(p.budget.a + p.budget.b) / (p.cull + p.cost) / p.trees
 
 
 #### N3 ####
