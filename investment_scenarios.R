@@ -59,24 +59,26 @@ library('patchwork')
 # N2a - Decreasing Null - Manager budget remains constant, user budget decreases linearly
 # N2b - Decreasing Null - User budget remains constant, manager budget decreases linearly
 
-# N3 - Optimistic Null - Manager and user budgets both increase linearly over time, at the same          rate and from the same starting point
-# N3a - Optimistic Null - Variation of N3. Manager and user budget increase linearly over time,           but the manager budget rate of increase is lower than the user rate of increase
-# N3b - optimistic Null - Variation of N3. Manager and user budget increase linearly over time,           but the manager budget rate of increase is higher than the user rate of increase
+# N3 - Optimistic Null - Manager and user budgets both increase linearly over time, at the same rate and from the same starting point
+# N3a - Optimistic Null - Variation of N3. Manager and user budget increase linearly over time, but the manager budget rate of increase is lower than the user rate of increase
+# N3b - optimistic Null - Variation of N3. Manager and user budget increase linearly over time, but the manager budget rate of increase is higher than the user rate of increase
 
 # N4 - Pessimistic Null - Manager budget remains constant, but user budgets increase linearly 
 
 #### N1 ####
 
+## The original runs of N1 had the landscape set at 200x200 cells, 2 million trees, res_consume set to 0.05, and tend_crop_yield set to 0.02, and 40% public land. This was the set up used to run all the comparisons below between N1a:N1f. All of the comparison plots etc. saved in the N1 comparison folder will be using this set up. 
+
+# Now though, I have changed the set up to reflect the final conclusions and the new landscape set up that all of the null scenarios will use. This is a landscape of 150x150 cells which results in 22,500 cells (or ha). With 20 villages, this results in 1,125 ha or 11.25km2 per village. This means the number of trees will be 1,125,000. Res_consume will be 0.08 and tend_crop_yield will be 0.01. There will be no public land. 
+
+
 # This null scenario has the manager and user budgets remaining static over the entire study period
 
-# N1 below has each tree reducing yield on a cell by 5%. And by tending crops in a time step, users can increase their yield by 2%. Therefore cutting trees will increase their yield more than tending crops. 
-
-# N1a and N1b below are different variations on N1, where res_consume and tend_crop_yld are different. I wanted to see what the impact of different ratios between these two parameters was. See the "Comparison between N1, N1a, N1b" section below for plots etc. Currently, I think N1 is the best option. 
 
 N1 <- gmse(
   time_max = 50,
-  land_dim_1 = 200,
-  land_dim_2 = 200, # landscape is 40,000ha or 400km2
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 40,000ha or 400km2
   res_movement = 0, # trees don't move 
   remove_pr = 0, # Assume no death 
   lambda = 0, # assume no growth
@@ -92,7 +94,7 @@ N1 <- gmse(
   res_min_age = 0, # age of resources before agents record/act on them
   res_move_obs = FALSE, # trees don't move
   plotting = FALSE, 
-  res_consume = 0.05, # Trees have 5% impact on yield
+  res_consume = 0.08, # Trees have 8% impact on yield
   
   # all genetic algorithm parameters left to default
   
@@ -102,14 +104,14 @@ N1 <- gmse(
   user_budget = 200, 
   manager_budget = 200, 
   usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
-  manage_target = 2000000, 
-  RESOURCE_ini = 2000000, 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
   culling = TRUE, 
   tend_crops = TRUE,
-  tend_crop_yld = 0.02, # tending crops increases yield by 2% - less than that of culling trees
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
   stakeholders = 20, 
   land_ownership = TRUE, 
-  public_land = 0.4, 
+  public_land = 0, 
   manage_freq = 1, 
   group_think = FALSE
 )
@@ -626,8 +628,7 @@ p_cost <- ggplot(Nx_summary, aes(x=time_step, y=cost_culling, group=sim, colour=
           xlab("Time step")+
           ylab("Cost of cull actions")+
           theme_classic()
-# The costs of N1 and N1b look as I would expect - mirroring the culling actions. I am not sure exactly why the manager continues to fluctuate the cost of culling in N1a, when there are no cull actions at all? 
-# in answer to the above, Nils and Brad suggest it is a combination of observation error (so the manager not acting on perfect information) and artefacs of the genetic algorithm.
+# It's quite difficult to see what is happening in this plot, but as would be expected the manager is adapting the cost of culling regulalry to try and prevent culling, which is being attempted in all scenarios. 
 
 N1_Nf_tests <- p.sims / (p1 + p2) / (p_cull + p_cost)
 
@@ -745,7 +746,7 @@ N2a_sim_old <- gmse_apply(
   res_min_age = 0, # age of resources before agents record/act on them
   res_move_obs = FALSE, # trees don't move
   plotting = FALSE, 
-  res_consume = 0.05, # Trees have 5% impact on yield
+  res_consume = 0.08, # Trees have 5% impact on yield
   
   # all genetic algorithm parameters left to default
   
