@@ -812,9 +812,11 @@ write.csv(N1z_summary, file="outputs/investment/null_scenarios/N1/N1z_summary.cs
 
 # The below calls are for the N2a and N2b null scenarios (see details above in "NULL SCENARIOS"). Currently I am using the reduced landscape from N1x.
 
+# N2c and N2d are the same as a and b above, but I am increasing the agent_move to 100 and agent_view to 50 to see what effect this has on the estiamtes of trees
+
   ## N2a ####
 
-# user budget decreases linearly, manager budget remains constant
+# user budget decreases linearly, manager budget remains constant. Observation type changed to transect, and agent_view increased so no observation error
 
 UB  <- 200
 UBR <- 20
@@ -831,13 +833,13 @@ N2a_sim_old <- gmse_apply(
   res_movement = 0, # trees don't move 
   remove_pr = 0, # Assume no death 
   lambda = 0, # assume no growth
-  agent_view = 10, 
+  agent_view = 150, 
   agent_move = 50, 
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
   res_death_type = 0, # no natural death 
-  observe_type = 0, # 0=density-based sampling 
+  observe_type = 2, # transect 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
   res_min_age = 0, # age of resources before agents record/act on them
@@ -890,7 +892,7 @@ colnames(N2a) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
                          "User_budget")
 N2a_summary <- data.frame(N2a)
 
-#write.csv(N2a_summary, file = "outputs/investment/null_scenarios/N2/N2a_summary.csv")
+write.csv(N2a_summary, file = "outputs/investment/null_scenarios/N2/N2a_summary.csv")
 
   ## N2b ####
 
@@ -910,13 +912,13 @@ N2b_sim_old <- gmse_apply(
   res_movement = 0, # trees don't move 
   remove_pr = 0, # Assume no death 
   lambda = 0, # assume no growth
-  agent_view = 10, 
+  agent_view = 150, 
   agent_move = 50, 
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
   res_death_type = 0, # no natural death 
-  observe_type = 0, # 0=density-based sampling 
+  observe_type = 2, # transect 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
   res_min_age = 0, # age of resources before agents record/act on them
@@ -972,7 +974,7 @@ write.csv(N2b_summary, file = "outputs/investment/null_scenarios/N2/N2b_summary.
 
 N2b_summary <- read.csv("outputs/investment/null_scenarios/N2/N2b_summary.csv", header = TRUE)
 
-  ## N2 plots ####
+  ## N2a + b plots ####
 
 # load summary data
 N2a_summary <- read.csv("outputs/investment/null_scenarios/N2/N2a_summary.csv", header = TRUE)
@@ -1059,7 +1061,327 @@ p.cost <- ggplot(N2_summary, aes(x=Time, y=Cull_cost, group=sim, color=sim))+
 (p.budget.a + p.budget.b) / (p.cull + p.cost) / p.trees
 
 
+target <- data.frame(Time = c(1:50),
+                     Trees = 1125000)
+
+p.N2a.obs <- ggplot(N2_summary[N2_summary$sim=="N2a - User budget decline",], aes(x=Time))+
+            geom_line(aes(y=Trees, color="Trees"), size=3)+
+            geom_line(aes(y=Trees_est, color="Estimate"), size=3)+
+            geom_line(data=target, aes(x=Time, y=Trees), linetype="dashed", size=2)+
+            scale_color_manual(name="Line colour", values=c(Trees="red", Estimate="blue"))+
+            theme_classic()+
+            theme(axis.title = element_text(size=15),
+                  axis.text = element_text(size=15),
+                  legend.text = element_text(size=15),
+                  legend.title = element_text(size=15))+
+            ggtitle("N2a - User budget decline")
+
+p.N2b.obs <- ggplot(N2_summary[N2_summary$sim=="N2b - Manager budget decline",], aes(x=Time))+
+            geom_line(aes(y=Trees, color="Trees"), size=3)+
+            geom_line(aes(y=Trees_est, color="Estimate"), size=3)+
+            scale_color_manual(name="Line colour", values=c(Trees="red", Estimate="blue"))+
+            theme_classic()+
+            ylab("")+
+            theme(axis.title = element_text(size=15),
+                  axis.text = element_text(size=15),
+                  legend.text = element_text(size=15),
+                  legend.title = element_text(size=15))+
+            ggtitle("N2b - Manager budget decline")
+
+p.N2a.obs + p.N2b.obs
+
+
+#
+  ## N2c ####
+
+## This simulation is identical to N2a but will increase agent_view and agent_move
+
+# user budget decreases linearly, manager budget remains constant
+
+UB  <- 200
+UBR <- 20
+
+N2c_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 50, 
+  agent_move = 100, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 0, # no natural death 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.08, # Trees have 8% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 200, 
+  usr_budget_rng = UBR, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+N2c <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = N2c_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  N2c[time_step, 1] <- time_step
+  N2c[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  N2c[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  N2c[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  N2c[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  N2c[time_step, 6] <- UB
+  
+  N2c_sim_old <- sim_new
+  UB <- UB - 3
+  UBR <- UB/10
+}
+
+colnames(N2c) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
+                   "User_budget")
+N2c_summary <- data.frame(N2c)
+
+write.csv(N2c_summary, file="outputs/investment/null_scenarios/N2/N2c_summary.csv")
+
+
+  ## N2d ####
+
+## this sim is identical to N2b but I will increase agent_move to 100 and agent_view to 50 to see what happens to the precision and accuracy of the observation model
+
+# User budget remains constant, manager budge decreases linearly
+
+MB  <- 200
+
+N2d_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 50, 
+  agent_move = 100, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 0, # no natural death 
+  observe_type = 0, # 0=density-based sampling 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.08, # Trees have 8% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 200, 
+  manager_budget = MB, 
+  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+N2d <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = N2d_sim_old, manager_budget=MB)
+  
+  N2d[time_step, 1] <- time_step
+  N2d[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  N2d[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  N2d[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  N2d[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  N2d[time_step, 6] <- MB
+  
+  N2d_sim_old <- sim_new
+  MB <- MB - 3
+  
+}
+
+colnames(N2d) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
+                   "Manager_budget")
+N2d_summary <- data.frame(N2d)
+
+write.csv(N2d_summary, file = "outputs/investment/null_scenarios/N2/N2d_summary.csv")
+
+#N2b_summary <- read.csv("outputs/investment/null_scenarios/N2/N2b_summary.csv", header = TRUE)
+
+
+
+  ## N2c + d plots ####
+
+N2c_summary <- read.csv("outputs/investment/null_scenarios/N2/N2c_summary.csv", header = TRUE)
+N2d_summary <- read.csv("outputs/investment/null_scenarios/N2/N2d_summary.csv", header = TRUE)
+
+
+N2c_summary <- N2c_summary[,-1] 
+N2d_summary <- N2d_summary[,-1]
+
+# change name of budget column and add actor column
+N2c_summary <- N2c_summary %>% rename(Budget = User_budget)
+N2c_summary$Actor <- "User"
+N2d_summary <- N2d_summary %>% rename(Budget = Manager_budget)
+N2d_summary$Actor <- "Manager"
+
+# duplicate dataframe without budget and actor columns
+N2c_2 <- N2c_summary[ ,c(1:5)]
+N2d_2 <- N2d_summary[ ,c(1:5)]
+
+# add alternate actor and budget column
+N2c_2$Budget <- 200
+N2c_2$Actor  <- "Manager"
+N2d_2$Budget <- 200
+N2d_2$Actor  <- "User"
+
+# merge
+N2c_summary <- rbind(N2c_summary, N2c_2)
+N2d_summary <- rbind(N2d_summary, N2d_2)
+
+# add sim
+N2c_summary$sim <- "N2c - User budget decline"
+N2d_summary$sim <- "N2d - Manager budget decline"
+
+# merge
+N2.1_summary <- rbind(N2c_summary, N2d_summary)
+
+
+# plots
+p.budget.c <- ggplot(N2.1_summary[N2.1_summary$sim=="N2c - User budget decline",], 
+                     aes(x=Time, y=Budget, group=Actor, color=Actor))+
+              geom_line(size=3)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12),
+                    legend.text = element_text(size=12),
+                    legend.title = element_text(size=15))+
+              ggtitle("N2c - User budget decline")
+
+p.budget.d <- ggplot(N2.1_summary[N2.1_summary$sim=="N2d - Manager budget decline",], 
+                     aes(x=Time, y=Budget, group=Actor, color=Actor))+
+              geom_line(size=3)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12),
+                    legend.text = element_text(size=12),
+                    legend.title = element_text(size=15))+
+              ggtitle("N2d - Manager budget decline")
+
+
+p.trees.cd <- ggplot(N2.1_summary, aes(x=Time, y=Trees, group=sim, color=sim))+
+            geom_line(size=3)+
+            theme_classic()+
+            theme(axis.title = element_text(size=15),
+                  axis.text = element_text(size=12),
+                  legend.text = element_text(size=12),
+                  legend.title = element_text(size=15))
+
+p.cull.cd <- ggplot(N2.1_summary, aes(x=Time, y=Cull_count, group=sim, color=sim))+
+          geom_line(size=3)+
+          theme_classic()+
+          theme(axis.title = element_text(size=15),
+                axis.text = element_text(size=12),
+                legend.text = element_text(size=12),
+                legend.title = element_text(size=15))
+
+
+p.cost.cd <- ggplot(N2.1_summary, aes(x=Time, y=Cull_cost, group=sim, color=sim))+
+          geom_line(size=3)+
+          theme_classic()+
+          theme(axis.title = element_text(size=15),
+                axis.text = element_text(size=12),
+                legend.text = element_text(size=12),
+                legend.title = element_text(size=15))
+
+(p.budget.c + p.budget.d) / (p.cull.cd + p.cost.cd) / p.trees.cd
+
+
+## observation error plots
+
+target <- data.frame(Time = c(1:50),
+                     Trees = 1125000)
+
+p.N2c.obs <- ggplot(N2.1_summary[N2.1_summary$sim=="N2c - User budget decline",], aes(x=Time))+
+            geom_line(aes(y=Trees, color="Trees"), size=3)+
+            geom_line(aes(y=Trees_est, color="Estimate"), size=3)+
+            geom_line(data=target, aes(x=Time, y=Trees), linetype="dashed", size=2)+
+            scale_color_manual(name="Line colour", values=c(Trees="red", Estimate="blue"))+
+            theme_classic()+
+            theme(axis.title = element_text(size=15),
+                  axis.text = element_text(size=15),
+                  legend.text = element_text(size=15),
+                  legend.title = element_text(size=15))+
+            ggtitle("N2c - User budget decline")
+
+p.N2d.obs <- ggplot(N2.1_summary[N2.1_summary$sim=="N2d - Manager budget decline",], aes(x=Time))+
+            geom_line(aes(y=Trees, color="Trees"), size=3)+
+            geom_line(aes(y=Trees_est, color="Estimate"), size=3)+
+            scale_color_manual(name="Line colour", values=c(Trees="red", Estimate="blue"))+
+            theme_classic()+
+            ylab("")+
+            theme(axis.title = element_text(size=15),
+                  axis.text = element_text(size=15),
+                  legend.text = element_text(size=15),
+                  legend.title = element_text(size=15))+
+            ggtitle("N2d - Manager budget decline")
+
+p.N2c.obs + p.N2d.obs
+
+
 #### N3 ####
 
 # N3 and its variants represent the optomistic null - where the manager budget is increasing over time. The variants introduce different rates of increase for the user and the manager. 
+
+
+
 
