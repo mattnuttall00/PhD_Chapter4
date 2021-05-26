@@ -1058,8 +1058,10 @@ p.cost <- ggplot(N2_summary, aes(x=Time, y=Cull_cost, group=sim, color=sim))+
                 legend.text = element_text(size=12),
                 legend.title = element_text(size=15))
 
-(p.budget.a + p.budget.b) / (p.cull + p.cost) / p.trees
+p.N2a_b_com <- (p.budget.a + p.budget.b) / (p.cull + p.cost) / p.trees
 
+ggsave("outputs/investment/null_scenarios/N2/N2a_N2b_comparison_plot.png", p.N2a_b_com,
+       width = 30, height = 20, units="cm", dpi=300)
 
 target <- data.frame(Time = c(1:50),
                      Trees = 1125000)
