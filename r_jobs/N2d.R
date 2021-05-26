@@ -3,7 +3,7 @@ require('GMSE')
 
 MB  <- 200
 
-N2b_sim_old <- gmse_apply(
+N2d_sim_old <- gmse_apply(
   res_mod = resource,
   obs_mod = observation,
   man_mod = manager,
@@ -15,13 +15,13 @@ N2b_sim_old <- gmse_apply(
   res_movement = 0, # trees don't move 
   remove_pr = 0, # Assume no death 
   lambda = 0, # assume no growth
-  agent_view = 150, 
-  agent_move = 50, 
+  agent_view = 50, 
+  agent_move = 100, 
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
   res_move_type = 0, # 0=no move, 
   res_death_type = 0, # no natural death 
-  observe_type = 2, # transect sampling 
+  observe_type = 0, # 0=density-based sampling 
   times_observe = 1, 
   obs_move_type = 1, # uniform in any direction
   res_min_age = 0, # age of resources before agents record/act on them
@@ -50,29 +50,27 @@ N2b_sim_old <- gmse_apply(
 )
 
 # matrix for results
-N2b <- matrix(data=NA, nrow=50, ncol=6)
+N2d <- matrix(data=NA, nrow=50, ncol=6)
 
 # loop the simulation. 
 for(time_step in 1:50){
   
-  sim_new <- gmse_apply(get_res = "Full", old_list = N2b_sim_old, manager_budget=MB)
+  sim_new <- gmse_apply(get_res = "Full", old_list = N2d_sim_old, manager_budget=MB)
   
-  N2b[time_step, 1] <- time_step
-  N2b[time_step, 2] <- sim_new$basic_output$resource_results[1]
-  N2b[time_step, 3] <- sim_new$basic_output$observation_results[1]
-  N2b[time_step, 4] <- sim_new$basic_output$manager_results[3]
-  N2b[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
-  N2b[time_step, 6] <- MB
+  N2d[time_step, 1] <- time_step
+  N2d[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  N2d[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  N2d[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  N2d[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  N2d[time_step, 6] <- MB
   
-  N2b_sim_old <- sim_new
+  N2d_sim_old <- sim_new
   MB <- MB - 3
   
 }
 
-colnames(N2b) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
+colnames(N2d) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
                    "Manager_budget")
-N2b_summary <- data.frame(N2b)
+N2d_summary <- data.frame(N2d)
 
-write.csv(N2b_summary, file = "outputs/investment/null_scenarios/N2/N2b_summary.csv")
-
-rm(N2b)
+write.csv(N2d_summary, file = "outputs/investment/null_scenarios/N2/N2d_summary.csv")
