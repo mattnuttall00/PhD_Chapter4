@@ -58,9 +58,10 @@ library('patchwork')
 # N2a - Decreasing Null - Manager budget remains constant, user budget decreases linearly
 # N2b - Decreasing Null - User budget remains constant, manager budget decreases linearly
 
-# N3 - Optimistic Null - Manager and user budgets both increase linearly over time, at the same rate and from the same starting point
-# N3a - Optimistic Null - Variation of N3. Manager and user budget increase linearly over time, but the manager budget rate of increase is lower than the user rate of increase
-# N3b - optimistic Null - Variation of N3. Manager and user budget increase linearly over time, but the manager budget rate of increase is higher than the user rate of increase
+# N3a - Optimistic Null - Manager budget increases linearly over time, user budget remains constant
+# N3b - Optimistic NUll - Manager and user budgets both increase linearly, from the same same starting point and at the same rate
+# N3c - Optimistic Null - Variation of N3. Manager and user budget increase linearly over time, but the manager budget rate of increase is lower than the user rate of increase
+# N3d - optimistic Null - Variation of N3. Manager and user budget increase linearly over time, but the manager budget rate of increase is higher than the user rate of increase
 
 # N4 - Pessimistic Null - Manager budget remains constant, but user budgets increase linearly 
 
@@ -818,8 +819,10 @@ write.csv(N1z_summary, file="outputs/investment/null_scenarios/N1/N1z_summary.cs
 
 # user budget decreases linearly, manager budget remains constant. Observation type changed to transect, and agent_view increased so no observation error
 
+# I have changed the value of the user budget range from 1/10 to 1/5 in this scenario (but not in N2b) to see if it would reduce the step pattern in the cull count, but it has not worked. Will need to check with Brad.
+
 UB  <- 200
-UBR <- 20
+UBR <- 40
 
 N2a_sim_old <- gmse_apply(
   res_mod = resource,
@@ -885,7 +888,7 @@ for(time_step in 1:50){
   
   N2a_sim_old <- sim_new
   UB <- UB - 3
-  UBR <- UB/10
+  UBR <- UB/5
 }
 
 colnames(N2a) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
@@ -1382,8 +1385,88 @@ p.N2c.obs + p.N2d.obs
 
 #### N3 ####
 
-# N3 and its variants represent the optomistic null - where the manager budget is increasing over time. The variants introduce different rates of increase for the user and the manager. 
+# N3 and its variants represent the optimistic null - where the manager budget is increasing over time. The variants introduce different rates of increase for the user and the manager. 
 
 
+  ## N3a ####
 
+# N3a - The manager budget increases linearly (to a cumulative maximum of 10,000), the user budget remains constant.
+
+# In order for all of the different scenarios that have increasing budgets to be comparable, there needs to be a finite amount of budget for both user and manager in any given scenario. Based on the constant budget of 200 set in N1, and the 50 time steps, the maximum total budget is 10,000. 
+
+UB  <- 200
+UBR <- 40
+
+N2a_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, # landscape is 22,500ha or 22.5km2
+  res_movement = 0, # trees don't move 
+  remove_pr = 0, # Assume no death 
+  lambda = 0, # assume no growth
+  agent_view = 150, 
+  agent_move = 50, 
+  res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
+  res_death_K = 5000000, # carrying capacity set to way above starting number of resources
+  res_move_type = 0, # 0=no move, 
+  res_death_type = 0, # no natural death 
+  observe_type = 2, # transect 
+  times_observe = 1, 
+  obs_move_type = 1, # uniform in any direction
+  res_min_age = 0, # age of resources before agents record/act on them
+  res_move_obs = FALSE, # trees don't move
+  plotting = FALSE, 
+  res_consume = 0.08, # Trees have 8% impact on yield
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 200, 
+  usr_budget_rng = UBR, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+N2a <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = N2a_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  N2a[time_step, 1] <- time_step
+  N2a[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  N2a[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  N2a[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  N2a[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  N2a[time_step, 6] <- UB
+  
+  N2a_sim_old <- sim_new
+  UB <- UB - 3
+  UBR <- UB/5
+}
+
+colnames(N2a) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
+                   "User_budget")
+N2a_summary <- data.frame(N2a)
+
+write.csv(N2a_summary, file = "outputs/investment/null_scenarios/N2/N2a_summary.csv")
 
