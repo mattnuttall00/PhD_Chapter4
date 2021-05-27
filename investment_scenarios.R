@@ -1258,7 +1258,7 @@ colnames(N2d) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
                    "Manager_budget")
 N2d_summary <- data.frame(N2d)
 
-write.csv(N2d_summary, file = "outputs/investment/null_scenarios/N2/N2d_summary.csv")
+#write.csv(N2d_summary, file = "outputs/investment/null_scenarios/N2/N2d_summary.csv")
 
 #N2b_summary <- read.csv("outputs/investment/null_scenarios/N2/N2b_summary.csv", header = TRUE)
 
