@@ -60,8 +60,8 @@ library('patchwork')
 
 # N3a - Optimistic Null - Manager budget increases linearly over time, user budget remains constant
 # N3b - Optimistic NUll - Manager and user budgets both increase linearly, from the same same starting point and at the same rate
-# N3c - Optimistic Null - Variation of N3. Manager and user budget increase linearly over time, but the manager budget rate of increase is lower than the user rate of increase
-# N3d - optimistic Null - Variation of N3. Manager and user budget increase linearly over time, but the manager budget rate of increase is higher than the user rate of increase
+# N3c - Optimistic Null - Variation of N3b. Manager and user budget increase linearly over time, but the manager budget rate of increase is lower than the user rate of increase
+# N3d - optimistic Null - Variation of N3b. Manager and user budget increase linearly over time, but the manager budget rate of increase is higher than the user rate of increase
 
 # N4 - Pessimistic Null - Manager budget remains constant, but user budgets increase linearly 
 
