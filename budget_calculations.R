@@ -145,4 +145,21 @@ p.3
 #' 
 #' * The final (i.e. non-null) scenarios should have equal total available budgets, because the question is "given increasing pressure, and given a finite budget, what is the best investement strategy?". 
 #' 
-#' * If all of the above is OK, I think increasing the values of the starting budgets and maximum available budget will be useful, just to give us more wiggle room to manouvre. So instead of the starting values being 200, we should make them, say, 1000. This would give a maximum available budget of 50,000. I woudld need to re-run all the null scenarios with the new values, but that's fine.    
+#' * If all of the above is OK, I think increasing the values of the starting budgets and maximum available budget will be useful, just to give us more wiggle room to manouvre. So instead of the starting values being 200, we should make them, say, 1000. This would give a maximum available budget of 50,000. I woudld need to re-run all the null scenarios with the new values, but that's fine.
+#' 
+#'     
+#' 
+#' # UPDATE 07/07/21
+#' 
+#' Brad's advice is to not think about manager and user budgets being at all equvialent - he suggests not even putting them on the same y axis.They are not directly comparable and are not even always proportional. Brad also said that whether or not I want to set a total available budget (for either user or manager) depends on the question. For example,if you simply set a starting value for the user budget, and then 1) increase, 2) decrease, 3) keep constant, you are asking what happens when the absolute user budget (i.e. their power to affect the system) changes over time. Conversely, if you had different starting values for the three scenarios above, but the area under the curve (i.e. total available budget) was equal, then you are asking what happens when the same amount of user power is allocated unequally over time. 
+#' 
+#' Therefore, because my user budget is representing increases in human population, I DO want the absoulte power of users to change over time. Therefore when I have user budgets decreasing, remaining stable, and increasing (e.g. in some of the Null scenarios), then I think the starting values should be the same. This also means that in the final simulations (testing hypothesis), if I want user budgets to increase at different rates in different simulations, I want them to be from the same starting points so that the absolute power is increasing by different amounts. 
+#' 
+#' However, as Brad also suggests, I do need to somehow standardise budgets across scenarios. In other words, standardise all user budgets, and then standardise all manager budgets (rather than standardising them against each other). 
+#' 
+#' The main question I have at the moment is about the manager budgets. If I ensure the areas under the curves are all the same then I am asking: "given the same total budget over the time period, what is the best strategy for investment?". If I do not set a standard area under the surve, then the question becomes more about fundraising and overall project finances. The issue is how do I set the budgets such that the answer is not simply "the larger the total budget over the time period, the better". 
+#' 
+#' Currently I think I need to:
+#'  
+#' * Have the same starting point (intercept) for all user budgets. This is because the user budget is representing human population, and I want all of the scenarios to begin with the same population.
+#' *       
