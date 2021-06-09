@@ -1,5 +1,18 @@
 ## This script is to establish the upper and lower bounds for the manager and user budgets. Here I will use simulations to establish where the thresholds are below which the user/manager loses all power (i.e. user/manger budget is too low relative to the other actor's budget budget)
 
+
+### Load libraries ####
+
+library('tidyverse')
+library('GMSE')
+library('patchwork')
+library('MESS')
+
+### Scroll down to the bottom of each call to load the results summaries that have been saved
+
+
+### thresh1 - user budget static, manager budget varying ####
+
 ## Here I will fix the user budget at 1000, and then vary the manager budget from very low (50) to very high (4000) over a long time period to see if we can see the thresholds.
 
 MB  <- 50
@@ -77,10 +90,11 @@ thresh1_summary <- data.frame(thresh1)
 write.csv(thresh1_summary, file = "outputs/investment/null_scenarios/budget_thresholds/thresh1_summary.csv")
 
 
-ggplot(thresh1_summary, aes(x=Time, y=Cull_count))+
-  geom_line()
+# Loads saved results from Thresh1
+thresh1_summary <- read.csv("outputs/investment/null_scenarios/budget_thresholds/thresh1_summary.csv", header = T)
 
 
+### thresh2 - manager budget static, user budget varying ####
 
 ### here I will fix the manager budget at 1000 and vary the user budget
 
@@ -158,8 +172,106 @@ colnames(thresh2) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count","
 
 thresh2_summary <- data.frame(thresh2)
 
-write.csv(thresh2_summary, file = "outputs/investment/null_scenarios/budget_thresholds/thresh2_summary.csv")
+#write.csv(thresh2_summary, file = "outputs/investment/null_scenarios/budget_thresholds/thresh2_summary.csv")
+
+# load saved results summary for thresh2
+thresh2_summary <- read.csv("outputs/investment/null_scenarios/budget_thresholds/thresh2_summary.csv", header = T)
+
+# Thresh2 does not find the point where the manager loses all power, because the cull count continues to rise right up until the last time step. That means that the user is still gaining power over the manager, right up to that point. I think I am looking for the point where the cull count levels off, as this suggests the users are 
 
 
-ggplot(thresh1_summary, aes(x=Time, y=Cull_count))+
-  geom_line()
+
+### Plots - thresh1 & 2 ####
+
+thresh1_summary <- read.csv("outputs/investment/null_scenarios/budget_thresholds/thresh1_summary.csv", header = T)
+thresh2_summary <- read.csv("outputs/investment/null_scenarios/budget_thresholds/thresh2_summary.csv", header = T)
+
+
+# merge dataframes
+thresh1_summary$Sim <- "Thresh1_manager"
+thresh1_summary <- thresh1_summary %>% rename(Budget = Manager_budget)
+thresh2_summary$Sim <- "Thresh2_user"
+thresh2_summary <- thresh2_summary %>% rename(Budget = User_budget) 
+thresh_all_summary <- rbind(thresh1_summary, thresh2_summary) 
+
+
+p.cull_count <- ggplot(thresh_all_summary, aes(x=Time, y=Cull_count, group=Sim, color=Sim))+
+                geom_line(size=3)+
+                theme_classic()+
+                theme(axis.text = element_text(size=15),
+                      axis.title = element_text(size=15),
+                      legend.text = element_text(size=12),
+                      legend.title = element_text(size=12))
+
+# dataframe for the static budget
+static_budget <- data.frame(Time = rep(1:100, times=2),
+                            Budget = rep(1000, times=200),
+                            Sim = rep(c("Thresh1_manager","Thresh2_manager"), each=100))
+
+p.budget <- ggplot(thresh_all_summary, aes(x=Time, y=Budget, group=Sim, color=Sim))+
+            geom_line(size=3)+
+            geom_line(data=static_budget, aes(x=Time, y=Budget), linetype="dashed", size=3)+
+            theme_classic()+
+            theme(axis.text = element_text(size=15),
+                  axis.title = element_text(size=15),
+                  legend.position = "none")
+
+p.cost <- ggplot(thresh_all_summary, aes(x=Cull_cost, y=Cull_count, group=Sim, color=Sim))+
+          geom_line(size=3)+        
+          theme_classic()+
+          theme(axis.text = element_text(size=15),
+                axis.title = element_text(size=15),
+                legend.text = element_text(size=12),
+                legend.title = element_text(size=12))
+
+(p.cull_count + p.budget) / p.cost
+
+# Ok, so when the manager budget is varied (thresh1), we see that around time step 25 the user loses all ability to cull trees. There is some very minor culling up to time step 44, but it's fairly insignificant. The point at which the majority of culling stops, is when the manager budget is 1300. So when the manager budget is about 130% of the user budget (or the user budget is ~ 75-77% of the manager budget).
+
+# When the user budget is varied there is little culling at all until around time step 14, when the user budget is 700 (so 70% of the manager budget). This matches the above. I am not sure exactly where the manager loses all power, but I am assuming it is the point at which they stop varying the cost of culling (i.e. they have fixed the cost of culling at the maximum). This is time step 25, where the user budget is 1250. This is where the manager budget is 80% of the user budget. 
+
+# Brad mentioned that he viewed the point of the manager losing all power as the resource extinction, but seeing as in this landscape set up (millions of trees, few users), this is never going to happen. Myself and Nils think that in terms of mapping to reality, the point at which the manager effectively loses all power is when they are maxing out their budget on setting as high a cost as possible, but it is not really having any effect and they stop trying to adaptively manage. This is represented in the above as around time step 25, when the user budget is 1250. 
+
+
+### sine wave - T1 ####
+
+a <- seq(0,25,length.out=100)
+b <- sin(a)
+plot(a,b,type="l")
+
+c <- seq(0,50,length.out=100)
+d <- sin(c)
+plot(c,d,type="l")
+# so changing the values of the sequence changes the frequency
+
+e <- seq(50,100,length.out=50)
+f <- sin(e)
+plot(e,f,type = "l")
+# changing the number of values just changes the smoothness of the line (number of points)
+
+g <- seq(0,20,length.out=100)
+h <- sin(g)
+plot(g,h,type = "l")
+
+# change the amplitude
+i <- seq(0,20,length.out=100)
+j <- 2*sin(i)
+plot(i,j,type="l")
+
+
+# try to make the y values positive
+# need to use the equation y = a sin (bx +c) + d, where a=1, b=1, and c=0, d=2
+k <- seq(0,20,length.out=100)
+l <- 1*sin(1*k+0)+1
+plot(k,l,type="l")
+
+# Now increase amplitude
+m <- seq(0,20,length.out=100)
+n <- 1000*sin(1*m+0)+1000
+plot(m,n,type="l")
+
+# change x axis to 0:50 (time steps)
+o <- seq(0,50,length.out=100)
+p <- 1000*sin(1*o+0)+1000
+plot(o,p,type="l")
+
