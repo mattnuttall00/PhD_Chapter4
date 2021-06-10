@@ -360,3 +360,13 @@ colnames(sin1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
 sin1 <- data.frame(sin1)
 
 plot(sin1$Time, sin1$Manager_budget, type = "l")
+
+### Poisson - T2 ####
+
+# here I am going to use a Poisson distribution/process to create "events" in the manager's budget. I guess an event will be a spike in the budget, or perhaps the transition from high budget to low budget and vice versa? Because I need the AUC to be approximately the same as the other scenarios, I need the number of events (or peaks and troughs) to be approximately the same otherwise the AUC will be very different.
+
+# Either I could fix the height of the peaks (i.e. the max budget value during a peak period) to be the same as T1 (i.e. regular) and then just vary the timestep in which the event occurs, or I could also allow the height of the peaks to vary, with higher peaks being more unlikely, and lower peaks being more likely. 
+
+# see here for where I got the below code from: https://stats.stackexchange.com/questions/59823/how-can-i-generate-events-using-the-poisson-distribution-in-r
+
+plot(cumsum(rexp(50, rate=13)))
