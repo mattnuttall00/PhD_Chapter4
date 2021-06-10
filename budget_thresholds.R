@@ -8,8 +8,6 @@ library('GMSE')
 library('patchwork')
 library('MESS')
 
-### Scroll down to the bottom of each call to load the results summaries that have been saved
-
 
 ### thresh1 - user budget static, manager budget varying ####
 
@@ -270,8 +268,95 @@ m <- seq(0,20,length.out=100)
 n <- 1000*sin(1*m+0)+1000
 plot(m,n,type="l")
 
-# change x axis to 0:50 (time steps)
+# change x axis to 0:50 (time steps), and change y axis so the minimum is 500
 o <- seq(0,50,length.out=100)
-p <- 1000*sin(1*o+0)+1000
-plot(o,p,type="l")
+p <- 500*sin(1*o+0)+1000
+plot(o,p,type="l", ylim = c(0,1600))
 
+# calculate the area under the curve
+auc(o,p)
+
+
+# reduce to 50 data points
+q <- seq(0,50,length.out=50)
+r <- 500*sin(1*q+0)+1000
+plot(q,r,type="l", ylim = c(0,1600))
+
+
+## experiment with allocating manager budget values from the above sin wave
+
+# create very small, simple landscape to speed up run time
+
+MB  <- 1000
+
+sin1_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 20,
+  land_dim_2 = 20, 
+  res_movement = 0, 
+  remove_pr = 0,
+  lambda = 0, 
+  agent_view = 20, 
+  agent_move = 20, 
+  res_birth_K = 1, 
+  res_death_K = 5000000, 
+  res_move_type = 0,  
+  res_death_type = 0,  
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 1000, 
+  manager_budget = MB, 
+  usr_budget_rng = 100, 
+  manage_target = 4000, 
+  RESOURCE_ini = 4000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+sin1 <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = sin1_sim_old, manager_budget=MB)
+  
+  sin1[time_step, 1] <- time_step
+  sin1[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  sin1[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  sin1[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  sin1[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  sin1[time_step, 6] <- MB
+  
+  sin1_sim_old <- sim_new
+  MB <- r[time_step]
+  
+}
+
+colnames(sin1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count",
+                   "Manager_budget")
+sin1 <- data.frame(sin1)
+
+plot(sin1$Time, sin1$Manager_budget, type = "l")
