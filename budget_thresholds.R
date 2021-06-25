@@ -552,10 +552,66 @@ plot(sin1$Time, sin1$Manager_budget, type = "l")
 
 # Either I could fix the height of the peaks (i.e. the max budget value during a peak period) to be the same as T1 (i.e. regular) and then just vary the timestep in which the event occurs, or I could also allow the height of the peaks to vary, with higher peaks being more unlikely, and lower peaks being more likely. 
 
-# see here for where I got the below code from: https://stats.stackexchange.com/questions/59823/how-can-i-generate-events-using-the-poisson-distribution-in-r
 
-plot(cumsum(rexp(50, rate=13)))
 
+q <- seq(0,50,length.out=50)
+r <- 500*sin(1*q+0)+1000
+plot(q,r,type="l", ylim = c(0,1600))
+
+# These are ways of just generating random numbers drawn from either Poisson or normal distributions, or random sampling
+budget <- rpois(n = 1, lambda = r)
+budget  <- floor( rnorm(n = 1, mean = r, sd = 500) )
+budget <- sample(x = 1000:20000, size = 1)
+
+
+# this creates random noise around the sin wave
+xx <- seq(from = 0, to = 2*3.14, by = 0.1)
+yy <- sin(xx)
+plot(xx, yy + runif(n = length(xx), min = -0.1, max = 0.1), type = "l")
+plot(xx, yy + runif(n = length(xx), min = -0.4, max = 0.4), type = "l")
+plot(xx, 10000 + floor(1000 * (yy + runif(n = length(xx), min = -0.4, max = 0.4))), type = "l")
+
+
+# this changes the wavelength over time
+# changing the number that xx is multiplied by in the definition of yy changes the number of peaks. Changing the power fraction of xx changes the amount the frequency changes by. Smaller fractions change the frequency by more
+xx <- seq(from = 0, to = 8*pi, by = 0.1);
+yy <- sin(6*xx^(3/10));
+plot(xx, yy, type = "l");
+
+# change the y values to positive, and the x values 1:50
+xx <- seq(from = 0, to = 50, length.out=50)
+yy <- 500*sin(6*xx^(3/10))+1000
+plot(xx, yy, type = "l")
+
+
+# this was the final sine wave, but I have made the funding peaks every 5 years, resulting in a total of 10 peaks
+q <- seq(0,60,length.out=50)
+r <- 500*sin(1*q+0)+1000
+plot(q,r,type="l", ylim = c(0,1600))
+
+# now I want to try and create a wave with varying wavelength that also has 10 peaks. Althoug this doesnt work - I cant have the same number of peaks and varying wavelengths. The thing that has to be the same is the AUC
+xx <- seq(from = 0, to = 60, length.out=50)
+yy <- 500*sin(10*xx^(3/10))+1000
+plot(xx, yy, type = "l")
+
+xx <- seq(from = 0, to = 60, length.out=50)
+yy <- 500*sin(10*xx^(2/10))+1000
+plot(xx, yy, type = "l")
+
+
+
+yr <- sample(1:50, 10, replace = F)
+yr <- sort(yr)
+
+
+df <- data.frame(time = 1:50,
+                 mean = 500)
+
+for(i in 1:length(df$time)){
+  if(df$time)
+}
+
+#
 ### Setting AUC for different budgets ####
 
 # the below is from Brad and is a way to make sure the AUC for all manager budgets are the same
@@ -574,4 +630,6 @@ std_3 <- 1000 * (budget3 / sum(budget3));
 std_4 <- 1000 * (budget4 / sum(budget4));
 std_5 <- 1000 * (budget5 / sum(budget5));
 # Now all of them have the same total budget 1000 over 50 time steps
+
+
 
