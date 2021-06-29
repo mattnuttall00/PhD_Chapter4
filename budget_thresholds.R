@@ -546,7 +546,187 @@ sin1 <- data.frame(sin1)
 
 plot(sin1$Time, sin1$Manager_budget, type = "l")
 
-### Poisson - T2 ####
+## Fourier transform ####
+
+# tutorial found here: http://www.di.fc.ul.pt/~jpn/r/fourier/fourier.html
+
+# Function for plotting trajectories given a fourier series
+plot.fourier <- function(fourier.series, f.0, ts) {
+  w <- 2*pi*f.0
+  trajectory <- sapply(ts, function(t) fourier.series(t,w))
+  plot(ts, trajectory, type="l", xlab="time", ylab="f(t)"); abline(h=0,lty=3)
+}
+
+
+## function to create Inverse Fourier Transform
+# returns the x.n time series for a given time sequence (ts) and
+# a vector with the amount of frequencies k in the signal (X.k)
+get.trajectory <- function(X.k,ts,acq.freq) {
+  
+  N   <- length(ts)
+  i   <- complex(real = 0, imaginary = 1)
+  x.n <- rep(0,N)           # create vector to keep the trajectory
+  ks  <- 0:(length(X.k)-1)
+  
+  for(n in 0:(N-1)) {       # compute each time point x_n based on freqs X.k
+    x.n[n+1] <- sum(X.k * exp(i*2*pi*ks*n/N)) / N
+  }
+  
+  x.n * acq.freq 
+}
+
+# function to plot a frequenc spectrum of a given Xk
+plot.frequency.spectrum <- function(X.k, xlimits=c(0,length(X.k))) {
+  plot.data  <- cbind(0:(length(X.k)-1), Mod(X.k))
+  
+  # TODO: why this scaling is necessary?
+  plot.data[2:length(X.k),2] <- 2*plot.data[2:length(X.k),2] 
+  
+  plot(plot.data, t="h", lwd=2, main="", 
+       xlab="Frequency (Hz)", ylab="Strength", 
+       xlim=xlimits, ylim=c(0,max(Mod(plot.data[,2]))))
+}
+
+# Function to plot the i-th harmonic on the current plot
+# Plot the i-th harmonic
+# Xk: the frequencies computed by the FFt
+#  i: which harmonic
+# ts: the sampling time points
+# acq.freq: the acquisition rate
+plot.harmonic <- function(Xk, i, ts, acq.freq, color="red") {
+  Xk.h <- rep(0,length(Xk))
+  Xk.h[i+1] <- Xk[i+1] # i-th harmonic
+  harmonic.trajectory <- get.trajectory(Xk.h, ts, acq.freq=acq.freq)
+  points(ts, harmonic.trajectory, type="l", col=color)
+}
+
+
+# example from the tutorial:
+acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+time     <- 6                      # measuring time interval (seconds)
+ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (s) 
+f.0 <- 1/time                      # f.0 is the fundamental frequency of the complex wave
+
+dc.component <- 1
+component.freqs <- c(3,7,10)        # frequency of signal components (Hz)
+component.delay <- c(0,0,0)         # delay of signal components (radians)
+component.strength <- c(1.5,0.5,0.75) # strength of signal components
+
+f   <- function(t,w) { 
+  dc.component + 
+    sum( component.strength * sin(component.freqs*w*t + component.delay)) 
+}
+
+plot.fourier(f,f.0,ts=ts)
+
+
+## increase the time interval to 50
+acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+time     <- 50                      # measuring time interval (seconds)
+ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (s) 
+f.0 <- 1/time                      # f.0 is the fundamental frequency of the complex wave
+
+dc.component <- 1
+component.freqs <- c(3,7,10)        # frequency of signal components (Hz)
+component.delay <- c(0,0,0)         # delay of signal components (radians)
+component.strength <- c(1.5,0.5,0.75) # strength of signal components
+
+f   <- function(t,w) { 
+  dc.component + 
+    sum( component.strength * sin(component.freqs*w*t + component.delay)) 
+}
+
+plot.fourier(f,f.0,ts=ts)
+
+
+## change the fundamental frequency (f.0)
+acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+time     <- 50                      # measuring time interval (seconds)
+ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (s) 
+f.0 <- 3/time                      # f.0 is the fundamental frequency of the complex wave
+
+dc.component <- 1
+component.freqs <- c(3,7,10)        # frequency of signal components (Hz)
+component.delay <- c(0,0,0)         # delay of signal components (radians)
+component.strength <- c(1.5,0.5,0.75) # strength of signal components
+
+f   <- function(t,w) { 
+  dc.component + 
+    sum( component.strength * sin(component.freqs*w*t + component.delay)) 
+}
+
+plot.fourier(f,f.0,ts=ts)
+## increasing f.0 increases the number of peaks
+
+
+
+## change the dc.component 
+acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+time     <- 50                      # measuring time interval (seconds)
+ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (s) 
+f.0 <- 1/time                      # f.0 is the fundamental frequency of the complex wave
+
+dc.component <- 500                   # additive constant signal
+component.freqs <- c(3,7,10)        # frequency of signal components (Hz)
+component.delay <- c(0,0,0)         # delay of signal components (radians)
+component.strength <- c(1.5,0.5,0.75) # strength of signal components
+
+f   <- function(t,w) { 
+  dc.component + 
+    sum( component.strength * sin(component.freqs*w*t + component.delay)) 
+}
+
+plot.fourier(f,f.0,ts=ts)
+## the DC component is a constant that affects the y axis
+
+
+
+## Now I will mess with the components
+acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+time     <- 50                      # measuring time interval (seconds)
+ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (s) 
+f.0 <- 1/time                      # f.0 is the fundamental frequency of the complex wave
+
+dc.component <- 500                   # additive constant signal
+component.freqs <- c(10,2,5)        # frequency of signal components (Hz)
+component.delay <- c(0,0,0)         # delay of signal components (radians)
+component.strength <- c(1.5,0.5,0.75) # strength of signal components
+
+f   <- function(t,w) { 
+  dc.component + 
+    sum( component.strength * sin(component.freqs*w*t + component.delay)) 
+}
+
+plot.fourier(f,f.0,ts=ts)
+## Tried lots of different combinations, and you can produce all sorts of patterns
+
+
+
+## now fiddle with the delays
+acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+time     <- 50                      # measuring time interval (seconds)
+ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (s) 
+f.0 <- 1/time                      # f.0 is the fundamental frequency of the complex wave
+
+dc.component <- 500                   # additive constant signal
+component.freqs <- c(5,7,3)        # frequency of signal components (Hz)
+component.delay <- c(35,0,20)         # delay of signal components (radians)
+component.strength <- c(1.5,0.5,0.75) # strength of signal components
+
+f   <- function(t,w) { 
+  dc.component + 
+    sum( component.strength * sin(component.freqs*w*t + component.delay)) 
+}
+
+plot.fourier(f,f.0,ts=ts)
+# Messing with the delays produces some nice random peaks.
+
+
+# so I think I need to work out a function that essentially samples random numbers (within bounds) to populate the component frequencies and delays. Then in the function have a test whereby the AUC is calculated and the only ones that are saved are the ones that have approximately the correct AUC.
+
+
+#
+### Poisson ####
 
 # here I am going to use a Poisson distribution/process to create "events" in the manager's budget. I guess an event will be a spike in the budget, or perhaps the transition from high budget to low budget and vice versa? Because I need the AUC to be approximately the same as the other scenarios, I need the number of events (or peaks and troughs) to be approximately the same otherwise the AUC will be very different.
 
@@ -603,13 +783,41 @@ plot(xx, yy, type = "l")
 yr <- sample(1:50, 10, replace = F)
 yr <- sort(yr)
 
-
+# dataframe of budget values
 df <- data.frame(time = 1:50,
-                 mean = 500)
+                 mean = rep(500, times=50),
+                 y = NA)
 
+# change peak values based on random sample
 for(i in 1:length(df$time)){
-  if(df$time)
+  if(df$time[i] %in% yr){
+    df$y[i] <- 1000 
+  } else {
+    df$y[i] <- df$y[i]
+  }
 }
+
+# Create vector for the values either side of the peak values
+peak_sides <- vector()
+ for(i in 1:length(yr)){
+ a <- yr[i]-1
+ b <- yr[i]+1
+ d <- c(a,b)
+ peak_sides <- c(peak_sides,d)
+ }
+
+# change values for elements either side of the peaks
+for(i in 1:length(df$time)){
+  if(df$time[i] %in% peak_sides){
+    df$y[i] <- 750 
+  } else {
+    df$y[i] <- df$y[i]
+  }
+}
+
+df$y <- ifelse(is.na(df$y),500,df$y)
+
+plot(df$time, df$y, type="l", ylim=c(0,1200))
 
 #
 ### Setting AUC for different budgets ####
