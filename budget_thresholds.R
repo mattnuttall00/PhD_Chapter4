@@ -688,8 +688,8 @@ ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (
 f.0 <- 1/time                      # f.0 is the fundamental frequency of the complex wave
 
 dc.component <- 500                   # additive constant signal
-component.freqs <- c(10,2,5)        # frequency of signal components (Hz)
-component.delay <- c(0,0,0)         # delay of signal components (radians)
+component.freqs <- c(2,5,3)        # frequency of signal components (Hz)
+component.delay <- c(30,75,0)         # delay of signal components (radians)
 component.strength <- c(1.5,0.5,0.75) # strength of signal components
 
 f   <- function(t,w) { 
@@ -711,7 +711,7 @@ f.0 <- 1/time                      # f.0 is the fundamental frequency of the com
 dc.component <- 500                   # additive constant signal
 component.freqs <- c(5,7,3)        # frequency of signal components (Hz)
 component.delay <- c(35,0,20)         # delay of signal components (radians)
-component.strength <- c(1.5,0.5,0.75) # strength of signal components
+component.strength <- c(2.5,2.5,5.75) # strength of signal components
 
 f   <- function(t,w) { 
   dc.component + 
@@ -725,7 +725,60 @@ plot.fourier(f,f.0,ts=ts)
 # so I think I need to work out a function that essentially samples random numbers (within bounds) to populate the component frequencies and delays. Then in the function have a test whereby the AUC is calculated and the only ones that are saved are the ones that have approximately the correct AUC.
 
 
-#
+random_wave <- function(f.0, dc.component, freq, delay, strength){
+  
+  acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+  time     <- 50                      # measuring time interval (seconds)
+  ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (s) 
+  f.0 <- f.0                      # f.0 is the fundamental frequency of the complex wave
+  
+  dc.component <- dc.component                   # additive constant signal
+  component.freqs <- freq          # frequency of signal components (Hz)
+  component.delay <- delay         # delay of signal components (radians)
+  component.strength <- strength   # strength of signal components
+  
+  f   <- function(t,w) { 
+    dc.component + 
+      sum( strength * sin(freq*w*t + delay)) 
+  }
+  
+  plot.fourier(f,f.0,ts=ts)
+}
+
+# test
+random_wave(1/time, 500, c(5,7,3), c(35,0,20), c(1.5,0.5,0.75))
+
+
+# try multiple iterations
+par(mfrow=c(4,2))
+reps <- 1:8
+
+for(i in 1:length(reps)){
+  
+  f.0 <- 0.5/50
+  dc.component <- 500
+  freq  <- sample(1:15,3, replace = FALSE)
+  freq1 <- freq[1]
+  freq2 <- freq[2]
+  freq3 <- freq[3]
+  
+  delay  <- sample(-180:180,3, replace = FALSE)
+  delay1 <- delay[1]
+  delay2 <- delay[2]
+  delay3 <- delay[3]
+  
+  str <- seq(0.25, 7.5, 0.2)
+  strength1 <- sample(str,1)
+  strength2 <- sample(str,1)
+  strength3 <- sample(str,1)
+  
+  random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+              c(strength1,strength2,strength3))
+}
+
+
+
+ #
 ### Poisson ####
 
 # here I am going to use a Poisson distribution/process to create "events" in the manager's budget. I guess an event will be a spike in the budget, or perhaps the transition from high budget to low budget and vice versa? Because I need the AUC to be approximately the same as the other scenarios, I need the number of events (or peaks and troughs) to be approximately the same otherwise the AUC will be very different.
