@@ -409,14 +409,126 @@ p.cost_34 <- ggplot(thresh_34_summary, aes(x=Cull_cost, y=Cull_count, group=Sim,
 
 (p.cull_count_12 + p.cull_count_34) / (p.cost_12 + p.cost_34)
 
-# Ok, so when the manager budget is varied (thresh1 and thresh3), we see that around time step 25 the user loses most of their ability to cull trees. This is less certain in thresh3, as the drop off in cull count is slower than in thresh1. There is some very minor culling right to the end of the simulation in thresh3, but it is very minor towards the end. For thresh1 the point at which the majority of culling stops (cull count into singel figures), is when the manager budget is 1300. So when the manager budget is about 130% of the user budget (or the user budget is ~ 75-77% of the manager budget). The cull count in thresh4 never drops into single figures, but the point at whcih it drops below 100 is time step 63 when the manager budget is 6300, or 126% of the user budget (or the user budget is 80% of the manager budget). The interesting thing to note is that the total number of trees lost is dramatically larger in thresh3. This will be because of the relative differences in manager and user budget - it thresh1 the manager budget starts off at 5% of the user budget, whereas in thresh3 the manager budget starts off at 2%, and so the manager has less power.   
+# Ok, so when the manager budget is varied (thresh1 and thresh3), we see that around time step 25 the user loses most of their ability to cull trees. This is less certain in thresh3, as the drop off in cull count is slower than in thresh1. There is some very minor culling right to the end of the simulation in thresh3, but it is very minor towards the end. For thresh1 the point at which the majority of culling stops (cull count into singel figures), is when the manager budget is 1300. So when the manager budget is about 130% of the user budget (or the user budget is ~ 75-77% of the manager budget). The cull count in thresh3 never drops into single figures, but the point at which it drops below 100 is time step 63 when the manager budget is 6300, or 126% of the user budget (or the user budget is 80% of the manager budget). The interesting thing to note is that the total number of trees lost is dramatically larger in thresh3. This will be because of the relative differences in manager and user budget - in thresh1 the manager budget starts off at 5% of the user budget, whereas in thresh3 the manager budget starts off at 2%, and so the manager has less power.   
 
 # When the user budget is varied there is little culling at all until around time step 14 (thresh2) and time step 19 (thresh4), when the user budget is 700 (so 70% of the manager budget), and 1900 (38% of the manager budget). I am not sure exactly where the manager loses all power, but I am assuming it is the point at which they stop varying the cost of culling (i.e. they have fixed the cost of culling at the maximum). For thresh2 this is time step 25, where the user budget is 1250. This is where the manager budget is 80% of the user budget. For thresh4 this actually never quite happens, but most of the cost variation stops around time step 50, when the user and manager budgets are equal. 
 
 # Brad mentioned that he viewed the point of the manager losing all power as the resource extinction, but seeing as in this landscape set up (millions of trees, few users), this is never going to happen. Myself and Nils think that in terms of mapping to reality, the point at which the manager effectively loses all power is when they are maxing out their budget on setting as high a cost as possible, but it is not really having any effect and they stop trying to adaptively manage.  
 
 
-### sine wave - T1 ####
+### Changing frequency - IGNORE ####
+
+
+## below is code that was experimenting with sine waves and changing the frequency as you go along the time period (with help from Brad). This was one approach to scenario 5, but we ended up going down a different route (See "Fourier Transform" section). At the bottom of this section was a crude attempt by me to randomly select the point at which the peaks appeared.
+
+
+q <- seq(0,50,length.out=50)
+r <- 500*sin(1*q+0)+1000
+plot(q,r,type="l", ylim = c(0,1600))
+
+# These are ways of just generating random numbers drawn from either Poisson or normal distributions, or random sampling
+budget <- rpois(n = 1, lambda = r)
+budget  <- floor( rnorm(n = 1, mean = r, sd = 500) )
+budget <- sample(x = 1000:20000, size = 1)
+
+
+# this creates random noise around the sin wave
+xx <- seq(from = 0, to = 2*3.14, by = 0.1)
+yy <- sin(xx)
+plot(xx, yy + runif(n = length(xx), min = -0.1, max = 0.1), type = "l")
+plot(xx, yy + runif(n = length(xx), min = -0.4, max = 0.4), type = "l")
+plot(xx, 10000 + floor(1000 * (yy + runif(n = length(xx), min = -0.4, max = 0.4))), type = "l")
+
+
+# this changes the wavelength over time
+# changing the number that xx is multiplied by in the definition of yy changes the number of peaks. Changing the power fraction of xx changes the amount the frequency changes by. Smaller fractions change the frequency by more
+xx <- seq(from = 0, to = 8*pi, by = 0.1);
+yy <- sin(6*xx^(3/10));
+plot(xx, yy, type = "l");
+
+# change the y values to positive, and the x values 1:50
+xx <- seq(from = 0, to = 50, length.out=50)
+yy <- 500*sin(6*xx^(3/10))+1000
+plot(xx, yy, type = "l")
+
+
+# this was the final sine wave, but I have made the funding peaks every 5 years, resulting in a total of 10 peaks
+q <- seq(0,60,length.out=50)
+r <- 500*sin(1*q+0)+1000
+plot(q,r,type="l", ylim = c(0,1600))
+
+# now I want to try and create a wave with varying wavelength that also has 10 peaks. Althoug this doesnt work - I cant have the same number of peaks and varying wavelengths. The thing that has to be the same is the AUC
+xx <- seq(from = 0, to = 60, length.out=50)
+yy <- 500*sin(10*xx^(3/10))+1000
+plot(xx, yy, type = "l")
+
+xx <- seq(from = 0, to = 60, length.out=50)
+yy <- 500*sin(10*xx^(2/10))+1000
+plot(xx, yy, type = "l")
+
+
+
+yr <- sample(1:50, 10, replace = F)
+yr <- sort(yr)
+
+# dataframe of budget values
+df <- data.frame(time = 1:50,
+                 mean = rep(500, times=50),
+                 y = NA)
+
+# change peak values based on random sample
+for(i in 1:length(df$time)){
+  if(df$time[i] %in% yr){
+    df$y[i] <- 1000 
+  } else {
+    df$y[i] <- df$y[i]
+  }
+}
+
+# Create vector for the values either side of the peak values
+peak_sides <- vector()
+for(i in 1:length(yr)){
+  a <- yr[i]-1
+  b <- yr[i]+1
+  d <- c(a,b)
+  peak_sides <- c(peak_sides,d)
+}
+
+# change values for elements either side of the peaks
+for(i in 1:length(df$time)){
+  if(df$time[i] %in% peak_sides){
+    df$y[i] <- 750 
+  } else {
+    df$y[i] <- df$y[i]
+  }
+}
+
+df$y <- ifelse(is.na(df$y),500,df$y)
+
+plot(df$time, df$y, type="l", ylim=c(0,1200))
+
+#
+### User budget ####
+
+# define slope 
+xx <- 5204.1/1275
+
+# empty vector
+usr_budget <- NULL
+
+# starting value
+usr_budget[1] <- 400
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  usr_budget[i] <- usr_budget[i-1] + xx
+}
+
+sum(usr_budget)
+
+
+#
+### sine waves - Scenarios 3 & 4 ####
 
 a <- seq(0,25,length.out=100)
 b <- sin(a)
@@ -464,8 +576,26 @@ auc(o,p)
 
 # reduce to 50 data points
 q <- seq(0,50,length.out=50)
-r <- 500*sin(1*q+0)+1000
-plot(q,r,type="l", ylim = c(0,1600))
+r <- 500*sin(1.3*q+0)+501
+plot(q,r,type="l", ylim = c(0,1300))
+
+## final sine wave for scenario 3
+s <- seq(0,50,1)
+t <- 300*sin(1.3*s+0)+491.523
+plot(s,t,type="l", ylim = c(0,1000))
+# total is 25000.03
+
+## final sine wave for scenario 4
+u <- seq(0,50,1)
+v <- 100*sin(2.5*u+0)+490.735
+plot(u,v,type="l", ylim = c(0,1000))
+
+
+
+
+
+
+
 
 
 ## experiment with allocating manager budget values from the above sin wave
@@ -546,7 +676,8 @@ sin1 <- data.frame(sin1)
 
 plot(sin1$Time, sin1$Manager_budget, type = "l")
 
-## Fourier transform ####
+## Fourier transform - scenario 5 ####
+  # Experimenting from the tutorial ####
 
 # tutorial found here: http://www.di.fc.ul.pt/~jpn/r/fourier/fourier.html
 
@@ -724,12 +855,129 @@ plot.fourier(f,f.0,ts=ts)
 
 # so I think I need to work out a function that essentially samples random numbers (within bounds) to populate the component frequencies and delays. Then in the function have a test whereby the AUC is calculated and the only ones that are saved are the ones that have approximately the correct AUC.
 
+  # Code from Brad - clarifying the tutorial functions ####
 
+
+# Here is a rewrite of the initial code, which might give a bit more information
+# and allow you to see the component frequencies underlying the whole curve
+
+acq.freq <- 100                    # data acquisition frequency (Hz)
+time     <- 50                      # measuring time interval (seconds)
+ts       <- seq(0,time,1/acq.freq) # vector of sampling time-points (s) 
+f.0      <- 1/time                 # fundamental frequency (Hz)
+
+dc.component       <- 500
+component.freqs    <- c(5,7,3)          # frequency of signal components (Hz)
+component.delay    <- c(35,0,20)          # delay of signal components (radians)
+component.strength <- c(2.5,2.5,5.75)  # strength of signal components
+
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# Before, this was using a trick in R that allowed the author to define the
+# function from within 'sapply'. I'm not a fan of this, nor do I think that
+# The use of sapply is terribly instructive. I've recoded to show how the
+# function 'f' itself is passed to the function below and used inside 'lapply',
+# Which essentially applies the function to all elements in ts and makes a list
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+       ylim = c(minval, maxval));
+  for(i in 1:length(cf)){
+    points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  }
+  points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  abline(h = 500,lty = 3);
+}
+
+plot.fourier(f = f, f.0 = f.0, ts = ts, cs = component.strength,
+             cf = component.freqs, cd = component.delay);  
+# Component frequencies are now given by the different coloured curves
+
+# Now let's say that we want to play around and make the function gradually
+# increasing over time. I can add another frequency that is much higher
+
+new_freqs    <- c(5, 7, 3, 0.5)        # frequency of signal components (Hz)
+new_delay    <- c(35, 0, 20, 0)       # delay of signal components (radians)
+new_strength <- c(2.5, 2.5, 5.75, 7)  # strength of signal components
+
+plot.fourier(f = f, f.0 = f.0, ts = ts, cs = new_strength, cf = new_freqs, 
+             cd = new_delay);
+
+# Maybe we don't want it to come down so hard though? Reducing the other amps
+
+new_freqs    <- c(5, 7, 3, 0.5)        # frequency of signal components (Hz)
+new_delay    <- c(35, 0, 20, 0)       # delay of signal components (radians)
+new_strength <- c(1, 1, 2, 7)  # strength of signal components
+
+plot.fourier(f = f, f.0 = f.0, ts = ts, cs = new_strength, cf = new_freqs, 
+             cd = new_delay);
+
+
+  # Custom function to produce multiple random waves ####
+
+# f function
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# plot.fourier function (Brad's re-write, plus it returns trajectory)
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+       ylim = c(minval, maxval));
+  for(i in 1:length(cf)){
+    points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  }
+  points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  abline(h = 500,lty = 3);
+  
+  return(trajectory)
+}
+
+# function to produce random waves made from 3 component waves
 random_wave <- function(f.0, dc.component, freq, delay, strength){
   
   acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
-  time     <- 50                      # measuring time interval (seconds)
-  ts       <- seq(0,time-1/acq.freq,1/acq.freq) # vector of sampling time-points (s) 
+  time     <- 50                      # measuring time interval (time steps)
+  ts       <- seq(1,time,1)         # vector of sampling time-points (one sample per time step - manager budget) 
   f.0 <- f.0                      # f.0 is the fundamental frequency of the complex wave
   
   dc.component <- dc.component                   # additive constant signal
@@ -737,22 +985,28 @@ random_wave <- function(f.0, dc.component, freq, delay, strength){
   component.delay <- delay         # delay of signal components (radians)
   component.strength <- strength   # strength of signal components
   
-  f   <- function(t,w) { 
-    dc.component + 
-      sum( strength * sin(freq*w*t + delay)) 
+  f <- function(t, w, cs, cf, cd) { 
+    ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+    return(ft);
   }
   
-  plot.fourier(f,f.0,ts=ts)
+  plot.fourier(f,f.0,ts=ts,cs=component.strength, cf=component.freqs, cd=component.delay)
 }
 
 # test
-random_wave(1/time, 500, c(5,7,3), c(35,0,20), c(1.5,0.5,0.75))
+test <- random_wave(1/time, 500, c(5,7,3,1), c(35,0,20,0), c(1.5,0.5,0.75,1))
 
+  
+# for plotting
+par(mfrow=c(5,2))
 
-# try multiple iterations
-par(mfrow=c(4,2))
-reps <- 1:8
+# number of waves
+reps <- 1:10
 
+# empty object for the trajectories of the random waves
+r_waves_traj <- NULL
+
+# loop through reps and produce a random wave for each rep
 for(i in 1:length(reps)){
   
   f.0 <- 0.5/50
@@ -772,108 +1026,17 @@ for(i in 1:length(reps)){
   strength2 <- sample(str,1)
   strength3 <- sample(str,1)
   
-  random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
-              c(strength1,strength2,strength3))
-}
+  r_waves_traj[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+                       c(strength1,strength2,strength3))
+    } 
+
+sums <- lapply(r_waves_traj, sum)
+
 
 
 
  #
-### Poisson ####
-
-# here I am going to use a Poisson distribution/process to create "events" in the manager's budget. I guess an event will be a spike in the budget, or perhaps the transition from high budget to low budget and vice versa? Because I need the AUC to be approximately the same as the other scenarios, I need the number of events (or peaks and troughs) to be approximately the same otherwise the AUC will be very different.
-
-# Either I could fix the height of the peaks (i.e. the max budget value during a peak period) to be the same as T1 (i.e. regular) and then just vary the timestep in which the event occurs, or I could also allow the height of the peaks to vary, with higher peaks being more unlikely, and lower peaks being more likely. 
-
-
-
-q <- seq(0,50,length.out=50)
-r <- 500*sin(1*q+0)+1000
-plot(q,r,type="l", ylim = c(0,1600))
-
-# These are ways of just generating random numbers drawn from either Poisson or normal distributions, or random sampling
-budget <- rpois(n = 1, lambda = r)
-budget  <- floor( rnorm(n = 1, mean = r, sd = 500) )
-budget <- sample(x = 1000:20000, size = 1)
-
-
-# this creates random noise around the sin wave
-xx <- seq(from = 0, to = 2*3.14, by = 0.1)
-yy <- sin(xx)
-plot(xx, yy + runif(n = length(xx), min = -0.1, max = 0.1), type = "l")
-plot(xx, yy + runif(n = length(xx), min = -0.4, max = 0.4), type = "l")
-plot(xx, 10000 + floor(1000 * (yy + runif(n = length(xx), min = -0.4, max = 0.4))), type = "l")
-
-
-# this changes the wavelength over time
-# changing the number that xx is multiplied by in the definition of yy changes the number of peaks. Changing the power fraction of xx changes the amount the frequency changes by. Smaller fractions change the frequency by more
-xx <- seq(from = 0, to = 8*pi, by = 0.1);
-yy <- sin(6*xx^(3/10));
-plot(xx, yy, type = "l");
-
-# change the y values to positive, and the x values 1:50
-xx <- seq(from = 0, to = 50, length.out=50)
-yy <- 500*sin(6*xx^(3/10))+1000
-plot(xx, yy, type = "l")
-
-
-# this was the final sine wave, but I have made the funding peaks every 5 years, resulting in a total of 10 peaks
-q <- seq(0,60,length.out=50)
-r <- 500*sin(1*q+0)+1000
-plot(q,r,type="l", ylim = c(0,1600))
-
-# now I want to try and create a wave with varying wavelength that also has 10 peaks. Althoug this doesnt work - I cant have the same number of peaks and varying wavelengths. The thing that has to be the same is the AUC
-xx <- seq(from = 0, to = 60, length.out=50)
-yy <- 500*sin(10*xx^(3/10))+1000
-plot(xx, yy, type = "l")
-
-xx <- seq(from = 0, to = 60, length.out=50)
-yy <- 500*sin(10*xx^(2/10))+1000
-plot(xx, yy, type = "l")
-
-
-
-yr <- sample(1:50, 10, replace = F)
-yr <- sort(yr)
-
-# dataframe of budget values
-df <- data.frame(time = 1:50,
-                 mean = rep(500, times=50),
-                 y = NA)
-
-# change peak values based on random sample
-for(i in 1:length(df$time)){
-  if(df$time[i] %in% yr){
-    df$y[i] <- 1000 
-  } else {
-    df$y[i] <- df$y[i]
-  }
-}
-
-# Create vector for the values either side of the peak values
-peak_sides <- vector()
- for(i in 1:length(yr)){
- a <- yr[i]-1
- b <- yr[i]+1
- d <- c(a,b)
- peak_sides <- c(peak_sides,d)
- }
-
-# change values for elements either side of the peaks
-for(i in 1:length(df$time)){
-  if(df$time[i] %in% peak_sides){
-    df$y[i] <- 750 
-  } else {
-    df$y[i] <- df$y[i]
-  }
-}
-
-df$y <- ifelse(is.na(df$y),500,df$y)
-
-plot(df$time, df$y, type="l", ylim=c(0,1200))
-
-#
-### Setting AUC for different budgets ####
+### Standardising budgets across scenarios ####
 
 # the below is from Brad and is a way to make sure the AUC for all manager budgets are the same
 
@@ -893,4 +1056,22 @@ std_5 <- 1000 * (budget5 / sum(budget5));
 # Now all of them have the same total budget 1000 over 50 time steps
 
 
+### Here are the final manager budgets budgets
 
+## scenario 1
+mb1 <- rep(500, times=50)
+
+## scenario 2
+mb2 <- usr_budget
+
+## scenario 3
+s3 <- seq(0,50,length.out=50)
+mb3 <- 300*sin(1.3*s3+0)+491.521
+
+## scenario 4
+s4 <- seq(0,50,1)
+
+## final sine wave for scenario 4
+u <- seq(0,50,1)
+v <- 100*sin(2.5*u+0)+490.735
+plot(u,v,type="l", ylim = c(0,1000))
