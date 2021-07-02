@@ -581,7 +581,7 @@ plot(q,r,type="l", ylim = c(0,1300))
 
 ## final sine wave for scenario 3
 s <- seq(0,50,1)
-t <- 300*sin(1.3*s+0)+491.523
+t <- 300*sin(1.3*s+0)+481.72
 plot(s,t,type="l", ylim = c(0,1000))
 # total is 25000.03
 
@@ -1065,13 +1065,11 @@ mb1 <- rep(500, times=50)
 mb2 <- usr_budget
 
 ## scenario 3
-s3 <- seq(0,50,length.out=50)
-mb3 <- 300*sin(1.3*s3+0)+491.521
+s3 <- seq(0,50,1)
+mb3 <- 300*sin(1.3*s+0)+481.72
 
 ## scenario 4
 s4 <- seq(0,50,1)
+mb4 <- 100*sin(2.5*u+0)+490.735
 
-## final sine wave for scenario 4
-u <- seq(0,50,1)
-v <- 100*sin(2.5*u+0)+490.735
-plot(u,v,type="l", ylim = c(0,1000))
+## scenario 5
