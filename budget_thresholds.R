@@ -579,15 +579,16 @@ q <- seq(0,50,length.out=50)
 r <- 500*sin(1.3*q+0)+501
 plot(q,r,type="l", ylim = c(0,1300))
 
+
 ## final sine wave for scenario 3
 s <- seq(0,50,1)
-t <- 300*sin(1.3*s+0)+481.72
-plot(s,t,type="l", ylim = c(0,1000))
-# total is 25000.03
+t <- 100*sin(1.3*s+0)+400
+plot(s,t,type="l", ylim = c(0,650))
+
 
 ## final sine wave for scenario 4
 u <- seq(0,50,1)
-v <- 100*sin(2.5*u+0)+490.735
+v <- 50*sin(2.5*u+0)+500
 plot(u,v,type="l", ylim = c(0,1000))
 
 
@@ -1056,20 +1057,199 @@ std_5 <- 1000 * (budget5 / sum(budget5));
 # Now all of them have the same total budget 1000 over 50 time steps
 
 
-### Here are the final manager budgets budgets
+### Here are the final user and manager budgets
 
-## scenario 1
+## USER BUDGET
+
+# define slope 
+xx <- 5204.1/1275
+
+# empty vector
+usr_budget <- NULL
+
+# starting value
+usr_budget[1] <- 400
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  usr_budget[i] <- usr_budget[i-1] + xx
+}
+
+
+
+## SCENARIO 1
 mb1 <- rep(500, times=50)
 
-## scenario 2
+
+## SCENARIO 2
 mb2 <- usr_budget
 
-## scenario 3
+
+## SCENARIO 3
 s3 <- seq(0,50,1)
-mb3 <- 300*sin(1.3*s+0)+481.72
+mb3 <- 300*sin(1.3*s3+0)+481.72
+mb3 <- mb3[1:50]
 
-## scenario 4
+s3 <- seq(0,50,1)
+mb3 <- 100*sin(1.33*s3+0)+400
+mb3 <- mb3[1:50]
+
+mb3 <- 25000 * (mb3/sum(mb3))
+
+## SCENARIO 4
 s4 <- seq(0,50,1)
-mb4 <- 100*sin(2.5*u+0)+490.735
+mb4 <- 100*sin(2.5*s4+0)+490.735
+mb4 <- mb4[1:50]
 
-## scenario 5
+s4 <- seq(0,50,1)
+mb4 <- 50*sin(2.5*s4+0)+500
+mb4 <- mb4[1:50]
+mb4 <- 25000 * (mb4/sum(mb4))
+
+## SCENARIO 5
+
+# f function
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# plot.fourier function (Brad's re-write, plus it returns trajectory)
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+       ylim = c(minval, maxval));
+  for(i in 1:length(cf)){
+    points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  }
+  points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  abline(h = 500,lty = 3);
+  
+  return(trajectory)
+}
+
+# function to produce random waves made from 3 component waves
+random_wave <- function(f.0, dc.component, freq, delay, strength){
+  
+  acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+  time     <- 50                      # measuring time interval (time steps)
+  ts       <- seq(1,time,1)         # vector of sampling time-points (one sample per time step - manager budget) 
+  f.0 <- f.0                      # f.0 is the fundamental frequency of the complex wave
+  
+  dc.component <- dc.component                   # additive constant signal
+  component.freqs <- freq          # frequency of signal components (Hz)
+  component.delay <- delay         # delay of signal components (radians)
+  component.strength <- strength   # strength of signal components
+  
+  f <- function(t, w, cs, cf, cd) { 
+    ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+    return(ft);
+  }
+  
+  plot.fourier(f,f.0,ts=ts,cs=component.strength, cf=component.freqs, cd=component.delay)
+}
+
+# for plotting
+par(mfrow=c(5,2))
+
+# number of waves
+reps <- 1:10
+
+# empty object for the trajectories of the random waves
+r_waves_traj <- NULL
+
+# loop through reps and produce a random wave for each rep
+for(i in 1:length(reps)){
+  
+  f.0 <- 0.5/50
+  dc.component <- 500
+  freq  <- sample(1:15,3, replace = FALSE)
+  freq1 <- freq[1]
+  freq2 <- freq[2]
+  freq3 <- freq[3]
+  
+  delay  <- sample(-180:180,3, replace = FALSE)
+  delay1 <- delay[1]
+  delay2 <- delay[2]
+  delay3 <- delay[3]
+  
+  str <- seq(0.25, 7.5, 0.2)
+  strength1 <- sample(str,1)
+  strength2 <- sample(str,1)
+  strength3 <- sample(str,1)
+  
+  r_waves_traj[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+                                   c(strength1,strength2,strength3))
+} 
+
+# check sums
+sums <- lapply(r_waves_traj, sum)
+
+
+
+### checking that manager budget is not more than 130% of user budget over any of the scenarios, and that the manager budget is no less than 80% of the user budget in any of the scenarios
+
+# dataframe with all budgets
+all_budgets <- data.frame(timestep = 1:50,
+                          usr_budget = usr_budget,
+                          scen1 = mb1,
+                          scen2 = mb2,
+                          scen3 = mb3,
+                          scen4 = mb4,
+                          scen5.1 = r_waves_traj[[1]],
+                          scen5.2 = r_waves_traj[[2]],
+                          scen5.3 = r_waves_traj[[3]],
+                          scen5.4 = r_waves_traj[[4]],
+                          scen5.5 = r_waves_traj[[5]],
+                          scen5.6 = r_waves_traj[[6]],
+                          scen5.7 = r_waves_traj[[7]],
+                          scen5.8 = r_waves_traj[[8]],
+                          scen5.9 = r_waves_traj[[9]],
+                          scen5.10 = r_waves_traj[[10]])
+
+# manager budget % of user budget
+all_budgets$s1p <- all_budgets$scen1/all_budgets$usr_budget*100
+all_budgets$s2p <- all_budgets$scen2/all_budgets$usr_budget*100
+all_budgets$s3p <- all_budgets$scen3/all_budgets$usr_budget*100
+all_budgets$s4p <- all_budgets$scen4/all_budgets$usr_budget*100
+all_budgets$s5.1p <- all_budgets$scen5.1/all_budgets$usr_budget*100
+all_budgets$s5.2p <- all_budgets$scen5.2/all_budgets$usr_budget*100
+all_budgets$s5.3p <- all_budgets$scen5.3/all_budgets$usr_budget*100
+all_budgets$s5.4p <- all_budgets$scen5.4/all_budgets$usr_budget*100
+all_budgets$s5.5p <- all_budgets$scen5.5/all_budgets$usr_budget*100
+all_budgets$s5.6p <- all_budgets$scen5.6/all_budgets$usr_budget*100
+all_budgets$s5.7p <- all_budgets$scen5.7/all_budgets$usr_budget*100
+all_budgets$s5.8p <- all_budgets$scen5.8/all_budgets$usr_budget*100
+all_budgets$s5.9p <- all_budgets$scen5.9/all_budgets$usr_budget*100
+all_budgets$s5.10p <- all_budgets$scen5.10/all_budgets$usr_budget*100
+
+# long format
+all_budgets_L <- pivot_longer(all_budgets, cols = (s1p:s5.10p),
+                              names_to = "scenario", values_to = "percent")
+
+# plot all
+ggplot(all_budgets_L, aes(x=timestep, y=percent, group=scenario, color=scenario))+
+  geom_line()
+
+# plot just scenario 3 and 4
+all_budgets_L %>%  
+  filter(scenario=="s3p" | scenario=="s4p") %>% 
+  ggplot(., aes(x=timestep, y=percent, group=scenario, color=scenario))+
+  geom_line()
