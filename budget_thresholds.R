@@ -1040,24 +1040,7 @@ sums <- lapply(r_waves_traj, sum)
 
 
  #
-### Standardising budgets across scenarios ####
-
-# the below is from Brad and is a way to make sure the AUC for all manager budgets are the same
-
-# Making up some different budgets over 50 time steps
-budget1 <- round(1000 + 500*sin(1:50)); # Sine wave
-budget2 <- rep(1000, 50); # Constant
-budget3 <- exp(-(1:50));  # Exponentially decreasing
-budget4 <- exp(1:50)      # Exponentially increasing
-budget5 <- 1:50           # Linearly increasing
-# These have different budgets; I just fixed the shape
-
-std_1 <- 1000 * (budget1 / sum(budget1));
-std_2 <- 1000 * (budget2 / sum(budget2));
-std_3 <- 1000 * (budget3 / sum(budget3));
-std_4 <- 1000 * (budget4 / sum(budget4));
-std_5 <- 1000 * (budget5 / sum(budget5));
-# Now all of them have the same total budget 1000 over 50 time steps
+### FINAL budgets & standardising ####
 
 
 ### Here are the final user and manager budgets
@@ -1200,8 +1183,19 @@ for(i in 1:length(reps)){
 # check sums
 sums <- lapply(r_waves_traj, sum)
 
+# name the list elements
+names <- c("mb5.1","mb5.2","mb5.3","mb5.4","mb5.5","mb5.6","mb5.7",
+           "mb5.8","mb5.9","mb5.10")
 
-## standardise all budgets to sum to 25000 (mb1 already == 25000)
+names(r_waves_traj) <- names
+
+# extract to global environment
+list2env(r_waves_traj, globalenv())
+
+
+
+
+### standardise all budgets to sum to 25000 (mb1 already == 25000)
 mb2 <- 25000*(mb2/sum(mb2))
 mb3 <- 25000*(mb3/sum(mb3))
 mb4 <- 25000*(mb4/sum(mb4))
@@ -1245,15 +1239,30 @@ all_budgets$s5.9p <- all_budgets$scen5.9/all_budgets$usr_budget*100
 all_budgets$s5.10p <- all_budgets$scen5.10/all_budgets$usr_budget*100
 
 # long format
-all_budgets_L <- pivot_longer(all_budgets, cols = (s1p:s5.10p),
+all_budgets_LP <- pivot_longer(all_budgets, cols = (s1p:s5.10p),
                               names_to = "scenario", values_to = "percent")
 
-# plot all
-ggplot(all_budgets_L, aes(x=timestep, y=percent, group=scenario, color=scenario))+
-  geom_line()
+# plot all percentages
+ggplot(all_budgets_LP, aes(x=timestep, y=percent, group=scenario, color=scenario))+
+  geom_line(size=1)+
+  facet_wrap(~scenario)+
+  theme_classic()
 
 # plot just scenario 3 and 4
-all_budgets_L %>%  
+all_budgets_LP %>%  
   filter(scenario=="s3p" | scenario=="s4p") %>% 
   ggplot(., aes(x=timestep, y=percent, group=scenario, color=scenario))+
   geom_line()
+
+
+
+## plot all budgets
+
+# long format
+all_budgets_L <- all_budgets %>% pivot_longer(cols = (usr_budget:scen5.10), names_to = "Scenario", values_to = "Budget") %>% 
+                  select(timestep,Scenario, Budget)
+
+ggplot(all_budgets_L, aes(x=timestep, y=Budget, group=Scenario, color=Scenario))+
+  geom_line(size=1)+
+  facet_wrap(~Scenario)+
+  theme_classic()
