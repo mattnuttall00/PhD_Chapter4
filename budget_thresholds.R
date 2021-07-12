@@ -582,7 +582,7 @@ plot(q,r,type="l", ylim = c(0,1300))
 
 ## final sine wave for scenario 3
 s <- seq(0,50,1)
-t <- 100*sin(1.3*s+0)+400
+t <- 75*sin(1.3*s+0)+400
 plot(s,t,type="l", ylim = c(0,650))
 
 
@@ -1007,6 +1007,9 @@ reps <- 1:10
 # empty object for the trajectories of the random waves
 r_waves_traj <- NULL
 
+# set seed
+set.seed(123)
+
 # loop through reps and produce a random wave for each rep
 for(i in 1:length(reps)){
   
@@ -1022,7 +1025,7 @@ for(i in 1:length(reps)){
   delay2 <- delay[2]
   delay3 <- delay[3]
   
-  str <- seq(0.25, 7.5, 0.2)
+  str <- seq(10, 30, 0.2)
   strength1 <- sample(str,1)
   strength2 <- sample(str,1)
   strength3 <- sample(str,1)
@@ -1087,24 +1090,16 @@ mb2 <- usr_budget
 
 ## SCENARIO 3
 s3 <- seq(0,50,1)
-mb3 <- 300*sin(1.3*s3+0)+481.72
+mb3 <- 65*sin(1.33*s3+0)+400
 mb3 <- mb3[1:50]
 
-s3 <- seq(0,50,1)
-mb3 <- 100*sin(1.33*s3+0)+400
-mb3 <- mb3[1:50]
-
-mb3 <- 25000 * (mb3/sum(mb3))
 
 ## SCENARIO 4
 s4 <- seq(0,50,1)
-mb4 <- 100*sin(2.5*s4+0)+490.735
-mb4 <- mb4[1:50]
-
-s4 <- seq(0,50,1)
 mb4 <- 50*sin(2.5*s4+0)+500
 mb4 <- mb4[1:50]
-mb4 <- 25000 * (mb4/sum(mb4))
+
+
 
 ## SCENARIO 5
 
@@ -1175,6 +1170,9 @@ reps <- 1:10
 # empty object for the trajectories of the random waves
 r_waves_traj <- NULL
 
+# set seed
+set.seed(123)
+
 # loop through reps and produce a random wave for each rep
 for(i in 1:length(reps)){
   
@@ -1190,18 +1188,24 @@ for(i in 1:length(reps)){
   delay2 <- delay[2]
   delay3 <- delay[3]
   
-  str <- seq(0.25, 7.5, 0.2)
+  str <- seq(10, 30, 0.2)
   strength1 <- sample(str,1)
   strength2 <- sample(str,1)
   strength3 <- sample(str,1)
   
   r_waves_traj[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
                                    c(strength1,strength2,strength3))
-} 
+}  
 
 # check sums
 sums <- lapply(r_waves_traj, sum)
 
+
+## standardise all budgets to sum to 25000 (mb1 already == 25000)
+mb2 <- 25000*(mb2/sum(mb2))
+mb3 <- 25000*(mb3/sum(mb3))
+mb4 <- 25000*(mb4/sum(mb4))
+r_waves_traj <- lapply(r_waves_traj, function(x){25000*(x/sum(x))})
 
 
 ### checking that manager budget is not more than 130% of user budget over any of the scenarios, and that the manager budget is no less than 80% of the user budget in any of the scenarios
