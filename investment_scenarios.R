@@ -17,7 +17,7 @@ library('patchwork')
 
 # "Resources" are trees. The resources therefore do not move.
 
-# The density of trees in tropical forest landscapes vary hugely. In previous simulations I have assumed 50 stems/ha which is low, but not implausible (e.g. deciduous dipterocarp woodland). A reference for this value can be found here:https://www.jstor.org/stable/44521915. I am keeping this density of trees as it is for now, as this value means that there are already 1,125,000 trees on the landscape, and increasing them will increase run time. Note that the trees are distributed randomly across the landscape, and so there will not be exactly 50/cell. This reflects reality. 
+# The density of trees in tropical forest landscapes vary hugely. In previous simulations I have assumed 50 stems/ha which is low, but not implausible (e.g. deciduous dipterocarp woodland). A reference for this value can be found here:https://www.jstor.org/stable/44521915. I am keeping this density of trees as it is for now, as this value means that there are already 1,125,000 trees on the landscape, and increasing them will increase run time and reduce the overall effect of deforestation. Note that the trees are distributed randomly across the landscape, and so there will not be exactly 50/cell. This reflects reality. 
 
 # Trees in a cell reduce the farmer's yield. The amount a tree reduces yield is governed by an exponential function: yield = (1 - % yield reduction per tree) ^ remaining trees. I want a farmer's yield to be reduced by a significant amount if all trees in a cell are standing. But the trees do not completely eliminate yield. This is a balance between the farmer being able to farm and gain some yield even when there are trees on their cell, but also providing an incentive to cull where possible. I have set each tree on a cell to reduce yield by 8%. See the N1:N1f scenario comparisons which were used to decide on the parameter values for res_consume and tendcrop_yield
 
@@ -31,15 +31,15 @@ library('patchwork')
 
 # The max age of trees is set high - 1000. This is to reduce natural death caused by old age (this should now be obsolete)
 
-# The observation process is set to density-based sampling, with 1 observation per time step. The manager can move in any direction. Currently the manager can see 10 cells, and move 50 cells. In previous simulations (see "land_tenure_gmse.R" script) this has resulted in observation error of a few percent (max error ~2.3%). Realistically, forest cover monitoring is very accurate thanks to remote sensing. Nevertheless, I want some margin of error to reflect the fact that forest monitoring is not perfect (e.g. small areas of clearance cannot be detected easily from satellite images, and there is also a lag time in image processing so the manager's information on forest loss will not always be up to date). These values can be changed in increase error at a later date. 
+# The observation process is set to density-based sampling, with 1 observation per time step. The manager can move in any direction. Currently the manager can see 10 cells, and move 50 cells. In previous simulations (see "land_tenure_gmse.R" script) this has resulted in observation error of a few percent (max error ~2.3%). Realistically, forest cover monitoring is very accurate thanks to remote sensing. Nevertheless, I have decided to remove any observation error. 
 
 # There is no minimum age for resources to be acted upon i.e. all trees in the landscape can be observed/culled
 
 # Agents are permitted to move at the end of each time step. Because land_ownership==TRUE I believe this then only relates to the manager.
 
-# User and manager budgets will vary based on the scenario. But the total amount of budget available to the manager for the whole study period will be the same. The total is 10,000. This is based on the first Null scenario (N1) where the user and the manager both had 200 per time step, for 50 time steps. Therefore the manager and user can never exceed 10,000 across the whole study period.  
+# User and manager budgets will vary based on the scenario. But the total amount of budget available to the manager for the whole study period will be the same. The total is 25,000. See the "scenario_details_budgets" spreadsheet  
 
-# Currently, group_think == FALSE, and so users act independently
+# Group_think == FALSE, and so users act independently
 
 # Only culling is allowed (i.e. cutting down of trees)
 
@@ -47,23 +47,25 @@ library('patchwork')
 
 
 
-############## NULL SCENARIOS #####################
+############## SCENARIOS #####################
 
-# These scenarios will explore the basic manager/user dynamics and will potentially reflect the "null" scenarios, or the counterfactuals.
+# Below are the scenarios that I will run. There are a few "null" scenario, which will explore the basic manager/user dynamics and will potentially reflect the counterfactuals. The scenarios starting with "N.." will not feature in the main text but will be in the supporting information. The scenarios labelled 1 through 5 will be in the main text and will form the main results.
 
-# I will do the following scenarios:
 
 # N1 - Null - Manager and user budgets do not change throughout the study period, and are equal
-
 # N2a - Decreasing Null - Manager budget remains constant, user budget decreases linearly
 # N2b - Decreasing Null - User budget remains constant, manager budget decreases linearly
+# N3 - Optimistic Null - Manager budget increases linearly over time, user budget remains constant
 
-# N3a - Optimistic Null - Manager budget increases linearly over time, user budget remains constant
-# N3b - Optimistic NUll - Manager and user budgets both increase linearly, from the same same starting point and at the same rate
-# N3c - Optimistic Null - Variation of N3b. Manager and user budget increase linearly over time, but the manager budget rate of increase is lower than the user rate of increase
-# N3d - optimistic Null - Variation of N3b. Manager and user budget increase linearly over time, but the manager budget rate of increase is higher than the user rate of increase
 
-# N4 - Pessimistic Null - Manager budget remains constant, but user budgets increase linearly 
+# 1 - Pessimistic Null - Manager budget remains constant, user budgets increase linearly 
+# 2 - Optimistic Null - Manager and user budgets both increase linearly, with the same slope
+# 3 - Sine wave - Manager budget increases and decreases in a predictable/regular way above and below a mean (like a sine wave), user budget increases linearly
+# 4 - sine wave - As above, but the wavelength is shorter (higher frequency) and the amplitude is smaller
+# 5 - Random complex wave(s) - Manager budget increases and decreases unpredictably (using Fourier series to create random complex waves), user budget increases linearly. There are currently 10 waves that constitute this scenario
+
+
+## below there are more scenarios than I have listed above. These were run to work out some of the parameter values (e.g. res_consume and tend_crop_yield)
 
 #### N1 ####
 
@@ -1385,7 +1387,7 @@ p.N2c.obs + p.N2d.obs
 
 #### N3 ####
 
-# N3 and its variants represent the optimistic null - where the manager budget is increasing over time. The variants introduce different rates of increase for the user and the manager. 
+# N3 represents the optimistic null - where the manager budget is increasing over time but the user budget remains constant
 
 
   ## N3a ####
@@ -1470,3 +1472,389 @@ N2a_summary <- data.frame(N2a)
 
 write.csv(N2a_summary, file = "outputs/investment/null_scenarios/N2/N2a_summary.csv")
 
+
+#### SCENARIO 1 ################
+
+# User budget increases, manager budget remains constant
+
+# The simulation code is repeated so that I can let it run and it will re-run the same sim but I have coded it to save outputs with different names
+
+
+
+### RUN 1
+UB  <- 400
+UBR <- 40
+
+Scen1_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 500, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen1 <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen1_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  Scen1[time_step, 1] <- time_step
+  Scen1[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen1[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen1[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen1[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen1[time_step, 6] <- UB
+  
+  Scen1_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+}
+
+colnames(Scen1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget")
+Scen1_1_summary <- data.frame(Scen1)
+
+rm(Scen1_sim_old)
+rm(Scen1)
+
+### RUN 2
+UB  <- 400
+UBR <- 40
+
+Scen1_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 500, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen1 <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen1_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  Scen1[time_step, 1] <- time_step
+  Scen1[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen1[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen1[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen1[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen1[time_step, 6] <- UB
+  
+  Scen1_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+}
+
+colnames(Scen1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget")
+Scen1_2_summary <- data.frame(Scen1)
+
+rm(Scen1_sim_old)
+rm(Scen1)
+
+
+### RUN 3
+UB  <- 400
+UBR <- 40
+
+Scen1_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 500, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen1 <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen1_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  Scen1[time_step, 1] <- time_step
+  Scen1[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen1[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen1[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen1[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen1[time_step, 6] <- UB
+  
+  Scen1_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+}
+
+colnames(Scen1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget")
+Scen1_3_summary <- data.frame(Scen1)
+
+rm(Scen1_sim_old)
+rm(Scen1)
+
+
+
+
+### RUN 4
+UB  <- 400
+UBR <- 40
+
+Scen1_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 500, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen1 <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen1_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  Scen1[time_step, 1] <- time_step
+  Scen1[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen1[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen1[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen1[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen1[time_step, 6] <- UB
+  
+  Scen1_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+}
+
+colnames(Scen1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget")
+Scen1_4_summary <- data.frame(Scen1)
+
+rm(Scen1_sim_old)
+rm(Scen1)
+
+
+
+
+### RUN 5
+UB  <- 400
+UBR <- 40
+
+Scen1_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 500, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen1 <- matrix(data=NA, nrow=50, ncol=6)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen1_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  Scen1[time_step, 1] <- time_step
+  Scen1[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen1[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen1[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen1[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen1[time_step, 6] <- UB
+  
+  Scen1_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+}
+
+colnames(Scen1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget")
+Scen1_5_summary <- data.frame(Scen1)
+
+rm(Scen1_sim_old)
+rm(Scen1)
+
+# combine all summaries
+Scen1_all_summary <- rbind(Scen1_1_summary,Scen1_2_summary,Scen1_3_summary,Scen1_4_summary,Scen1_5_summary)
+
+# save
+write.csv(Scen1_all_summary, file = "outputs/investment/scenarios/N2/Scen1_all_summary.csv")
