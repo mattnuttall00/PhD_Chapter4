@@ -3260,3 +3260,832 @@ r_waves_traj <- lapply(r_waves_traj, function(x){25000*(x/sum(x))})
 
 # extract to global environment
 list2env(r_waves_traj, globalenv())
+
+
+
+
+### RUN 1 - wave 1
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.1[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.1[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_1_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+
+### RUN 2 - wave 2
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.2[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.2[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_2_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+### RUN 3 - wave 3
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.3[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.3[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_3_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+
+## RUN 4 - wave 4
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.4[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.1[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_4_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+
+### RUN 5 - wave 5
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.5[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.5[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_5_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+### RUN 6 - wave 6
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.6[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.6[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_6_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+
+### RUN 7 - wave 7
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.7[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.7[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_7_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+
+### RUN 8 - wave 8
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.8[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.8[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_8_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+
+
+### RUN 9 - wave 9
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.9[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.9[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_9_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+
+### RUN 10 - wave 10
+UB  <- 400
+UBR <- 40
+
+MB <- MB5.10[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 150,
+  land_dim_2 = 150, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 1125000, 
+  RESOURCE_ini = 1125000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 20, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+  MB <- MB5.10[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_10_summary <- data.frame(Scen5)
+
+rm(Scen5_sim_old)
+rm(Scen5)
+
+
+
+## Add column to all summaries
+Scen5_1_summary$wave <- 1
+Scen5_2_summary$wave <- 2
+Scen5_3_summary$wave <- 3
+Scen5_4_summary$wave <- 4
+Scen5_5_summary$wave <- 5
+Scen5_6_summary$wave <- 6
+Scen5_7_summary$wave <- 7
+Scen5_8_summary$wave <- 8
+Scen5_9_summary$wave <- 9
+Scen5_10_summary$wave <- 10
+
+## Combine results
+Scen5_all_summary <- rbind(Scen5_1_summary,Scen5_2_summary,Scen5_3_summary,Scen5_4_summary,Scen5_5_summary,
+                           Scen5_6_summary,Scen5_7_summary,Scen5_8_summary,Scen5_9_summary,Scen5_10_summary,)
+
+write.csv(Scen5_all_summary, file="outputs/investment/scenarios/Scen5_all_summary.csv")
