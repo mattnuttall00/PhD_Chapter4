@@ -4,7 +4,7 @@
 
 # The simulation code is repeated so that I can let it run and it will re-run the same sim but I have coded it to save outputs with different names
 
-
+library('GMSE')
 
 ### RUN 1
 UB  <- 400
@@ -79,7 +79,7 @@ Scen1_1_summary <- data.frame(Scen1)
 rm(Scen1_sim_old)
 rm(Scen1)
 
-write.csv(Scen1_1_summary, file = "outputs/investment/scenarios/Scenario_1/Scen1_1_summary.csv")
+write.csv(Scen1_1_summary, file = "Scen1_1_summary.csv")
 
 
 ### RUN 2
