@@ -1,5 +1,7 @@
 #### SCENARIO 4 #####
 
+library('GMSE')
+
 ### As Scenario 3, but the wavelength is shorter (higher frequency) and the amplitude is smaller
 
 ## Define manager budget
@@ -33,6 +35,7 @@ Scen4_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
@@ -90,7 +93,7 @@ Scen4_1_summary <- data.frame(Scen4)
 rm(Scen4_sim_old)
 rm(Scen4)
 
-write.csv(Scen4_1_summary, file = "outputs/investment/scenarios/Scenario_4/Scen4_1_summary.csv")
+write.csv(Scen4_1_summary, file = "Scen4_1_summary.csv")
 
 
 
@@ -115,6 +118,7 @@ Scen4_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
@@ -196,6 +200,7 @@ Scen4_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
@@ -277,6 +282,7 @@ Scen4_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
@@ -357,6 +363,7 @@ Scen4_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 

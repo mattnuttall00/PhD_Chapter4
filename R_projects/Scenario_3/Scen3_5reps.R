@@ -1,5 +1,9 @@
 #### SCENARIO 3 ####
 
+
+library('GMSE')
+
+
 # Manager budget increases and decreases in a predictable/regular way above and below a mean (like a sine wave), user budget increases linearly
 
 # Define manager budget
@@ -34,6 +38,7 @@ Scen3_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
@@ -91,7 +96,7 @@ Scen3_1_summary <- data.frame(Scen3)
 rm(Scen3_sim_old)
 rm(Scen3)
 
-write.csv(Scen3_1_summary, file = "outputs/investment/scenarios/Scenario_3/Scen3_1_summary.csv")
+write.csv(Scen3_1_summary, file = "Scen3_1_summary.csv")
 
 
 
@@ -118,6 +123,7 @@ Scen3_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
@@ -198,6 +204,7 @@ Scen3_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
@@ -278,6 +285,7 @@ Scen3_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
@@ -358,6 +366,7 @@ Scen3_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
