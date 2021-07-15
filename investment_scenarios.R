@@ -4089,3 +4089,47 @@ Scen5_all_summary <- rbind(Scen5_1_summary,Scen5_2_summary,Scen5_3_summary,Scen5
                            Scen5_6_summary,Scen5_7_summary,Scen5_8_summary,Scen5_9_summary,Scen5_10_summary,)
 
 write.csv(Scen5_all_summary, file="outputs/investment/scenarios/Scen5_all_summary.csv")
+#### Results ####
+
+
+### results from scenarios 1:4 (single simulation only)
+
+## Load summaries
+scen1 <- read.csv("R_projects/Scenario_1/Scen1_1_summary.csv", header = TRUE, stringsAsFactors = TRUE)
+scen2 <- read.csv("R_projects/Scenario_2/Scen2_1_summary.csv", header = TRUE, stringsAsFactors = TRUE)
+scen3 <- read.csv("R_projects/Scenario_3/Scen3_1_summary.csv", header = TRUE, stringsAsFactors = TRUE)
+scen4 <- read.csv("R_projects/Scenario_4/Scen4_1_summary.csv", header = TRUE, stringsAsFactors = TRUE)
+
+
+# add manager budget onto scenario 1
+scen1$Manager_budget <- 500
+
+# add scenario
+scen1 <- scen1 %>% mutate(Scenario = "Scenario 1") %>% select(-X)
+scen2 <- scen2 %>% mutate(Scenario = "Scenario 2") %>% select(-X)
+scen3 <- scen3 %>% mutate(Scenario = "Scenario 3") %>% select(-X)
+scen4 <- scen4 %>% mutate(Scenario = "Scenario 4") %>% select(-X)
+
+# merge
+all_summary <- rbind(scen1, scen2, scen3, scen4)
+
+
+### plots
+
+# budgets
+budget.plot <- ggplot(all_summary, aes(x=Time, y=Manager_budget, group=Scenario, color=Scenario))+
+                geom_line(size=1)+
+                facet_wrap(~Scenario)+
+                theme_classic()
+
+# cull count
+cull.plot <- ggplot(all_summary, aes(x=Time, y=Cull_count, group=Scenario, color=Scenario))+
+              geom_line(size=1)+
+              theme_classic()+
+              facet_wrap(~Scenario)
+
+# Trees
+tress.plot <- ggplot(all_summary, aes(x=Time, y=Trees, group=Scenario, color=Scenario))+
+                geom_line(size=1)+
+                theme_classic()+
+                facet_wrap(~Scenario)
