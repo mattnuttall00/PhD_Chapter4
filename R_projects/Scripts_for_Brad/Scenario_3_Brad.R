@@ -34,6 +34,7 @@ Scen3_sim_old <- gmse_apply(
   agent_move = 50, 
   res_move_type = 0, 
   res_death_type = 0, 
+  lambda = 0,
   observe_type = 2, 
   times_observe = 1, 
   obs_move_type = 1, 
