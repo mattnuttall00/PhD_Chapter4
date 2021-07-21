@@ -4102,44 +4102,178 @@ write.csv(Scen5_all_summary, file="outputs/investment/scenarios/Scen5_all_summar
 #### Results ####
 
 
-### results from scenarios 1:4 (single simulation only)
+### Load .csv files for the first 10 runs from scenarios 1:5. Run by Brad
 
-## Load summaries
-scen1 <- read.csv("R_projects/Scenario_1/Scen1_1_summary.csv", header = TRUE, stringsAsFactors = TRUE)
-scen2 <- read.csv("R_projects/Scenario_2/Scen2_1_summary.csv", header = TRUE, stringsAsFactors = TRUE)
-scen3 <- read.csv("R_projects/Scenario_3/Scen3_1_summary.csv", header = TRUE, stringsAsFactors = TRUE)
-scen4 <- read.csv("R_projects/Scenario_4/Scen4_1_summary.csv", header = TRUE, stringsAsFactors = TRUE)
+# Scenario 1
+scen1 <- list.files(path = "./outputs/investment/scenarios/Scenario_1",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+          map_df(~read_csv(.,))
 
-
-# add manager budget onto scenario 1
+scen1 <- scen1[ ,-1]
+scen1$Simulation <- rep(as.factor(1:10), each=50)
 scen1$Manager_budget <- 500
-
-# add scenario
-scen1 <- scen1 %>% mutate(Scenario = "Scenario 1") %>% select(-X)
-scen2 <- scen2 %>% mutate(Scenario = "Scenario 2") %>% select(-X)
-scen3 <- scen3 %>% mutate(Scenario = "Scenario 3") %>% select(-X)
-scen4 <- scen4 %>% mutate(Scenario = "Scenario 4") %>% select(-X)
-
-# merge
-all_summary <- rbind(scen1, scen2, scen3, scen4)
+scen1 <- scen1 %>% select(Time,Trees,Trees_est,Cull_cost,Cull_count,User_budget, Manager_budget,Simulation)
 
 
-### plots
+# Scenario 2
+scen2 <- list.files(path = "./outputs/investment/scenarios/Scenario_2",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
 
-# budgets
-budget.plot <- ggplot(all_summary, aes(x=Time, y=Manager_budget, group=Scenario, color=Scenario))+
-                geom_line(size=1)+
-                facet_wrap(~Scenario)+
-                theme_classic()
+scen2 <- scen2[ ,-1]
+scen2$Simulation <- rep(as.factor(1:10), each=50) 
 
-# cull count
-cull.plot <- ggplot(all_summary, aes(x=Time, y=Cull_count, group=Scenario, color=Scenario))+
-              geom_line(size=1)+
-              theme_classic()+
-              facet_wrap(~Scenario)
 
-# Trees
-tress.plot <- ggplot(all_summary, aes(x=Time, y=Trees, group=Scenario, color=Scenario))+
-                geom_line(size=1)+
-                theme_classic()+
-                facet_wrap(~Scenario)
+# Scenario 3
+scen3 <- list.files(path = "./outputs/investment/scenarios/Scenario_3",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
+
+scen3 <- scen3[ ,-1]
+scen3$Simulation <- rep(as.factor(1:10), each=50) 
+
+
+# Scenario 4
+scen4 <- list.files(path = "./outputs/investment/scenarios/Scenario_4",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
+
+scen4 <- scen4[ ,-1]
+scen4$Simulation <- rep(as.factor(1:10), each=50) 
+
+
+# Scenario 5
+scen5 <- read.csv("outputs/investment/scenarios/Scenario_5/Scen5_all_summary.csv", header = T)
+scen5 <- scen5[ ,-1]
+scen5 <- scen5 %>% rename(Simulation = wave)
+scen5$Simulation <- as.factor(scen5$Simulation)
+
+
+
+### plot individually
+dat_list <- list(scen1,scen2,scen3,scen4,scen5)
+
+# plot functions
+plot.trees <- function(dat){
+ plot <- ggplot(dat, aes(x=Time, y=Trees, group=Simulation, color=Simulation))+
+                      geom_line(size=1)+
+                      theme_classic()+
+                      ylim(1116000,1125000)
+ return(plot)
+}
+
+plot.cull.count <- function(dat){
+  plot <- ggplot(dat, aes(x=Time, y=Cull_count, group=Simulation, color=Simulation))+
+            geom_line(size=1)+
+            theme_classic()
+          
+  return(plot)
+}
+
+plot.cull.cost <- function(dat){
+  plot <- ggplot(dat, aes(x=Time, y=Cull_cost, group=Simulation, color=Simulation))+
+            geom_line(size=1)+
+            theme_classic()
+            
+  return(plot)
+}
+
+# apply function to list of data
+trees_plots      <- lapply(dat_list, plot.trees)
+cull_count_plots <- lapply(dat_list, plot.cull.count) 
+cull_cost_plots  <- lapply(dat_list, plot.cull.cost)
+
+# re-name list elements
+names.trees <- c("scen1.treePlot","scen2.treePlot","scen3.treePlot","scen4.treePlot","scen5.treePlot")
+names(trees_plots) <- names
+
+names.count <- c("scen1.countPlot","scen2.countPlot","scen3.countPlot","scen4.countPlot","scen5.countPlot")
+names(cull_count_plots) <- names.count
+
+names.cost <- c("scen1.costPlot","scen2.costPlot","scen3.costPlot","scen4.costPlot","scen5.costPlot")
+names(cull_cost_plots) <- names.cost
+
+# extract elements to gloal environment
+list2env(trees_plots, globalenv())
+list2env(cull_count_plots, globalenv())
+list2env(cull_cost_plots, globalenv())
+
+# tree count plots
+tree.plot.all <- scen1.treePlot + scen2.treePlot + scen3.treePlot + scen4.treePlot + scen5.treePlot
+tree.plot.all[[1]] <- tree.plot.all[[1]] + ggtitle("Scenario 1")
+tree.plot.all[[2]] <- tree.plot.all[[2]] + ggtitle("Scenario 2")
+tree.plot.all[[3]] <- tree.plot.all[[3]] + ggtitle("Scenario 3")
+tree.plot.all[[4]] <- tree.plot.all[[4]] + ggtitle("Scenario 4")
+tree.plot.all[[5]] <- tree.plot.all[[5]] + ggtitle("Scenario 5")
+
+# cull count plots
+cull.count.plot.all <- scen1.countPlot+scen2.countPlot+scen3.countPlot+scen4.countPlot+scen5.countPlot
+cull.count.plot.all[[1]] <- cull.count.plot.all[[1]] + ggtitle("Scenario 1")
+cull.count.plot.all[[2]] <- cull.count.plot.all[[2]] + ggtitle("Scenario 2")
+cull.count.plot.all[[3]] <- cull.count.plot.all[[3]] + ggtitle("Scenario 3")
+cull.count.plot.all[[4]] <- cull.count.plot.all[[4]] + ggtitle("Scenario 4")
+cull.count.plot.all[[5]] <- cull.count.plot.all[[5]] + ggtitle("Scenario 5")
+
+### get mean and error bars for each scenario
+
+# Function to extract 50, 2.5, and 97.5% quantiles from each scenario
+quant.func <- function(dat){
+  wide.dat <- pivot_wider(dat,id_cols = Time, names_from = Simulation, values_from = Trees)
+  Mean.q   <- apply(wide.dat,1,quantile,probs=0.5)
+  LCL.q    <- apply(wide.dat,1,quantile,probs=0.025)
+  UCL.q    <- apply(wide.dat,1,quantile,probs=0.975)
+  
+  quant.df <- data.frame(Time = 1:50,
+                         Mean = Mean.q,
+                         LCL = LCL.q,
+                         UCL = UCL.q)
+  return(quant.df)
+}
+
+
+test_wide <- pivot_wider(scen1,id_cols = Time, names_from = Simulation, values_from = Trees)
+test_mean <- apply(test_wide,1,quantile,probs=0.5)
+test_UCL <- apply(test_wide,1,quantile,probs=0.975)
+test_LCL <- apply(test_wide,1,quantile,probs=0.025)
+test_all <- apply(test_wide,1,quantile,probs=c(0.025,0.5,0.975))
+
+xx <- as.vector(test_wide[1,])
+summary(xx)
+
+
+# apply function to all scenario dataframes
+quants.ls <- lapply(dat_list, quant.func)
+names <- c("scen1_quants","scen2_quants","scen3_quants","scen4_quants","scen5_quants")
+names(quants.ls) <- names
+
+# extract to global env
+list2env(quants.ls, globalenv())
+
+# add simulation
+scen1_quants$Simulation <- "1"
+scen2_quants$Simulation <- "2"
+scen3_quants$Simulation <- "3"
+scen4_quants$Simulation <- "4"
+scen5_quants$Simulation <- "5"
+
+# merge 
+quants_all <- rbind(scen1_quants,scen2_quants,scen3_quants,scen4_quants,scen5_quants)
+
+
+# plot
+ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation, colour=Simulation))+
+  geom_line(size=2)+
+  #geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL), fill = "gray60",alpha=0.3)+
+  ylim(1115500,1118000)
+
+ggplot(quants_all, aes(x=Time, y=UCL, group=Simulation, colour=Simulation))+
+  geom_line(size=2)
+
+### These plots seem weird. Scenario 1 does better than scenario 2 - surely this can't be right?
+
+
+# other plots
