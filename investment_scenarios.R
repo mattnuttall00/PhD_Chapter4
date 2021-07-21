@@ -4218,6 +4218,14 @@ cull.count.plot.all[[3]] <- cull.count.plot.all[[3]] + ggtitle("Scenario 3")
 cull.count.plot.all[[4]] <- cull.count.plot.all[[4]] + ggtitle("Scenario 4")
 cull.count.plot.all[[5]] <- cull.count.plot.all[[5]] + ggtitle("Scenario 5")
 
+# cull cost plots
+cull.cost.plot.all <- scen1.costPlot+scen2.costPlot+scen3.costPlot+scen4.costPlot+scen5.costPlot
+cull.cost.plot.all[[1]] <- cull.cost.plot.all[[1]] + ggtitle("Scenario 1")
+cull.cost.plot.all[[2]] <- cull.cost.plot.all[[2]] + ggtitle("Scenario 2")
+cull.cost.plot.all[[3]] <- cull.cost.plot.all[[3]] + ggtitle("Scenario 3")
+cull.cost.plot.all[[4]] <- cull.cost.plot.all[[4]] + ggtitle("Scenario 4")
+cull.cost.plot.all[[5]] <- cull.cost.plot.all[[5]] + ggtitle("Scenario 5")
+
 ### get mean and error bars for each scenario
 
 # Function to extract 50, 2.5, and 97.5% quantiles from each scenario
