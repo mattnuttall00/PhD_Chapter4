@@ -4286,9 +4286,18 @@ budget.plot.all[[6]] <- budget.plot.all[[6]] + ggtitle("Scenario 5")
 
 
 
+### Plots for each scenario together
+scen1_plots <- user_budget_p + scen1.budgetPlots + scen1.countPlot + scen1.costPlot + scen1.treePlot
+scen2_plots <- user_budget_p + scen2.budgetPlots + scen2.countPlot + scen2.costPlot + scen2.treePlot
+scen3_plots <- user_budget_p + scen3.budgetPlots + scen3.countPlot + scen3.costPlot + scen3.treePlot
+scen4_plots <- user_budget_p + scen4.budgetPlots + scen4.countPlot + scen4.costPlot + scen4.treePlot
+scen5_plots <- user_budget_p + scen5.budgetPlots + scen5.countPlot + scen5.costPlot + scen5.treePlot
 
-
-
+ggsave("outputs/investment/scenarios/Scenario_1/scen1_plots.png", scen1_plots, dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_2/scen2_plots.png", scen2_plots, dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_3/scen3_plots.png", scen3_plots, dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_4/scen4_plots.png", scen4_plots, dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_5/scen5_plots.png", scen5_plots, dpi=300, width = 30, height=20, units="cm")
 
 
 ### get mean and error bars for each scenario
