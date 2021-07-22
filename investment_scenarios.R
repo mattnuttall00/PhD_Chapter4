@@ -4276,7 +4276,8 @@ user_budget_p <- ggplot(scen1, aes(x=Time, y=User_budget))+
                   theme_classic()+
                   ylab("User budget")
 
-budget.plot.all <- user_budget_p+scen1.budgetPlots+scen2.budgetPlots+scen3.budgetPlots+scen4.budgetPlots+scen5.budgetPlots
+budget.plot.all <- user_budget_p+scen1.budgetPlots+scen2.budgetPlots+scen3.budgetPlots+
+                   scen4.budgetPlots+scen5.budgetPlots
 budget.plot.all[[1]] <- budget.plot.all[[1]] + ggtitle("User budget")
 budget.plot.all[[2]] <- budget.plot.all[[2]] + ggtitle("Scenario 1")
 budget.plot.all[[3]] <- budget.plot.all[[3]] + ggtitle("Scenario 2")
@@ -4284,7 +4285,8 @@ budget.plot.all[[4]] <- budget.plot.all[[4]] + ggtitle("Scenario 3")
 budget.plot.all[[5]] <- budget.plot.all[[5]] + ggtitle("Scenario 4")
 budget.plot.all[[6]] <- budget.plot.all[[6]] + ggtitle("Scenario 5")
 
-
+ggsave("outputs/investment/scenarios/Plots/budget_all.png", budget.plot.all, 
+       dpi=300, width = 30, height=20, units="cm")
 
 ### Plots for each scenario together
 scen1_plots <- user_budget_p + scen1.budgetPlots + scen1.countPlot + scen1.costPlot + scen1.treePlot
@@ -4293,11 +4295,26 @@ scen3_plots <- user_budget_p + scen3.budgetPlots + scen3.countPlot + scen3.costP
 scen4_plots <- user_budget_p + scen4.budgetPlots + scen4.countPlot + scen4.costPlot + scen4.treePlot
 scen5_plots <- user_budget_p + scen5.budgetPlots + scen5.countPlot + scen5.costPlot + scen5.treePlot
 
-ggsave("outputs/investment/scenarios/Scenario_1/scen1_plots.png", scen1_plots, dpi=300, width = 30, height=20, units="cm")
-ggsave("outputs/investment/scenarios/Scenario_2/scen2_plots.png", scen2_plots, dpi=300, width = 30, height=20, units="cm")
-ggsave("outputs/investment/scenarios/Scenario_3/scen3_plots.png", scen3_plots, dpi=300, width = 30, height=20, units="cm")
-ggsave("outputs/investment/scenarios/Scenario_4/scen4_plots.png", scen4_plots, dpi=300, width = 30, height=20, units="cm")
-ggsave("outputs/investment/scenarios/Scenario_5/scen5_plots.png", scen5_plots, dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_1/scen1_plots.png", scen1_plots, 
+       dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_2/scen2_plots.png", scen2_plots, 
+       dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_3/scen3_plots.png", scen3_plots, 
+       dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_4/scen4_plots.png", scen4_plots, 
+       dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Scenario_5/scen5_plots.png", scen5_plots, 
+       dpi=300, width = 30, height=20, units="cm")
+
+
+## plot S5 cull count plot but with facets
+S5_cull_count <- ggplot(scen5, aes(x=Time, y=Cull_count))+
+                  geom_line()+
+                  facet_wrap(~Simulation)+
+                  theme_classic()
+
+ggsave("outputs/investment/scenarios/Scenario_5/S5_cullCount_facets.png", S5_cull_count, 
+       dpi=300, width = 30, height=20, units="cm")
 
 
 ### get mean and error bars for each scenario
@@ -4305,6 +4322,7 @@ ggsave("outputs/investment/scenarios/Scenario_5/scen5_plots.png", scen5_plots, d
 # Function to extract 50, 2.5, and 97.5% quantiles from each scenario
 quant.func <- function(dat){
   wide.dat <- pivot_wider(dat,id_cols = Time, names_from = Simulation, values_from = Trees)
+  wide.dat <- wide.dat[ ,-1]
   Mean.q   <- apply(wide.dat,1,quantile,probs=0.5)
   LCL.q    <- apply(wide.dat,1,quantile,probs=0.025)
   UCL.q    <- apply(wide.dat,1,quantile,probs=0.975)
@@ -4315,17 +4333,6 @@ quant.func <- function(dat){
                          UCL = UCL.q)
   return(quant.df)
 }
-
-
-test_wide <- pivot_wider(scen1,id_cols = Time, names_from = Simulation, values_from = Trees)
-test_mean <- apply(test_wide,1,quantile,probs=0.5)
-test_UCL <- apply(test_wide,1,quantile,probs=0.975)
-test_LCL <- apply(test_wide,1,quantile,probs=0.025)
-test_all <- apply(test_wide,1,quantile,probs=c(0.025,0.5,0.975))
-
-xx <- as.vector(test_wide[1,])
-summary(xx)
-
 
 # apply function to all scenario dataframes
 quants.ls <- lapply(dat_list, quant.func)
@@ -4346,16 +4353,102 @@ scen5_quants$Simulation <- "5"
 quants_all <- rbind(scen1_quants,scen2_quants,scen3_quants,scen4_quants,scen5_quants)
 
 
+# plot (facets)
+all_facets_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
+                      geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+                      geom_line(size=1,aes(color=Simulation))+
+                      facet_wrap(~Simulation)+
+                      theme_classic()
+
+ggsave("outputs/investment/scenarios/Plots/All_facets_ribbons.png", all_facets_ribbon,
+       dpi=300, width = 30, height = 20, units="cm")
+  
+
+# plot no facets
+all_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
+                    geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+                    geom_line(size=1,aes(color=Simulation))+
+                    theme_classic()
+ggsave("outputs/investment/scenarios/Plots/All_ribbons.png", all_ribbon,
+       dpi=300, width = 30, height = 20, units="cm")
+
+
+# zoom in on the end
+all_zoom <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
+            #geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+            geom_line(size=1,aes(color=Simulation))+
+            theme_classic()+
+            ylim(1115500,1118000)+
+            xlim(40,50)
+
+
+ggsave("outputs/investment/scenarios/Plots/All_zoom.png", all_zoom,
+       dpi=300, width = 30, height = 20, units="cm")
+
+
+
+
+### what is the absolute difference in trees lost by the end?
+final_trees <- data.frame(Scenario = 1:5,
+                          Trees = c(min(quants_all$Mean[quants_all$Simulation=="1"]),
+                                    min(quants_all$Mean[quants_all$Simulation=="2"]),
+                                    min(quants_all$Mean[quants_all$Simulation=="3"]),
+                                    min(quants_all$Mean[quants_all$Simulation=="4"]),
+                                    min(quants_all$Mean[quants_all$Simulation=="5"])),
+                          LCL = c(min(quants_all$LCL[quants_all$Simulation=="1"]),
+                                  min(quants_all$LCL[quants_all$Simulation=="2"]),
+                                  min(quants_all$LCL[quants_all$Simulation=="3"]),
+                                  min(quants_all$LCL[quants_all$Simulation=="4"]),
+                                  min(quants_all$LCL[quants_all$Simulation=="5"])),
+                          UCL = c(min(quants_all$UCL[quants_all$Simulation=="1"]),
+                                  min(quants_all$UCL[quants_all$Simulation=="2"]),
+                                  min(quants_all$UCL[quants_all$Simulation=="3"]),
+                                  min(quants_all$UCL[quants_all$Simulation=="4"]),
+                                  min(quants_all$UCL[quants_all$Simulation=="5"])))
+
 # plot
-ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation, colour=Simulation))+
-  geom_line(size=2)+
-  #geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL), fill = "gray60",alpha=0.3)+
-  ylim(1115500,1118000)
+final_trees_plot <- ggplot(final_trees, aes(x = Scenario, y=Trees))+
+                    geom_point(size=5)+
+                    geom_errorbar(aes(ymin=LCL, ymax=UCL, width=0.2))+
+                    ylab("Trees remaining")+
+                    theme_classic()
 
-ggplot(quants_all, aes(x=Time, y=UCL, group=Simulation, colour=Simulation))+
-  geom_line(size=2)
-
-### These plots seem weird. Scenario 1 does better than scenario 2 - surely this can't be right?
+ggsave("outputs/investment/scenarios/Plots/Final_trees.png", final_trees_plot,
+       dpi=300, width = 30, height = 20, units="cm")
 
 
-# other plots
+# there is only a differene of 273 trees between the best outcome (S1) and the worst (S3). 
+
+
+## what is the average number of trees lost over the time period?
+s1.diff <- max(quants_all$Mean[quants_all$Simulation=="1"]) - min(quants_all$Mean[quants_all$Simulation=="1"])
+s2.diff <- max(quants_all$Mean[quants_all$Simulation=="2"]) - min(quants_all$Mean[quants_all$Simulation=="2"])
+s3.diff <- max(quants_all$Mean[quants_all$Simulation=="3"]) - min(quants_all$Mean[quants_all$Simulation=="3"])
+s4.diff <- max(quants_all$Mean[quants_all$Simulation=="4"]) - min(quants_all$Mean[quants_all$Simulation=="4"])
+s5.diff <- max(quants_all$Mean[quants_all$Simulation=="5"]) - min(quants_all$Mean[quants_all$Simulation=="5"])
+
+mean(c(s1.diff,s2.diff,s3.diff,s4.diff,s5.diff))
+# 7755 trees
+
+# what is that in hectares and km2 of forest?
+7755/50
+# 155 hectares
+
+155/100
+# 1.55 km2
+
+
+
+### interpretation
+
+# Firstly, I don't think that there are sufficient trees being lost. On average, assuming approximately 50 trees/cell (which is what we have assumed), only 155 ha (or 1.55km2) were lost over the entire 50 years! This is not realistic, nor is it particulaly easy to see differences. This is because there are too many trees and not enough users. Because we are assuming a single user is a village, we only have 20 users. But in GMSE terms, this means that there just aren't that many trees being cut down. I think we need to reduce the size of the landscape, and therefore the number of trees, and perhaps increase the number of villages too.
+
+# The shape of the tree curve is remarkably similar in all scenarios. S2 is the only different one - it is a linear slope. This makes sense as the manager and user budgets track each other. If you look at the S2 plots, you see that the cull count remains stable all the way along - both user and manager are using their budgets, but the difference in budgets never changes and so one never gets the upper hand over the other. S2 does not perform well overall, it is the 2nd worst result. This is not what I was expecting.
+
+# I had assumed S1 would be the worst, but it is in fact the best! So this is likely caused, at least in part, by the fact that for the first 25 time steps of S1, the manager has a higher budget than the user. This is reflected in the cull count - it starts on 120 whereas for S2 it starts on 160. I think I need to change it so that the manager budget is on 400, otherwise that is not fair.I am not entirely sure why I made the manager budget in this scenario start at 500. The user budget starts as 400 in every scenario, and so this one should match I think.
+
+# The next best is S5. Surprisingly not that much variation (seen in the ribbons). If you look at the cull count split up by facets, there is a lot of variation in the cull count (way more than the other scenarios) and so I am not sure why there is less variation than, say S2, which I would have asssumed would have the least variation as the budgets are the same! Am I missing something? 
+
+# The third best is S4. When you look at the manager budgets for S3 and S4 (the two sine waves), they are actually too similar in terms of magnitude. S4 is supposed to be much smaller peaks (i.e. smaller grants). I think I need to change this to make the difference between S3 and S4 larger. 
+
+# S3 is in fact the worst - which is interesting from a conservation funding perspective, as this is the dominant funding model! 
