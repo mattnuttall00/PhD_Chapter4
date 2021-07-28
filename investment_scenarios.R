@@ -4285,8 +4285,8 @@ budget.plot.all[[4]] <- budget.plot.all[[4]] + ggtitle("Scenario 3")
 budget.plot.all[[5]] <- budget.plot.all[[5]] + ggtitle("Scenario 4")
 budget.plot.all[[6]] <- budget.plot.all[[6]] + ggtitle("Scenario 5")
 
-ggsave("outputs/investment/scenarios/Plots/budget_all.png", budget.plot.all, 
-       dpi=300, width = 30, height=20, units="cm")
+#ggsave("outputs/investment/scenarios/Plots/budget_all.png", budget.plot.all, 
+ #      dpi=300, width = 30, height=20, units="cm")
 
 ### Plots for each scenario together
 scen1_plots <- user_budget_p + scen1.budgetPlots + scen1.countPlot + scen1.costPlot + scen1.treePlot
@@ -4295,16 +4295,16 @@ scen3_plots <- user_budget_p + scen3.budgetPlots + scen3.countPlot + scen3.costP
 scen4_plots <- user_budget_p + scen4.budgetPlots + scen4.countPlot + scen4.costPlot + scen4.treePlot
 scen5_plots <- user_budget_p + scen5.budgetPlots + scen5.countPlot + scen5.costPlot + scen5.treePlot
 
-ggsave("outputs/investment/scenarios/Scenario_1/scen1_plots.png", scen1_plots, 
-       dpi=300, width = 30, height=20, units="cm")
-ggsave("outputs/investment/scenarios/Scenario_2/scen2_plots.png", scen2_plots, 
-       dpi=300, width = 30, height=20, units="cm")
-ggsave("outputs/investment/scenarios/Scenario_3/scen3_plots.png", scen3_plots, 
-       dpi=300, width = 30, height=20, units="cm")
-ggsave("outputs/investment/scenarios/Scenario_4/scen4_plots.png", scen4_plots, 
-       dpi=300, width = 30, height=20, units="cm")
-ggsave("outputs/investment/scenarios/Scenario_5/scen5_plots.png", scen5_plots, 
-       dpi=300, width = 30, height=20, units="cm")
+#ggsave("outputs/investment/scenarios/Scenario_1/scen1_plots.png", scen1_plots, 
+ #      dpi=300, width = 30, height=20, units="cm")
+#ggsave("outputs/investment/scenarios/Scenario_2/scen2_plots.png", scen2_plots, 
+  #     dpi=300, width = 30, height=20, units="cm")
+#ggsave("outputs/investment/scenarios/Scenario_3/scen3_plots.png", scen3_plots, 
+ #      dpi=300, width = 30, height=20, units="cm")
+#ggsave("outputs/investment/scenarios/Scenario_4/scen4_plots.png", scen4_plots, 
+ #      dpi=300, width = 30, height=20, units="cm")
+#ggsave("outputs/investment/scenarios/Scenario_5/scen5_plots.png", scen5_plots, 
+ #      dpi=300, width = 30, height=20, units="cm")
 
 
 ## plot S5 cull count plot but with facets
@@ -4313,8 +4313,8 @@ S5_cull_count <- ggplot(scen5, aes(x=Time, y=Cull_count))+
                   facet_wrap(~Simulation)+
                   theme_classic()
 
-ggsave("outputs/investment/scenarios/Scenario_5/S5_cullCount_facets.png", S5_cull_count, 
-       dpi=300, width = 30, height=20, units="cm")
+#ggsave("outputs/investment/scenarios/Scenario_5/S5_cullCount_facets.png", S5_cull_count, 
+ #      dpi=300, width = 30, height=20, units="cm")
 
 
 ### get mean and error bars for each scenario
@@ -4360,8 +4360,8 @@ all_facets_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
                       facet_wrap(~Simulation)+
                       theme_classic()
 
-ggsave("outputs/investment/scenarios/Plots/All_facets_ribbons.png", all_facets_ribbon,
-       dpi=300, width = 30, height = 20, units="cm")
+#ggsave("outputs/investment/scenarios/Plots/All_facets_ribbons.png", all_facets_ribbon,
+ #      dpi=300, width = 30, height = 20, units="cm")
   
 
 # plot no facets
@@ -4369,8 +4369,8 @@ all_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
                     geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
                     geom_line(size=1,aes(color=Simulation))+
                     theme_classic()
-ggsave("outputs/investment/scenarios/Plots/All_ribbons.png", all_ribbon,
-       dpi=300, width = 30, height = 20, units="cm")
+#ggsave("outputs/investment/scenarios/Plots/All_ribbons.png", all_ribbon,
+ #      dpi=300, width = 30, height = 20, units="cm")
 
 
 # zoom in on the end
@@ -4382,8 +4382,8 @@ all_zoom <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
             xlim(40,50)
 
 
-ggsave("outputs/investment/scenarios/Plots/All_zoom.png", all_zoom,
-       dpi=300, width = 30, height = 20, units="cm")
+#ggsave("outputs/investment/scenarios/Plots/All_zoom.png", all_zoom,
+ #      dpi=300, width = 30, height = 20, units="cm")
 
 
 
@@ -4413,8 +4413,8 @@ final_trees_plot <- ggplot(final_trees, aes(x = Scenario, y=Trees))+
                     ylab("Trees remaining")+
                     theme_classic()
 
-ggsave("outputs/investment/scenarios/Plots/Final_trees.png", final_trees_plot,
-       dpi=300, width = 30, height = 20, units="cm")
+#ggsave("outputs/investment/scenarios/Plots/Final_trees.png", final_trees_plot,
+ #      dpi=300, width = 30, height = 20, units="cm")
 
 
 # there is only a differene of 273 trees between the best outcome (S1) and the worst (S3). 
@@ -4452,3 +4452,368 @@ mean(c(s1.diff,s2.diff,s3.diff,s4.diff,s5.diff))
 # The third best is S4. When you look at the manager budgets for S3 and S4 (the two sine waves), they are actually too similar in terms of magnitude. S4 is supposed to be much smaller peaks (i.e. smaller grants). I think I need to change this to make the difference between S3 and S4 larger. 
 
 # S3 is in fact the worst - which is interesting from a conservation funding perspective, as this is the dominant funding model! 
+### Create and save budgets ####
+
+# Here I want to create the manager budgets and save them so I have them as CSV's
+
+### Scenario 1
+
+## make user budget
+
+# define slope 
+xx <- 5204.1/1275
+
+# empty vector
+UB <- NULL
+
+# starting value
+UB[1] <- 400
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  UB[i] <- UB[i-1] + xx
+}
+
+
+# dataframe
+S1_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = rep(500, times = 50),
+                         User_budget = UB)
+
+
+
+### Scenario 2
+
+
+# define slope 
+xx <- 5204.1/1275
+
+# empty vector
+MB2 <- NULL
+
+# starting value
+MB2[1] <- 400
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  MB2[i] <- MB2[i-1] + xx
+}
+
+# standardise to the total cumulative budget = 25,000
+MB2 <- 25000*(MB2/sum(MB2))
+
+
+# Dataframe
+S2_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB2,
+                         User_budget = UB)
+
+
+
+### Scenario 3
+
+# Define manager budget
+s3 <- seq(0,50,1)
+MB3 <- 65*sin(1.33*s3+0)+400
+MB3 <- MB3[1:50]
+
+# standardise to a total cumulative budget of 25,000
+MB3 <- 25000*(MB3/sum(MB3))
+
+# dataframe
+S3_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB3,
+                         User_budget = UB)
+
+
+
+### Scenario 4
+
+## Define manager budget
+s4 <- seq(0,50,1)
+MB4 <- 50*sin(2.5*s4+0)+500
+MB4 <- MB4[1:50]
+
+# Standardise so that cumulative total budget = 25,000
+MB4 <- 25000*(MB4/sum(MB4))
+
+# dataframe
+S4_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB4,
+                         User_budget = UB)
+
+
+
+
+### Scenario 5
+
+## Define manager budgets
+
+# f function
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# plot.fourier function (but set not to actually plot)
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  # plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+  #     ylim = c(minval, maxval));
+  #for(i in 1:length(cf)){
+  # points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  #}
+  #points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  #abline(h = 500,lty = 3);
+  
+  return(trajectory)
+}
+
+# function to produce random waves made from 3 component waves
+random_wave <- function(f.0, dc.component, freq, delay, strength){
+  
+  acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+  time     <- 50                      # measuring time interval (time steps)
+  ts       <- seq(1,time,1)         # vector of sampling time-points (one sample per time step - manager budget) 
+  f.0 <- f.0                      # f.0 is the fundamental frequency of the complex wave
+  
+  dc.component <- dc.component                   # additive constant signal
+  component.freqs <- freq          # frequency of signal components (Hz)
+  component.delay <- delay         # delay of signal components (radians)
+  component.strength <- strength   # strength of signal components
+  
+  f <- function(t, w, cs, cf, cd) { 
+    ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+    return(ft);
+  }
+  
+  plot.fourier(f,f.0,ts=ts,cs=component.strength, cf=component.freqs, cd=component.delay)
+}
+
+# for plotting
+#par(mfrow=c(5,2))
+
+# number of waves
+reps <- 1:10
+
+# empty object for the trajectories of the random waves
+r_waves_traj <- NULL
+
+# set seed
+set.seed(123)
+
+# loop through reps and produce a random wave for each rep
+for(i in 1:length(reps)){
+  
+  f.0 <- 0.5/50
+  dc.component <- 500
+  freq  <- sample(1:15,3, replace = FALSE)
+  freq1 <- freq[1]
+  freq2 <- freq[2]
+  freq3 <- freq[3]
+  
+  delay  <- sample(-180:180,3, replace = FALSE)
+  delay1 <- delay[1]
+  delay2 <- delay[2]
+  delay3 <- delay[3]
+  
+  str <- seq(10, 30, 0.2)
+  strength1 <- sample(str,1)
+  strength2 <- sample(str,1)
+  strength3 <- sample(str,1)
+  
+  r_waves_traj[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+                                   c(strength1,strength2,strength3))
+}  
+
+# name the list elements
+names <- c("MB5.1","MB5.2","MB5.3","MB5.4","MB5.5","MB5.6","MB5.7",
+           "MB5.8","MB5.9","MB5.10")
+
+names(r_waves_traj) <- names
+
+# standardise to a total cumulative budget of 25,000
+r_waves_traj <- lapply(r_waves_traj, function(x){25000*(x/sum(x))})
+
+# extract to global environment
+list2env(r_waves_traj, globalenv())
+
+
+# Dataframe
+S5_budgets <- data.frame(Time = rep(1:50, times = 10),
+                         Manager_budget = c(MB5.1,MB5.2,MB5.3,MB5.4,MB5.5,MB5.6,MB5.7,
+                                            MB5.8,MB5.9,MB5.10),
+                         User_budget = rep(UB, times=10))
+
+
+
+### save budgets
+write.csv(S1_budgets, "Budgets/Investment/Run_1/S1_budgets.csv")
+write.csv(S2_budgets, "Budgets/Investment/Run_1/S2_budgets.csv")
+write.csv(S3_budgets, "Budgets/Investment/Run_1/S3_budgets.csv")
+write.csv(S4_budgets, "Budgets/Investment/Run_1/S4_budgets.csv")
+write.csv(S5_budgets, "Budgets/Investment/Run_1/S5_budgets.csv")
+
+
+  ### Harvest under maximum conflict ####
+
+# This is Brad's idea to get a better understanding of the power dynamics that are going on under the hood. This was in response to some unexpected results in the above first runs. The harvest under maximum conflict is a single value for each time step that is based on the manager and user budgets in each time step, and it is the maximum nuber of trees a user can harvest if the manager uses all of their budget to reduce culling and the user uses all of their budget/power to cull.
+
+# The manager uses 10 budget points to increase the cost of culling by 1
+# So for example, if the manager and user budgets are both 1000...
+# The manager can increase the cost of culling by 100 (1000/10)
+# There is always the minimum cost of an action = 10
+# Therefore the actual cost of culling is 110 (manager's increase + the minimum cost)
+# Therefore the maximum number of trees the user can cull is 9.09 (user budget/cost = 1000/110)
+
+
+### I will calculate this value for each scenario and plot it on or alongside the manager budget plots for each scenario
+
+# Load budgets
+S1_budgets <- read.csv("Budgets/Investment/Run_1/S1_budgets.csv", header = T)
+S2_budgets <- read.csv("Budgets/Investment/Run_1/S2_budgets.csv", header = T)
+S3_budgets <- read.csv("Budgets/Investment/Run_1/S3_budgets.csv", header = T)
+S4_budgets <- read.csv("Budgets/Investment/Run_1/S4_budgets.csv", header = T)
+S5_budgets <- read.csv("Budgets/Investment/Run_1/S5_budgets.csv", header = T)
+
+# function to calculate harvest under maximum conflict
+HUMC.func <- function(dat){
+  
+  dat$cost <- (dat$Manager_budget/10)+10
+  dat$Max_harvest <- dat$User_budget/dat$cost
+  
+  return(dat)
+}
+
+# Put budgets into a list
+budget_list <- list(S1_budgets,S2_budgets,S3_budgets,S4_budgets,S5_budgets)
+
+# apply function
+budget_list <- lapply(budget_list, HUMC.func)
+
+# rename list elements
+names <- c("S1_budgets","S2_budgets","S3_budgets","S4_budgets","S5_budgets")
+names(budget_list) <- names
+
+# unlist to environment
+list2env(budget_list, globalenv())
+
+
+# add simulation to scenario 5
+S5_budgets$Simulation <- rep(1:10, each=50)
+
+## Plots
+
+# scenario 1
+p.S1.MaxH <- ggplot(S1_budgets, aes(x=Time, y=Max_harvest))+
+              geom_line(size=1)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12))+
+              ylab("Harvest under maximum conflict")
+
+# Add additional plots from S1 (produced in the "results" section above)
+S1.plots <- user_budget_p + scen1.budgetPlots + scen1.countPlot + p.S1.MaxH
+S1.plots[[1]] <- S1.plots[[1]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S1.plots[[2]] <- S1.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S1.plots[[3]] <- S1.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+
+
+# scenario 2
+p.S2.MaxH <- ggplot(S2_budgets, aes(x=Time, y=Max_harvest))+
+              geom_line(size=1)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12))+
+              ylab("Harvest under maximum conflict")
+
+# Add additional plots from S2 (produced in the "results" section above)
+S2.plots <- user_budget_p + scen2.budgetPlots + scen2.countPlot + p.S2.MaxH
+S2.plots[[1]] <- S2.plots[[1]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S2.plots[[2]] <- S2.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S2.plots[[3]] <- S2.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+
+
+# scenario 3
+p.S3.MaxH <- ggplot(S3_budgets, aes(x=Time, y=Max_harvest))+
+              geom_line(size=1)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12))+
+              ylab("Harvest under maximum conflict")
+
+# Add additional plots from S3 (produced in the "results" section above)
+S3.plots <- user_budget_p + scen3.budgetPlots + scen3.countPlot + p.S3.MaxH
+S3.plots[[1]] <- S3.plots[[1]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S3.plots[[2]] <- S3.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S3.plots[[3]] <- S3.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+
+
+# scenario 4
+p.S4.MaxH <- ggplot(S4_budgets, aes(x=Time, y=Max_harvest))+
+              geom_line(size=1)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12))+
+              ylab("Harvest under maximum conflict")
+
+# Add additional plots from S4 (produced in the "results" section above)
+S4.plots <- user_budget_p + scen4.budgetPlots + scen4.countPlot + p.S4.MaxH
+S4.plots[[1]] <- S4.plots[[1]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S4.plots[[2]] <- S4.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S4.plots[[3]] <- S4.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+
+
+# scenario 5
+S5_budgets$Simulation <- as.factor(S5_budgets$Simulation)
+p.S5.MaxH <- ggplot(S5_budgets, aes(x=Time, y=Max_harvest, group=Simulation, color=Simulation))+
+              geom_line(size=1)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=12))+
+              ylab("Harvest under maximum conflict")
+
+# Add additional plots from S5 (produced in the "results" section above)
+S5.plots <- user_budget_p + scen5.budgetPlots + scen5.countPlot + p.S5.MaxH
+S5.plots[[1]] <- S5.plots[[1]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S5.plots[[2]] <- S5.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+S5.plots[[3]] <- S5.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+
+
+## plot all HUMC together
+
+# first take a mean for S5 to reduce it to a single line
+S5_mean <- S5_budgets %>% group_by(Time) %>% summarise_at(.,vars(Max_harvest),mean)
+S5_mean$Scenario <- "5"
+
+# merge data
+HUMC_all <- data.frame(Time = 1:50,
+                       Max_harvest = c(S1_budgets$Max_harvest, S2_budgets$Max_harvest,
+                                       S3_budgets$Max_harvest, S4_budgets$Max_harvest,
+                                       S5_mean$Max_harvest),
+                       Scenario = rep(c("1","2","3","4","5"), each=50))
+
+ggplot(HUMC_all, aes(x=Time, y=Max_harvest, group=Scenario, color=Scenario))+
+  geom_line(size=1)+
+  theme_classic()+
+  theme(axis.title = element_text(size=15),
+        axis.text = element_text(size=12))+
+  ylab("Harvest under maximum conflict")
+
