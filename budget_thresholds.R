@@ -583,18 +583,13 @@ plot(q,r,type="l", ylim = c(0,1300))
 ## final sine wave for scenario 3
 s <- seq(0,50,1)
 t <- 75*sin(1.3*s+0)+400
-plot(s,t,type="l", ylim = c(0,650))
+plot(s,t,type="l", ylim = c(300,500))
 
 
 ## final sine wave for scenario 4
-u <- seq(0,50,1)
-v <- 50*sin(2.5*u+0)+500
-plot(u,v,type="l", ylim = c(0,1000))
-
-
-
-
-
+s <- seq(0,50,1)
+ss <- 30*sin(2.5*u+0)+500
+plot(s,ss,type="l", ylim = c(400,600))
 
 
 
@@ -1079,7 +1074,7 @@ mb3 <- mb3[1:50]
 
 ## SCENARIO 4
 s4 <- seq(0,50,1)
-mb4 <- 50*sin(2.5*s4+0)+500
+mb4 <- 30*sin(2.5*s4+0)+500
 mb4 <- mb4[1:50]
 
 
