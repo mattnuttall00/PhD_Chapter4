@@ -4453,8 +4453,13 @@ mean(c(s1.diff,s2.diff,s3.diff,s4.diff,s5.diff))
 
 # S3 is in fact the worst - which is interesting from a conservation funding perspective, as this is the dominant funding model! 
 ### Create and save budgets ####
+  ## Run 1 ####
 
-# Here I want to create the manager budgets and save them so I have them as CSV's
+
+# these are the budgets used in the first run of 10 reps per scenario, above
+
+
+# Here I want to create the user and manager budgets and save them so I have them as CSV's
 
 ### Scenario 1
 
@@ -4672,7 +4677,35 @@ write.csv(S4_budgets, "Budgets/Investment/Run_1/S4_budgets.csv")
 write.csv(S5_budgets, "Budgets/Investment/Run_1/S5_budgets.csv")
 
 
-  ### Harvest under maximum conflict ####
+  ## Run 2 ####
+
+
+# Here I want to create the user and manager budgets and save them so I have them as CSV's
+
+### Scenario 1
+
+## make user budget
+
+# define slope 
+xx <- 5204.1/1275
+
+xx <- 10
+
+# empty vector
+UB <- NULL
+
+# starting value
+UB[1] <- 400
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  UB[i] <- UB[i-1] + xx
+}
+
+
+
+
+### Harvest under maximum conflict ####
 
 # This is Brad's idea to get a better understanding of the power dynamics that are going on under the hood. This was in response to some unexpected results in the above first runs. The harvest under maximum conflict is a single value for each time step that is based on the manager and user budgets in each time step, and it is the maximum nuber of trees a user can harvest if the manager uses all of their budget to reduce culling and the user uses all of their budget/power to cull.
 
@@ -4842,3 +4875,24 @@ humc_all_floor <- ggplot(HUMC_all, aes(x=Time, y=Floor, group=Scenario, color=Sc
                     ylab("Floored harvest under maximum conflict")
 
 #ggsave("outputs/investment/scenarios/HUMC/humc_all_floor.png", humc_all_floor, dpi=300, width = 30, height=20, units="cm")
+
+#### SECOND RUN ####
+
+# based on the initial results (from 10 runs of each of the above 5 scenarios) I have decided to make a few changes to the scenarios. Changes detailed below:
+
+# I am going to make the landscape smaller, with fewer trees. This is because there are so many tree and so few users that the total number of trees that are being culled is really small. 
+
+# I will reduce the landscape to 100 x 100, and increase the number of villages to 25. This means the landscape is 10,000ha (100km2). Each village would theoretically have approximately 4km2 of land. Although it's worth remembering that this is a simulation, and we are trying to be quite extreme, rather than being super realistic.
+
+# if we assume still 50 trees per cell the we have 500,000 trees
+
+# I was considering changing the manager budget in S1 from 500 to 400, so that the manager started with the same budget as the user. I think I initially chose 500 because most of the other manager budgets started at around 500. I think that it makes more sense for all of the manager budgets to start at around the same value, rather than triying to match the manager budget with the user budget. 
+
+# I am also going to increase the slope of the user budget. Previously, I had the user budget standardised to a total cumulative budget that matched the managers. Seeing as the user and manager budgets are NOT equal, equivalent, or even proportional, there is no need for the users to be standardised. In fact, if I am wanting more extreme results, and more trees cut down, I actually DONT want the user budget to be standardised. The amount of increase in the user budget is fairly arbitrary anyway - the budget isn't explicitly mapped out to represent any particular value of population increase. It is more just conceptually representing population increase. 
+
+# I also need to fix the S4 sine wave. It's too similar to S3. The amplitude is not small enough
+
+
+
+#### SCENARIO 1 ####
+
