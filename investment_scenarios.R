@@ -4735,6 +4735,8 @@ S1.plots[[1]] <- S1.plots[[1]] + theme(axis.title = element_text(size=15),axis.t
 S1.plots[[2]] <- S1.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 S1.plots[[3]] <- S1.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 
+#ggsave("outputs/investment/scenarios/HUMC/S1_plots.png", S1.plots, dpi=300, width = 30, height=20, units="cm")
+
 
 # scenario 2
 p.S2.MaxH <- ggplot(S2_budgets, aes(x=Time, y=Max_harvest))+
@@ -4749,6 +4751,8 @@ S2.plots <- user_budget_p + scen2.budgetPlots + scen2.countPlot + p.S2.MaxH
 S2.plots[[1]] <- S2.plots[[1]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 S2.plots[[2]] <- S2.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 S2.plots[[3]] <- S2.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+
+#ggsave("outputs/investment/scenarios/HUMC/S2_plots.png", S2.plots, dpi=300, width = 30, height=20, units="cm")
 
 
 # scenario 3
@@ -4765,6 +4769,8 @@ S3.plots[[1]] <- S3.plots[[1]] + theme(axis.title = element_text(size=15),axis.t
 S3.plots[[2]] <- S3.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 S3.plots[[3]] <- S3.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 
+#ggsave("outputs/investment/scenarios/HUMC/S3_plots.png", S3.plots, dpi=300, width = 30, height=20, units="cm")
+
 
 # scenario 4
 p.S4.MaxH <- ggplot(S4_budgets, aes(x=Time, y=Max_harvest))+
@@ -4779,6 +4785,8 @@ S4.plots <- user_budget_p + scen4.budgetPlots + scen4.countPlot + p.S4.MaxH
 S4.plots[[1]] <- S4.plots[[1]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 S4.plots[[2]] <- S4.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 S4.plots[[3]] <- S4.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
+
+#ggsave("outputs/investment/scenarios/HUMC/S4_plots.png", S4.plots, dpi=300, width = 30, height=20, units="cm")
 
 
 # scenario 5
@@ -4796,6 +4804,8 @@ S5.plots[[1]] <- S5.plots[[1]] + theme(axis.title = element_text(size=15),axis.t
 S5.plots[[2]] <- S5.plots[[2]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 S5.plots[[3]] <- S5.plots[[3]] + theme(axis.title = element_text(size=15),axis.text = element_text(size=12))
 
+#ggsave("outputs/investment/scenarios/HUMC/S5_plots.png", S5.plots, dpi=300, width = 30, height=20, units="cm")
+
 
 ## plot all HUMC together
 
@@ -4810,10 +4820,25 @@ HUMC_all <- data.frame(Time = 1:50,
                                        S5_mean$Max_harvest),
                        Scenario = rep(c("1","2","3","4","5"), each=50))
 
-ggplot(HUMC_all, aes(x=Time, y=Max_harvest, group=Scenario, color=Scenario))+
-  geom_line(size=1)+
-  theme_classic()+
-  theme(axis.title = element_text(size=15),
-        axis.text = element_text(size=12))+
-  ylab("Harvest under maximum conflict")
+humc_all <- ggplot(HUMC_all, aes(x=Time, y=Max_harvest, group=Scenario, color=Scenario))+
+            geom_line(size=1)+
+            theme_classic()+
+            theme(axis.title = element_text(size=15),
+                  axis.text = element_text(size=12))+
+            ylab("Harvest under maximum conflict")
 
+#ggsave("outputs/investment/scenarios/HUMC/humc_all.png", humc_all, dpi=300, width = 30, height=20, units="cm")
+
+
+## floor all of the Max_harvest values (as users can't harvest half a tree)
+HUMC_all$Floor <- floor(HUMC_all$Max_harvest)
+
+humc_all_floor <- ggplot(HUMC_all, aes(x=Time, y=Floor, group=Scenario, color=Scenario))+
+                    geom_line(size=1)+
+                    facet_wrap(~Scenario)+
+                    theme_classic()+
+                    theme(axis.title = element_text(size=15),
+                          axis.text = element_text(size=12))+
+                    ylab("Floored harvest under maximum conflict")
+
+#ggsave("outputs/investment/scenarios/HUMC/humc_all_floor.png", humc_all_floor, dpi=300, width = 30, height=20, units="cm")
