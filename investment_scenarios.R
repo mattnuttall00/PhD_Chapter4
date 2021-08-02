@@ -4899,9 +4899,246 @@ write.csv(S3_budgets, "Budgets/Investment/Run_2/S3_budgets.csv")
 write.csv(S4_budgets, "Budgets/Investment/Run_2/S4_budgets.csv")
 write.csv(S5_budgets, "Budgets/Investment/Run_2/S5_budgets.csv")
 
+  ## Run 3 ####
+
+# Here I want to create the user and manager budgets and save them so I have them as CSV's
+
+### Scenario 1
+
+## make user budget
+
+# define slope 
+xx <- 5204.1/1275
+
+# empty vector
+UB <- NULL
+
+# starting value
+UB[1] <- 800
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  UB[i] <- UB[i-1] + xx
+}
+
+
+# dataframe
+S1_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = rep(500, times = 50),
+                         User_budget = UB)
+
+
+
+### Scenario 2
+
+
+# define slope 
+xx <- 1.5
+
+# empty vector
+MB2 <- NULL
+
+# starting value
+MB2[1] <- 500
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  MB2[i] <- MB2[i-1] + xx
+}
+
+# standardise to the total cumulative budget = 25,000
+MB2 <- 25000*(MB2/sum(MB2))
+
+
+# Dataframe
+S2_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB2,
+                         User_budget = UB)
+
+
+
+### Scenario 3
+
+# Define manager budget
+s3 <- seq(0,50,1)
+MB3 <- 65*sin(1.33*s3+0)+400
+MB3 <- MB3[1:50]
+
+# standardise to a total cumulative budget of 25,000
+MB3 <- 25000*(MB3/sum(MB3))
+
+# dataframe
+S3_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB3,
+                         User_budget = UB)
+
+
+
+### Scenario 4
+
+## Define manager budget
+s4 <- seq(0,50,1)
+MB4 <- 30*sin(2.5*s4+0)+500
+MB4 <- MB4[1:50]
+
+# Standardise so that cumulative total budget = 25,000
+MB4 <- 25000*(MB4/sum(MB4))
+
+# dataframe
+S4_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB4,
+                         User_budget = UB)
+
+
+
+
+### Scenario 5
+
+## Define manager budgets
+
+# f function
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# plot.fourier function (but set not to actually plot)
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  # plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+  #     ylim = c(minval, maxval));
+  #for(i in 1:length(cf)){
+  # points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  #}
+  #points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  #abline(h = 500,lty = 3);
+  
+  return(trajectory)
+}
+
+# function to produce random waves made from 3 component waves
+random_wave <- function(f.0, dc.component, freq, delay, strength){
+  
+  acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+  time     <- 50                      # measuring time interval (time steps)
+  ts       <- seq(1,time,1)         # vector of sampling time-points (one sample per time step - manager budget) 
+  f.0 <- f.0                      # f.0 is the fundamental frequency of the complex wave
+  
+  dc.component <- dc.component                   # additive constant signal
+  component.freqs <- freq          # frequency of signal components (Hz)
+  component.delay <- delay         # delay of signal components (radians)
+  component.strength <- strength   # strength of signal components
+  
+  f <- function(t, w, cs, cf, cd) { 
+    ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+    return(ft);
+  }
+  
+  plot.fourier(f,f.0,ts=ts,cs=component.strength, cf=component.freqs, cd=component.delay)
+}
+
+# for plotting
+#par(mfrow=c(5,2))
+
+# number of waves
+reps <- 1:10
+
+# empty object for the trajectories of the random waves
+r_waves_traj <- NULL
+
+# set seed
+set.seed(123)
+
+# loop through reps and produce a random wave for each rep
+for(i in 1:length(reps)){
+  
+  f.0 <- 0.5/50
+  dc.component <- 500
+  freq  <- sample(1:15,3, replace = FALSE)
+  freq1 <- freq[1]
+  freq2 <- freq[2]
+  freq3 <- freq[3]
+  
+  delay  <- sample(-180:180,3, replace = FALSE)
+  delay1 <- delay[1]
+  delay2 <- delay[2]
+  delay3 <- delay[3]
+  
+  str <- seq(10, 30, 0.2)
+  strength1 <- sample(str,1)
+  strength2 <- sample(str,1)
+  strength3 <- sample(str,1)
+  
+  r_waves_traj[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+                                   c(strength1,strength2,strength3))
+}  
+
+# name the list elements
+names <- c("MB5.1","MB5.2","MB5.3","MB5.4","MB5.5","MB5.6","MB5.7",
+           "MB5.8","MB5.9","MB5.10")
+
+names(r_waves_traj) <- names
+
+# standardise to a total cumulative budget of 25,000
+r_waves_traj <- lapply(r_waves_traj, function(x){25000*(x/sum(x))})
+
+# extract to global environment
+list2env(r_waves_traj, globalenv())
+
+
+# Dataframe
+S5_budgets <- data.frame(Time = rep(1:50, times = 10),
+                         Manager_budget = c(MB5.1,MB5.2,MB5.3,MB5.4,MB5.5,MB5.6,MB5.7,
+                                            MB5.8,MB5.9,MB5.10),
+                         User_budget = rep(UB, times=10))
+
+
+
+### save budgets
+write.csv(S1_budgets, "Budgets/Investment/Run_3/S1_budgets.csv")
+write.csv(S2_budgets, "Budgets/Investment/Run_3/S2_budgets.csv")
+write.csv(S3_budgets, "Budgets/Investment/Run_3/S3_budgets.csv")
+write.csv(S4_budgets, "Budgets/Investment/Run_3/S4_budgets.csv")
+write.csv(S5_budgets, "Budgets/Investment/Run_3/S5_budgets.csv")
+
+budgets_all <- rbind(S1_budgets,S2_budgets,S3_budgets,S4_budgets,S5_budgets)
+
+s <- rep(c("1","2","3","4"), each=50)
+t <- rep("5", times=500)
+
+q <- c(s,t)
+
+budgets_all$Scenario <- q
+
+
+ggplot(budgets_all, aes(x=Time, y=Manager_budget, group=Scenario))+
+  geom_line()+
+  facet_wrap(~Scenario)
+
+
+
+
+
 ### Harvest under maximum conflict ####
 
-# This is Brad's idea to get a better understanding of the power dynamics that are going on under the hood. This was in response to some unexpected results in the above first runs. The harvest under maximum conflict is a single value for each time step that is based on the manager and user budgets in each time step, and it is the maximum nuber of trees a user can harvest if the manager uses all of their budget to reduce culling and the user uses all of their budget/power to cull.
+# This is Brad's idea to get a better understanding of the power dynamics that are going on under the hood. This was in response to some unexpected results in the above first runs. The harvest under maximum conflict is a single value for each time step that is based on the manager and user budgets in each time step, and it is the maximum number of trees a user can harvest if the manager uses all of their budget to reduce culling and the user uses all of their budget/power to cull.
 
 # The manager uses 10 budget points to increase the cost of culling by 1
 # So for example, if the manager and user budgets are both 1000...
@@ -5070,7 +5307,7 @@ humc_all_floor <- ggplot(HUMC_all, aes(x=Time, y=Floor, group=Scenario, color=Sc
 
 #ggsave("outputs/investment/scenarios/HUMC/humc_all_floor.png", humc_all_floor, dpi=300, width = 30, height=20, units="cm")
 
-#### SECOND RUN ####
+  ### SECOND RUN ####
 
 # based on the initial results (from 10 runs of each of the above 5 scenarios) I have decided to make a few changes to the scenarios. Changes detailed below:
 
@@ -6743,3 +6980,88 @@ mean(c(s1.diff,s2.diff,s3.diff,s4.diff,s5.diff))
 
 233/100
 # 2.33 km2
+  ### THIRD RUN ####
+
+# The results of the 2nd run are still not extreme enough. The results are showing some interesting things, but we want the number of trees to be higher, the proportion of the total number of tree cut down to be higher, and ideally the scenarios to be more different. I am going to start by simply reducing the number of trees we start with, plus increasing the user budget.
+
+# I am also going to change the manager budget in S2 so that it start closer to 500. This requires the slope to be different from the user budget. I don't think this is a problem, seeing as the UB and MB are not equivalent or even proportional. This scenario is then just replicating a steadily increasing MB, but one which starts lower than the others.
+
+
+#### SCENARIO 1 #####
+
+UB  <- 800
+UBR <- 80
+
+Scen1_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 100,
+  land_dim_2 = 100, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0,
+  lambda = 0,
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = 500, 
+  usr_budget_rng = UBR,  
+  manage_target = 100000, 
+  RESOURCE_ini = 100000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 30, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen1 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen1_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR)
+  
+  Scen1[time_step, 1] <- time_step
+  Scen1[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen1[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen1[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen1[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen1[time_step, 6] <- UB
+  Scen1[time_step, 7] <- MB
+  
+  Scen1_sim_old <- sim_new
+  UB <- UB + 4.0816
+  UBR <- UB/10
+}
+
+colnames(Scen1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen1_1_summary <- data.frame(Scen1)
+
+rm(Scen1_sim_old)
+rm(Scen1)
+
+
+
