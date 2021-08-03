@@ -180,7 +180,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 20
+  UB <- UB + 75
   UBR <- UB/10
   MB <- MB5.1[time_step]
 }
@@ -258,7 +258,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 20
+  UB <- UB + 75
   UBR <- UB/10
   MB <- MB5.3[time_step]
 }
@@ -337,7 +337,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 20
+  UB <- UB + 75
   UBR <- UB/10
   MB <- MB5.5[time_step]
 }
@@ -416,7 +416,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 20
+  UB <- UB + 75
   UBR <- UB/10
   MB <- MB5.7[time_step]
 }
@@ -494,7 +494,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 20
+  UB <- UB + 75
   UBR <- UB/10
   MB <- MB5.9[time_step]
 }

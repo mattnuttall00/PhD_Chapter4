@@ -65,14 +65,14 @@ for(time_step in 1:50){
   
   
   Scen1_sim_old <- sim_new
-  UB <- UB + 20
+  UB <- UB + 75
   UBR <- UB/10
 }
 
 colnames(Scen1) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget")
 Scen1_1_summary <- data.frame(Scen1)
 
-write.csv(Scen1_1_summary, file="outputs/investment/scenarios/Scen1_1_summary.csv")
+write.csv(Scen1_1_summary, file="outputs/investment/scenarios/Run_3/Scen1_1_summary.csv")
 
 
 

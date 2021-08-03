@@ -79,7 +79,7 @@ for(time_step in 1:50){
   Scen4[time_step, 7] <- MB
   
   Scen4_sim_old <- sim_new
-  UB <- UB + 20
+  UB <- UB + 75
   UBR <- UB/10
   MB <- MB4[time_step]
 }
