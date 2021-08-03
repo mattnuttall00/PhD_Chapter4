@@ -113,8 +113,8 @@ list2env(r_waves_traj, globalenv())
 
 
 ### RUN 1 - wave 1
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.1[1]
 
@@ -180,7 +180,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.1[time_step]
 }
@@ -191,8 +191,8 @@ Scen5_1_summary <- data.frame(Scen5)
 
 ### Wave 3
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.3[1]
 
@@ -258,7 +258,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.3[time_step]
 }
@@ -270,8 +270,8 @@ Scen5_3_summary <- data.frame(Scen5)
 
 ### Wave 5
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.5[1]
 
@@ -337,7 +337,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.5[time_step]
 }
@@ -349,8 +349,8 @@ Scen5_5_summary <- data.frame(Scen5)
 
 ### wave 7
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.7[1]
 
@@ -416,7 +416,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.7[time_step]
 }
@@ -427,8 +427,8 @@ Scen5_7_summary <- data.frame(Scen5)
 
 ### wave 9
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.9[1]
 
@@ -494,7 +494,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.9[time_step]
 }

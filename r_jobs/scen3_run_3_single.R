@@ -12,8 +12,8 @@ MB3 <- MB3[1:50]
 MB3 <- 25000*(MB3/sum(MB3))
 
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB3[1]
 
@@ -79,7 +79,7 @@ for(time_step in 1:50){
   Scen3[time_step, 7] <- MB
   
   Scen3_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB3[time_step]
 }

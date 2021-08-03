@@ -4908,13 +4908,13 @@ write.csv(S5_budgets, "Budgets/Investment/Run_2/S5_budgets.csv")
 ## make user budget
 
 # define slope 
-xx <- 5204.1/1275
+xx <- 20
 
 # empty vector
 UB <- NULL
 
 # starting value
-UB[1] <- 800
+UB[1] <- 2000
 
 # fill in budget vector by adding the slope onto each value
 for(i in 2:50){
@@ -6986,11 +6986,13 @@ mean(c(s1.diff,s2.diff,s3.diff,s4.diff,s5.diff))
 
 # I am also going to change the manager budget in S2 so that it start closer to 500. This requires the slope to be different from the user budget. I don't think this is a problem, seeing as the UB and MB are not equivalent or even proportional. This scenario is then just replicating a steadily increasing MB, but one which starts lower than the others.
 
+# Note - I ran one sim each with the user budget going from 800 to 1000. But the number of trees lost was still not enough, so I am going to up it again by quite a lot, and also increase the slope by quite a lot.
+
 
 #### SCENARIO 1 #####
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 Scen1_sim_old <- gmse_apply(
   res_mod = resource,
@@ -7053,7 +7055,7 @@ for(time_step in 1:50){
   Scen1[time_step, 7] <- MB
   
   Scen1_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
 }
 
@@ -7090,8 +7092,8 @@ MB2 <- 25000*(MB2/sum(MB2))
 
 ### RUN 
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB2[1]
 
@@ -7157,7 +7159,7 @@ for(time_step in 1:50){
   Scen2[time_step, 7] <- MB
   
   Scen2_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB2[time_step]
 }
@@ -7185,8 +7187,8 @@ MB3 <- MB3[1:50]
 MB3 <- 25000*(MB3/sum(MB3))
 
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB3[1]
 
@@ -7252,7 +7254,7 @@ for(time_step in 1:50){
   Scen3[time_step, 7] <- MB
   
   Scen3_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB3[time_step]
 }
@@ -7281,8 +7283,8 @@ MB4 <- 25000*(MB4/sum(MB4))
 
 
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB4[1]
 
@@ -7348,7 +7350,7 @@ for(time_step in 1:50){
   Scen4[time_step, 7] <- MB
   
   Scen4_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB4[time_step]
 }
@@ -7473,8 +7475,8 @@ list2env(r_waves_traj, globalenv())
 
 
 ### RUN 1 - wave 1
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.1[1]
 
@@ -7540,7 +7542,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.1[time_step]
 }
@@ -7551,8 +7553,8 @@ Scen5_1_summary <- data.frame(Scen5)
 
 ### Wave 3
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.3[1]
 
@@ -7618,7 +7620,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.3[time_step]
 }
@@ -7630,8 +7632,8 @@ Scen5_3_summary <- data.frame(Scen5)
 
 ### Wave 5
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.5[1]
 
@@ -7697,7 +7699,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.5[time_step]
 }
@@ -7709,8 +7711,8 @@ Scen5_5_summary <- data.frame(Scen5)
 
 ### wave 7
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.7[1]
 
@@ -7776,7 +7778,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.7[time_step]
 }
@@ -7787,8 +7789,8 @@ Scen5_7_summary <- data.frame(Scen5)
 
 ### wave 9
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB5.9[1]
 
@@ -7854,7 +7856,7 @@ for(time_step in 1:50){
   Scen5[time_step, 7] <- MB
   
   Scen5_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB5.9[time_step]
 }

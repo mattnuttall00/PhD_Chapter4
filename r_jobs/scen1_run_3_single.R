@@ -1,8 +1,8 @@
 require('GMSE')
 
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 Scen1_sim_old <- gmse_apply(
   res_mod = resource,
@@ -65,7 +65,7 @@ for(time_step in 1:50){
   
   
   Scen1_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
 }
 

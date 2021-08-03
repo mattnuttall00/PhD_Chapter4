@@ -24,8 +24,8 @@ MB2 <- 25000*(MB2/sum(MB2))
 
 ### RUN 
 
-UB  <- 800
-UBR <- 80
+UB  <- 2000
+UBR <- 200
 
 MB <- MB2[1]
 
@@ -91,7 +91,7 @@ for(time_step in 1:50){
   Scen2[time_step, 7] <- MB
   
   Scen2_sim_old <- sim_new
-  UB <- UB + 4.0816
+  UB <- UB + 20
   UBR <- UB/10
   MB <- MB2[time_step]
 }
