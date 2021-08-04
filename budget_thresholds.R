@@ -593,6 +593,26 @@ plot(s,ss,type="l", ylim = c(400,600))
 
 
 
+### Below are the sine waves for S3 for Run 4, where I am making all scenarios as extreme and different from ecah other as possible.I don't think I need to change S4, because once I have made S3 more extreme, then S4 as it is will be as different as you can get
+
+# scenario 3
+
+# increased amplitude
+a <- seq(0,50,1)
+b <- 350*sin(1.3*a+0)+400
+plot(a,b,type="l", ylim = c(0,800))
+
+
+# change frequency
+e <- seq(0,50,1)
+f <- 350*sin(0.5*e+0)+400
+plot(e,f,type="l", ylim = c(0,900))
+
+# standardise
+f <- 25000*(f/sum(f))
+
+
+
 
 ## experiment with allocating manager budget values from the above sin wave
 
