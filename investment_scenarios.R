@@ -5118,6 +5118,8 @@ write.csv(S3_budgets, "Budgets/Investment/Run_3/S3_budgets.csv")
 write.csv(S4_budgets, "Budgets/Investment/Run_3/S4_budgets.csv")
 write.csv(S5_budgets, "Budgets/Investment/Run_3/S5_budgets.csv")
 
+
+# plot budgets
 budgets_all <- rbind(S1_budgets,S2_budgets,S3_budgets,S4_budgets,S5_budgets)
 
 s <- rep(c("1","2","3","4"), each=50)
@@ -5136,6 +5138,255 @@ ggplot(budgets_all, aes(x=Time, y=Manager_budget, group=Scenario))+
 
 
 
+  ## Run 4 ####
+
+# In run 3 I have increased the user budget a LOT, to try and make the scenarios more extreme and increase tree loss. I have successfully increased tree loss, but the scenarios are still basically identical. Here I am going to try and make the senarios more extreme and different from one another. I will have to sacrifice reality a bit.
+
+### Scenario 1
+
+## make user budget
+
+# define slope 
+xx <- 75
+
+# empty vector
+UB <- NULL
+
+# starting value
+UB[1] <- 2000
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  UB[i] <- UB[i-1] + xx
+}
+
+
+# dataframe
+S1_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = rep(500, times = 50),
+                         User_budget = UB)
+
+
+
+### Scneario 2
+
+# define slope 
+xx <- 60
+
+# empty vector
+MB2 <- NULL
+
+# starting value
+MB2[1] <- 500
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  MB2[i] <- MB2[i-1] + xx
+}
+
+# standardise to the total cumulative budget = 25,000
+MB2 <- 25000*(MB2/sum(MB2))
+
+
+# Dataframe
+S2_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB2,
+                         User_budget = UB)
+
+
+
+### Scenario 3
+
+# Define manager budget
+s3 <- seq(0,50,1)
+MB3 <- 350*sin(0.5*e+0)+400
+MB3 <- MB3[1:50]
+
+# standardise to a total cumulative budget of 25,000
+MB3 <- 25000*(MB3/sum(MB3))
+
+# dataframe
+S3_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB3,
+                         User_budget = UB)
+
+
+
+
+### Scenario 4
+
+# I am keeping S4 as it is because now that I have made S3 more extreme, S4 is as different as it can be in its current form
+
+## Define manager budget
+s4 <- seq(0,50,1)
+MB4 <- 30*sin(2.5*s4+0)+500
+MB4 <- MB4[1:50]
+
+# Standardise so that cumulative total budget = 25,000
+MB4 <- 25000*(MB4/sum(MB4))
+
+# dataframe
+S4_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB4,
+                         User_budget = UB)
+
+
+
+
+### Scenario 5
+
+## Define manager budgets
+
+# f function
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# plot.fourier function (but set not to actually plot)
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  # plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+  #     ylim = c(minval, maxval));
+  #for(i in 1:length(cf)){
+  # points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  #}
+  #points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  #abline(h = 500,lty = 3);
+  
+  return(trajectory)
+}
+
+# function to produce random waves made from 3 component waves
+random_wave <- function(f.0, dc.component, freq, delay, strength){
+  
+  acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+  time     <- 50                      # measuring time interval (time steps)
+  ts       <- seq(1,time,1)         # vector of sampling time-points (one sample per time step - manager budget) 
+  f.0 <- f.0                      # f.0 is the fundamental frequency of the complex wave
+  
+  dc.component <- dc.component                   # additive constant signal
+  component.freqs <- freq          # frequency of signal components (Hz)
+  component.delay <- delay         # delay of signal components (radians)
+  component.strength <- strength   # strength of signal components
+  
+  f <- function(t, w, cs, cf, cd) { 
+    ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+    return(ft);
+  }
+  
+  plot.fourier(f,f.0,ts=ts,cs=component.strength, cf=component.freqs, cd=component.delay)
+}
+
+# for plotting
+#par(mfrow=c(5,2))
+
+# number of waves
+reps <- 1:10
+
+# empty object for the trajectories of the random waves
+r_waves_traj <- NULL
+
+# set seed
+set.seed(123)
+
+# loop through reps and produce a random wave for each rep
+for(i in 1:length(reps)){
+  
+  f.0.rng <- seq(0.01,0.08,0.01)
+  f.0 <- sample(f.0.rng, 1, replace = FALSE)
+  
+  dc.component <- 500
+  freq  <- sample(1:5,3, replace = FALSE)
+  freq1 <- freq[1]
+  freq2 <- freq[2]
+  freq3 <- freq[3]
+  
+  delay  <- sample(0:180,3, replace = FALSE)
+  delay1 <- delay[1]
+  delay2 <- delay[2]
+  delay3 <- delay[3]
+  
+  str <- seq(1, 150, 0.2)
+  strength1 <- sample(str,1)
+  strength2 <- sample(str,1)
+  strength3 <- sample(str,1)
+  
+  r_waves_traj[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+                                   c(strength1,strength2,strength3))
+}  
+
+# name the list elements
+names <- c("MB5.1","MB5.2","MB5.3","MB5.4","MB5.5","MB5.6","MB5.7",
+           "MB5.8","MB5.9","MB5.10")
+
+names(r_waves_traj) <- names
+
+# standardise to a total cumulative budget of 25,000
+r_waves_traj <- lapply(r_waves_traj, function(x){25000*(x/sum(x))})
+
+# extract to global environment
+list2env(r_waves_traj, globalenv())
+
+
+# Dataframe
+S5_budgets <- data.frame(Time = rep(1:50, times = 10),
+                         Manager_budget = c(MB5.1,MB5.2,MB5.3,MB5.4,MB5.5,MB5.6,MB5.7,
+                                            MB5.8,MB5.9,MB5.10),
+                         User_budget = rep(UB, times=10))
+
+check <- S5_budgets
+check$wave <- rep(c("1","2","3","4","5","6","7","8","9","10"), each=50)
+
+ggplot(check, aes(x=Time, y=Manager_budget, group=wave, color=wave))+
+  geom_line(size=1)+
+  facet_wrap(~wave)
+
+
+
+### save budgets
+write.csv(S1_budgets, "Budgets/Investment/Run_4/S1_budgets.csv")
+write.csv(S2_budgets, "Budgets/Investment/Run_4/S2_budgets.csv")
+write.csv(S3_budgets, "Budgets/Investment/Run_4/S3_budgets.csv")
+write.csv(S4_budgets, "Budgets/Investment/Run_4/S4_budgets.csv")
+write.csv(S5_budgets, "Budgets/Investment/Run_4/S5_budgets.csv")
+
+
+# plot budgets
+budgets_all <- rbind(S1_budgets,S2_budgets,S3_budgets,S4_budgets,S5_budgets)
+
+s <- rep(c("1","2","3","4"), each=50)
+t <- rep("5", times=500)
+
+q <- c(s,t)
+
+budgets_all$Scenario <- q
+
+
+ggplot(budgets_all, aes(x=Time, y=Manager_budget, group=Scenario))+
+  geom_line()+
+  facet_wrap(~Scenario)
+
+
+
+#
 ### Harvest under maximum conflict ####
 
 # This is Brad's idea to get a better understanding of the power dynamics that are going on under the hood. This was in response to some unexpected results in the above first runs. The harvest under maximum conflict is a single value for each time step that is based on the manager and user budgets in each time step, and it is the maximum number of trees a user can harvest if the manager uses all of their budget to reduce culling and the user uses all of their budget/power to cull.
