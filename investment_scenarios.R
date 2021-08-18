@@ -9037,3 +9037,83 @@ scen5_summary_all <- rbind(Scen5_1_summary,Scen5_3_summary,Scen5_5_summary,Scen5
 
 
 
+
+## Results from a single run ####
+
+
+# load data
+scen1 <- read.csv("outputs/investment/scenarios/Run_4/Single_run/Scen1_summary.csv")
+scen2 <- read.csv("outputs/investment/scenarios/Run_4/Single_run/Scen2_summary.csv")
+scen3 <- read.csv("outputs/investment/scenarios/Run_4/Single_run/Scen3_summary.csv")
+scen4 <- read.csv("outputs/investment/scenarios/Run_4/Single_run/Scen4_summary.csv")
+scen5 <- read.csv("outputs/investment/scenarios/Run_4/Single_run/Scen5_summary.csv")
+
+scen1$Manager_budget <- 500
+scen1$Scenario <- "1"
+scen2$Scenario <- "2"
+scen3$Scenario <- "3"
+scen4$Scenario <- "4"
+scen5$Scenario <- rep(c("5.1","5.2","5.3","5.4","5.5"), each=50)
+
+summary_all <- rbind(scen1,scen2,scen3,scen4,scen5)
+
+ggplot(summary_all, aes(x=Time, y=Trees, group=Scenario, color=Scenario))+
+  geom_line(size=1)+
+  theme_classic()+
+  ylim(0,100000)
+
+## Results from 10 runs ####
+
+### Load .csv files for the first 10 runs from scenarios 1:5 after updating the scenarios as per the blurb above in the "FOURTH RUN" section. Run by Brad
+
+# Scenario 1
+scen1 <- list.files(path = "./outputs/investment/scenarios/Run_4/Scenario_1",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
+
+scen1 <- scen1[ ,-1]
+scen1$Simulation <- rep(as.factor(1:10), each=50)
+scen1$Manager_budget <- 500
+scen1 <- scen1 %>% select(Time,Trees,Trees_est,Cull_cost,Cull_count,User_budget, Manager_budget,Simulation)
+
+
+# Scenario 2
+scen2 <- list.files(path = "./outputs/investment/scenarios/Run_2/Scenario_2",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
+
+scen2 <- scen2[ ,-1]
+scen2$Simulation <- rep(as.factor(1:10), each=50) 
+
+
+# Scenario 3
+scen3 <- list.files(path = "./outputs/investment/scenarios/Run_2/Scenario_3",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
+
+scen3 <- scen3[ ,-1]
+scen3$Simulation <- rep(as.factor(1:10), each=50) 
+
+
+# Scenario 4
+scen4 <- list.files(path = "./outputs/investment/scenarios/Run_2/Scenario_4",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
+
+scen4 <- scen4[ ,-1]
+scen4$Simulation <- rep(as.factor(1:10), each=50) 
+
+
+# Scenario 5
+scen5 <- read.csv("outputs/investment/scenarios/Run_2/Scenario_5/Scen5_all_summary.csv", header = T)
+scen5 <- scen5[ ,-1]
+scen5 <- scen5 %>% rename(Simulation = wave)
+scen5$Simulation <- as.factor(scen5$Simulation)
+
+
+
+
