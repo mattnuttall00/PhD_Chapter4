@@ -9315,7 +9315,7 @@ quant.func <- function(dat){
 # ID the scenarios with NAs
 sum(is.na(scen1))
 sum(is.na(scen2))
-sum(is.na(scen3_noNA))
+sum(is.na(scen3))
 sum(is.na(scen4))
 sum(is.na(scen5))
 # only scen3
@@ -9332,32 +9332,48 @@ scen3_8 <- scen3 %>% filter(Simulation == "8")
 scen3_9 <- scen3 %>% filter(Simulation == "9")
 scen3_10 <- scen3 %>% filter(Simulation == "10")
 
-
-
-for(i in 1:nrow(scen3_1)){
-  if(is.na(scen3_1$Time)[i]){
-    scen3_1$Time[i]       <- row.names(scen3_1)[i]
-    scen3_1$Trees[i]      <- 0
-    scen3_1$Trees_est[i]  <- 0
-    scen3_1$Cull_cost[i]      <- 0
-    scen3_1$Cull_count[i]     <- 0
-    scen3_1$User_budget[i]    <- 0
-    scen3_1$Manager_budget[i] <- 0
-  } else {
+# function to change NAs to 0's, and replace Time with the row numbers
+na.func <- function(dat){
+for(i in 1:nrow(dat)){
+  if(is.na(dat$Time)[i]){
+    dat$Time[i]           <- row.names(scen3_1)[i]
+    dat$Trees[i]          <- 0
+    dat$Trees_est[i]      <- 0
+    dat$Cull_cost[i]      <- 0
+    dat$Cull_count[i]     <- 0
+    dat$User_budget[i]    <- 0
+    dat$Manager_budget[i] <- 0
+  } 
     
-  }
+}
+  return(dat)
 }
 
+# create list
+scen3_list <- list(scen3_1,scen3_2,scen3_3,scen3_4,scen3_5,scen3_6,scen3_7,scen3_8,scen3_9,scen3_10)
 
-scen3_noNA <- scen3 %>% filter(!is.na(Time))
+# apply function to list
+scen3_list <- lapply(scen3_list, na.func)
+
+# rename list
+names(scen3_list) <- c("scen3_1","scen3_2","scen3_3","scen3_4","scen3_5","scen3_6","scen3_7",
+                       "scen3_8","scen3_9","scen3_10")
+
+# extract to environment
+list2env(scen3_list, globalenv())
+
+# merge
+scen3_noNA <- rbind(scen3_1,scen3_2,scen3_3,scen3_4,scen3_5,scen3_6,
+               scen3_7,scen3_8,scen3_9,scen3_10)
 
 
-### apply function to all scenario dataframes
+
+### apply quantile function to all scenario dataframes
+
 # create new list with updated scen3
 dat_list2 <- list(scen1,scen2,scen3_noNA,scen4,scen5)
 quants.ls <- lapply(dat_list2, quant.func)
-names <- c("scen1_quants","scen2_quants","scen3_quants","scen4_quants","scen5_quants")
-names(quants.ls) <- names
+names(quants.ls) <- c("scen1_quants","scen2_quants","scen3_quants","scen4_quants","scen5_quants")
 
 # extract to global env
 list2env(quants.ls, globalenv())
@@ -9375,28 +9391,33 @@ quants_all <- rbind(scen1_quants,scen2_quants,scen3_quants,scen4_quants,scen5_qu
 
 # plot (facets)
 all_facets_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
-  geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
-  geom_line(size=1,aes(color=Simulation))+
-  facet_wrap(~Simulation)+
-  theme_classic()
+                    geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+                    geom_line(size=1,aes(color=Simulation))+
+                    facet_wrap(~Simulation)+
+                    theme_classic()
 
-#ggsave("outputs/investment/scenarios/Plots/Run_2/All_facets_ribbons.png", all_facets_ribbon,
-#      dpi=300, width = 30, height = 20, units="cm")
+ggsave("outputs/investment/scenarios/Plots/Run_4/All_facets_ribbons.png", all_facets_ribbon,
+      dpi=300, width = 30, height = 20, units="cm")
 
 
 # plot no facets
 all_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
-  geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
-  geom_line(size=1,aes(color=Simulation))+
-  theme_classic()
-ggsave("outputs/investment/scenarios/Plots/Run_2/All_ribbons.png", all_ribbon,
+              geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+              geom_line(size=1,aes(color=Simulation))+
+              theme_classic()+
+              ylab("Number of trees")
+
+ggsave("outputs/investment/scenarios/Plots/Run_4/All_ribbons.png", all_ribbon,
        dpi=300, width = 30, height = 20, units="cm")
 
 
 # zoom in on the end
 all_zoom <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
-  #geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
-  geom_line(size=1,aes(color=Simulation))+
-  theme_classic()+
-  ylim(487500,492500)+
-  xlim(40,50)
+            geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+            geom_line(size=1,aes(color=Simulation))+
+            theme_classic()+
+            ylim(0,25000)+
+            xlim(40,50)
+
+ggsave("outputs/investment/scenarios/Plots/Run_4/Zoom_ribbons.png", all_zoom,
+       dpi=300, width = 30, height = 20, units="cm")
