@@ -9216,6 +9216,9 @@ tree.plot.all[[3]] <- tree.plot.all[[3]] + ggtitle("Scenario 3")
 tree.plot.all[[4]] <- tree.plot.all[[4]] + ggtitle("Scenario 4")
 tree.plot.all[[5]] <- tree.plot.all[[5]] + ggtitle("Scenario 5")
 
+#ggsave("outputs/investment/scenarios/Plots/Run_4/tree_plot_all_separate.png", tree.plot.all, 
+ #      width = 35, height = 25, dpi=300, units = "cm")
+
 # cull count plots
 cull.count.plot.all <- scen1.countPlot+scen2.countPlot+scen3.countPlot+scen4.countPlot+scen5.countPlot
 cull.count.plot.all[[1]] <- cull.count.plot.all[[1]] + ggtitle("Scenario 1")
@@ -9224,6 +9227,9 @@ cull.count.plot.all[[3]] <- cull.count.plot.all[[3]] + ggtitle("Scenario 3")
 cull.count.plot.all[[4]] <- cull.count.plot.all[[4]] + ggtitle("Scenario 4")
 cull.count.plot.all[[5]] <- cull.count.plot.all[[5]] + ggtitle("Scenario 5")
 
+#ggsave("outputs/investment/scenarios/Plots/Run_4/cull_count_plot_all_separate.png", cull.count.plot.all, 
+ #      width = 35, height = 25, dpi=300, units = "cm")
+
 # cull cost plots
 cull.cost.plot.all <- scen1.costPlot+scen2.costPlot+scen3.costPlot+scen4.costPlot+scen5.costPlot
 cull.cost.plot.all[[1]] <- cull.cost.plot.all[[1]] + ggtitle("Scenario 1")
@@ -9231,6 +9237,9 @@ cull.cost.plot.all[[2]] <- cull.cost.plot.all[[2]] + ggtitle("Scenario 2")
 cull.cost.plot.all[[3]] <- cull.cost.plot.all[[3]] + ggtitle("Scenario 3")
 cull.cost.plot.all[[4]] <- cull.cost.plot.all[[4]] + ggtitle("Scenario 4")
 cull.cost.plot.all[[5]] <- cull.cost.plot.all[[5]] + ggtitle("Scenario 5")
+
+#ggsave("outputs/investment/scenarios/Plots/Run_4/cull_cost_plot_all_separate.png", cull.cost.plot.all, 
+ #      width = 35, height = 25, dpi=300, units = "cm")
 
 # budget plots
 
@@ -9241,6 +9250,7 @@ user_budget_p <- ggplot(scen1, aes(x=Time, y=User_budget))+
 
 budget.plot.all <- user_budget_p+scen1.budgetPlots+scen2.budgetPlots+scen3.budgetPlots+
   scen4.budgetPlots+scen5.budgetPlots
+
 budget.plot.all[[1]] <- budget.plot.all[[1]] + ggtitle("User budget")
 budget.plot.all[[2]] <- budget.plot.all[[2]] + ggtitle("Scenario 1")
 budget.plot.all[[3]] <- budget.plot.all[[3]] + ggtitle("Scenario 2")
@@ -9248,10 +9258,144 @@ budget.plot.all[[4]] <- budget.plot.all[[4]] + ggtitle("Scenario 3")
 budget.plot.all[[5]] <- budget.plot.all[[5]] + ggtitle("Scenario 4")
 budget.plot.all[[6]] <- budget.plot.all[[6]] + ggtitle("Scenario 5")
 
-# change y axis range for scen3 & scen4
-budget.plot.all[[4]] <- budget.plot.all[[4]] + ylim(400,600)
-budget.plot.all[[5]] <- budget.plot.all[[5]] + ylim(400,600)
+# change y axis range for all manager budget plots
+budget.plot.all[[2]] <- budget.plot.all[[2]] + ylim(0,1000)
+budget.plot.all[[3]] <- budget.plot.all[[3]] + ylim(0,1000)
+budget.plot.all[[4]] <- budget.plot.all[[4]] + ylim(0,1000)
+budget.plot.all[[5]] <- budget.plot.all[[5]] + ylim(0,1000)
+budget.plot.all[[6]] <- budget.plot.all[[6]] + ylim(0,1000)
 
 
-#ggsave("outputs/investment/scenarios/Plots/Run_2/budget_all.png", budget.plot.all, 
-#     dpi=300, width = 30, height=20, units="cm")
+#ggsave("outputs/investment/scenarios/Plots/Run_4/budget_plot_all_separate.png", budget.plot.all, 
+ #      width = 35, height = 25, dpi=300, units = "cm")
+
+
+
+
+### Plots for each scenario together
+scen1_plots <- user_budget_p + scen1.budgetPlots + scen1.countPlot + scen1.costPlot + scen1.treePlot
+scen2_plots <- user_budget_p + scen2.budgetPlots + scen2.countPlot + scen2.costPlot + scen2.treePlot
+scen3_plots <- user_budget_p + scen3.budgetPlots + scen3.countPlot + scen3.costPlot + scen3.treePlot
+scen4_plots <- user_budget_p + scen4.budgetPlots + scen4.countPlot + scen4.costPlot + scen4.treePlot
+scen5_plots <- user_budget_p + scen5.budgetPlots + scen5.countPlot + scen5.costPlot + scen5.treePlot
+
+ggsave("outputs/investment/scenarios/Run_4/scen1_plots.png", scen1_plots, 
+     dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Run_4/scen2_plots.png", scen2_plots, 
+    dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Run_4/scen3_plots.png", scen3_plots, 
+      dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Run_4/scen4_plots.png", scen4_plots, 
+      dpi=300, width = 30, height=20, units="cm")
+ggsave("outputs/investment/scenarios/Run_4/scen5_plots.png", scen5_plots, 
+      dpi=300, width = 30, height=20, units="cm")
+
+
+
+### get mean and error bars for each scenario
+
+# Function to extract 50, 2.5, and 97.5% quantiles from each scenario
+quant.func <- function(dat){
+  wide.dat <- pivot_wider(dat,id_cols = Time, names_from = Simulation, values_from = Trees)
+  wide.dat <- wide.dat[ ,-1]
+  Mean.q   <- apply(wide.dat,1,quantile,probs=0.5)
+  LCL.q    <- apply(wide.dat,1,quantile,probs=0.025)
+  UCL.q    <- apply(wide.dat,1,quantile,probs=0.975)
+  
+  quant.df <- data.frame(Time = 1:50,
+                         Mean = Mean.q,
+                         LCL = LCL.q,
+                         UCL = UCL.q)
+  return(quant.df)
+}
+
+
+## If the trees go extinct during a simulation, the simulation ends, i.e., all subsequent rows are NAs for all parameters. Therefore I need to remove the NA rows in all of the dataframes before running the below function, otherwise it throws an error
+
+sum(is.na(scen1))
+sum(is.na(scen2))
+sum(is.na(scen3_noNA))
+sum(is.na(scen4))
+sum(is.na(scen5))
+# only scen3
+
+# remove NAs
+scen3_1 <- scen3 %>% filter(Simulation == "1")
+scen3_2 <- scen3 %>% filter(Simulation == "2")
+scen3_3 <- scen3 %>% filter(Simulation == "3")
+scen3_4 <- scen3 %>% filter(Simulation == "4")
+scen3_5 <- scen3 %>% filter(Simulation == "5")
+scen3_6 <- scen3 %>% filter(Simulation == "6")
+scen3_7 <- scen3 %>% filter(Simulation == "7")
+scen3_8 <- scen3 %>% filter(Simulation == "8")
+scen3_9 <- scen3 %>% filter(Simulation == "9")
+scen3_10 <- scen3 %>% filter(Simulation == "10")
+
+na.func <- function(dat){
+  if(is.na(Time)){
+    Time       <- row.names(dat)
+    Trees      <- 0
+    Trees_est  <- 0
+    Cull_cost      <- 0
+    Cull_count     <- 0
+    User_budget    <- 0
+    Manager_budget <- 0
+  } else {
+    
+  }
+}
+
+apply(scen3_1, 1, na.func)
+
+
+scen3_noNA <- scen3 %>% filter(!is.na(Time))
+
+
+### apply function to all scenario dataframes
+# create new list with updated scen3
+dat_list2 <- list(scen1,scen2,scen3_noNA,scen4,scen5)
+quants.ls <- lapply(dat_list2, quant.func)
+names <- c("scen1_quants","scen2_quants","scen3_quants","scen4_quants","scen5_quants")
+names(quants.ls) <- names
+
+# extract to global env
+list2env(quants.ls, globalenv())
+
+# add simulation
+scen1_quants$Simulation <- "1"
+scen2_quants$Simulation <- "2"
+scen3_quants$Simulation <- "3"
+scen4_quants$Simulation <- "4"
+scen5_quants$Simulation <- "5"
+
+# merge 
+quants_all <- rbind(scen1_quants,scen2_quants,scen3_quants,scen4_quants,scen5_quants)
+
+
+# plot (facets)
+all_facets_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
+  geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+  geom_line(size=1,aes(color=Simulation))+
+  facet_wrap(~Simulation)+
+  theme_classic()
+
+#ggsave("outputs/investment/scenarios/Plots/Run_2/All_facets_ribbons.png", all_facets_ribbon,
+#      dpi=300, width = 30, height = 20, units="cm")
+
+
+# plot no facets
+all_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
+  geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+  geom_line(size=1,aes(color=Simulation))+
+  theme_classic()
+ggsave("outputs/investment/scenarios/Plots/Run_2/All_ribbons.png", all_ribbon,
+       dpi=300, width = 30, height = 20, units="cm")
+
+
+# zoom in on the end
+all_zoom <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
+  #geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Simulation),alpha=0.3)+
+  geom_line(size=1,aes(color=Simulation))+
+  theme_classic()+
+  ylim(487500,492500)+
+  xlim(40,50)
