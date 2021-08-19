@@ -9312,6 +9312,7 @@ quant.func <- function(dat){
 
 ## If the trees go extinct during a simulation, the simulation ends, i.e., all subsequent rows are NAs for all parameters. Therefore I need to remove the NA rows in all of the dataframes before running the below function, otherwise it throws an error
 
+# ID the scenarios with NAs
 sum(is.na(scen1))
 sum(is.na(scen2))
 sum(is.na(scen3_noNA))
@@ -9319,7 +9320,7 @@ sum(is.na(scen4))
 sum(is.na(scen5))
 # only scen3
 
-# remove NAs
+# split scenario 3
 scen3_1 <- scen3 %>% filter(Simulation == "1")
 scen3_2 <- scen3 %>% filter(Simulation == "2")
 scen3_3 <- scen3 %>% filter(Simulation == "3")
@@ -9331,21 +9332,21 @@ scen3_8 <- scen3 %>% filter(Simulation == "8")
 scen3_9 <- scen3 %>% filter(Simulation == "9")
 scen3_10 <- scen3 %>% filter(Simulation == "10")
 
-na.func <- function(dat){
-  if(is.na(Time)){
-    Time       <- row.names(dat)
-    Trees      <- 0
-    Trees_est  <- 0
-    Cull_cost      <- 0
-    Cull_count     <- 0
-    User_budget    <- 0
-    Manager_budget <- 0
+
+
+for(i in 1:nrow(scen3_1)){
+  if(is.na(scen3_1$Time)[i]){
+    scen3_1$Time[i]       <- row.names(scen3_1)[i]
+    scen3_1$Trees[i]      <- 0
+    scen3_1$Trees_est[i]  <- 0
+    scen3_1$Cull_cost[i]      <- 0
+    scen3_1$Cull_count[i]     <- 0
+    scen3_1$User_budget[i]    <- 0
+    scen3_1$Manager_budget[i] <- 0
   } else {
     
   }
 }
-
-apply(scen3_1, 1, na.func)
 
 
 scen3_noNA <- scen3 %>% filter(!is.na(Time))
