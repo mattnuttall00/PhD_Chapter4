@@ -5387,6 +5387,301 @@ ggplot(budgets_all, aes(x=Time, y=Manager_budget, group=Scenario))+
 
 
 #
+  ## Run 5 ####
+
+# after a chat with Nils, we have decided on a slightly different approach. We are goin to remove S4, as it is not really contributing much. Thinking about the results, and the message, we are going to have two clean, clear plots. The first one is going to have just S1, S2, and S3. The results are nicely different, and the differences are easy to see. We can talk easily about the issues with S2 and S3. With S2, if you start by underfunding a project, even though the manager budget increases well beyond the MB in S1, you are constantly playing catch up and the two scenarios don't get close to one another until after the 50 years. This sends a clear warning to funders about early funding. Scenario 3 shows that in periods of high funding, you are able to play catchup with S1 a bit, but the longer it goes on, the worse the impacts of the troughs. Also, if a projet is only monitoring for say, 5 years, then you don't know where on that rajectory you are, and this could lead to a false sense of success.
+
+# so we are going to drop S4. But we are going to add a second version of S5, where the uncertainty/variability is even greater. This will then form the second plot, which has only the two random wave scenarios (S5, and the new one). This will hopefully show that if there is not much uncertainty, then actually things aren't that bad, and projects can be close to as successful as S1. However, we assume that when there is much more uncertainty, then things can go badly wrong.
+
+# S1, S2, and S3 will remain the same
+
+
+### Scenario 1
+
+## make user budget
+
+# define slope 
+xx <- 75
+
+# empty vector
+UB <- NULL
+
+# starting value
+UB[1] <- 2000
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  UB[i] <- UB[i-1] + xx
+}
+
+
+# dataframe
+S1_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = rep(500, times = 50),
+                         User_budget = UB)
+
+
+
+### Scneario 2
+
+# define slope 
+xx <- 60
+
+# empty vector
+MB2 <- NULL
+
+# starting value
+MB2[1] <- 500
+
+# fill in budget vector by adding the slope onto each value
+for(i in 2:50){
+  MB2[i] <- MB2[i-1] + xx
+}
+
+# standardise to the total cumulative budget = 25,000
+MB2 <- 25000*(MB2/sum(MB2))
+
+
+# Dataframe
+S2_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB2,
+                         User_budget = UB)
+
+
+
+### Scenario 3
+
+# Define manager budget
+s3 <- seq(0,50,1)
+MB3 <- 350*sin(0.5*s3+0)+400
+MB3 <- MB3[1:50]
+
+# standardise to a total cumulative budget of 25,000
+MB3 <- 25000*(MB3/sum(MB3))
+
+# dataframe
+S3_budgets <- data.frame(Time = 1:50,
+                         Manager_budget = MB3,
+                         User_budget = UB)
+
+
+
+
+
+### Scenario 4 (old S5)
+
+## Define manager budgets
+
+# f function
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# plot.fourier function (but set not to actually plot)
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  # plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+  #     ylim = c(minval, maxval));
+  #for(i in 1:length(cf)){
+  # points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  #}
+  #points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  #abline(h = 500,lty = 3);
+  
+  return(trajectory)
+}
+
+# function to produce random waves made from 3 component waves
+random_wave <- function(f.0, dc.component, freq, delay, strength){
+  
+  acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+  time     <- 50                      # measuring time interval (time steps)
+  ts       <- seq(1,time,1)         # vector of sampling time-points (one sample per time step - manager budget) 
+  f.0 <- f.0                      # f.0 is the fundamental frequency of the complex wave
+  
+  dc.component <- dc.component                   # additive constant signal
+  component.freqs <- freq          # frequency of signal components (Hz)
+  component.delay <- delay         # delay of signal components (radians)
+  component.strength <- strength   # strength of signal components
+  
+  f <- function(t, w, cs, cf, cd) { 
+    ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+    return(ft);
+  }
+  
+  plot.fourier(f,f.0,ts=ts,cs=component.strength, cf=component.freqs, cd=component.delay)
+}
+
+# for plotting
+#par(mfrow=c(5,2))
+
+# number of waves
+reps <- 1:10
+
+# empty object for the trajectories of the random waves
+r_waves_traj <- NULL
+
+# set seed
+set.seed(123)
+
+# loop through reps and produce a random wave for each rep
+for(i in 1:length(reps)){
+  
+  f.0.rng <- seq(0.01,0.08,0.01)
+  f.0 <- sample(f.0.rng, 1, replace = FALSE)
+  
+  dc.component <- 500
+  freq  <- sample(1:5,3, replace = FALSE)
+  freq1 <- freq[1]
+  freq2 <- freq[2]
+  freq3 <- freq[3]
+  
+  delay  <- sample(0:180,3, replace = FALSE)
+  delay1 <- delay[1]
+  delay2 <- delay[2]
+  delay3 <- delay[3]
+  
+  str <- seq(1, 150, 0.2)
+  strength1 <- sample(str,1)
+  strength2 <- sample(str,1)
+  strength3 <- sample(str,1)
+  
+  r_waves_traj[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+                                   c(strength1,strength2,strength3))
+}  
+
+# name the list elements
+names <- c("MB4.1","MB4.2","MB4.3","MB4.4","MB4.5","MB4.6","MB4.7",
+           "MB4.8","MB4.9","MB4.10")
+
+names(r_waves_traj) <- names
+
+# standardise to a total cumulative budget of 25,000
+r_waves_traj <- lapply(r_waves_traj, function(x){25000*(x/sum(x))})
+
+# extract to global environment
+list2env(r_waves_traj, globalenv())
+
+
+# Dataframe
+S4_budgets <- data.frame(Time = rep(1:50, times = 10),
+                         Manager_budget = c(MB4.1,MB4.2,MB4.3,MB4.4,MB4.5,MB4.6,MB4.7,
+                                            MB4.8,MB4.9,MB4.10),
+                         User_budget = rep(UB, times=10))
+
+check <- S4_budgets
+check$wave <- rep(c("1","2","3","4","5","6","7","8","9","10"), each=50)
+
+ggplot(check, aes(x=Time, y=Manager_budget, group=wave, color=wave))+
+  geom_line(size=1)+
+  facet_wrap(~wave)
+
+
+
+### Scenario 5 (new)
+
+# NOTE - need to run the "f", "plot.fourier", and "random_wave" functions above in S4 before running the below
+
+
+# number of waves
+reps <- 1:10
+
+# empty object for the trajectories of the random waves
+r_waves_traj2 <- NULL
+
+# set seed
+set.seed(123)
+
+# loop through reps and produce a random wave for each rep
+for(i in 1:length(reps)){
+  
+  f.0.rng <- seq(0.01,0.2,0.01)
+  f.0 <- sample(f.0.rng, 1, replace = FALSE)
+  
+  dc.component <- 500
+  freq  <- sample(1:5,3, replace = FALSE)
+  freq1 <- freq[1]
+  freq2 <- freq[2]
+  freq3 <- freq[3]
+  
+  delay  <- sample(0:180,3, replace = FALSE)
+  delay1 <- delay[1]
+  delay2 <- delay[2]
+  delay3 <- delay[3]
+  
+  str <- seq(1, 300, 1)
+  strength1 <- sample(str,1)
+  strength2 <- sample(str,1)
+  strength3 <- sample(str,1)
+  
+  r_waves_traj2[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+                                   c(strength1,strength2,strength3))
+}  
+
+# name the list elements
+names <- c("MB5.1","MB5.2","MB5.3","MB5.4","MB5.5","MB5.6","MB5.7",
+           "MB5.8","MB5.9","MB5.10")
+
+names(r_waves_traj2) <- names
+
+# standardise to a total cumulative budget of 25,000
+r_waves_traj2 <- lapply(r_waves_traj2, function(x){25000*(x/sum(x))})
+
+# extract to global environment
+list2env(r_waves_traj2, globalenv())
+
+
+# Dataframe
+S5_budgets <- data.frame(Time = rep(1:50, times = 10),
+                         Manager_budget = c(MB5.1,MB5.2,MB5.3,MB5.4,MB5.5,MB5.6,MB5.7,
+                                            MB5.8,MB5.9,MB5.10),
+                         User_budget = rep(UB, times=10))
+
+check5 <- S5_budgets
+check5$wave <- rep(c("1","2","3","4","5","6","7","8","9","10"), each=50)
+
+ggplot(check5, aes(x=Time, y=Manager_budget, group=wave, color=wave))+
+  geom_line(size=1)+
+  facet_wrap(~wave)
+
+
+s4.plot <- ggplot(check, aes(x=Time, y=Manager_budget, group=wave, color=wave))+
+            geom_line(size=1)+
+            ylim(0,1250)
+
+s5.plot <-  ggplot(check5, aes(x=Time, y=Manager_budget, group=wave, color=wave))+
+            geom_line(size=1)+
+            ylim(0,1250)
+           
+s4.plot + s5.plot
+
+
+### save budgets
+write.csv(S1_budgets, "Budgets/Investment/Run_5/S1_budgets.csv")
+write.csv(S2_budgets, "Budgets/Investment/Run_5/S2_budgets.csv")
+write.csv(S3_budgets, "Budgets/Investment/Run_5/S3_budgets.csv")
+write.csv(S4_budgets, "Budgets/Investment/Run_5/S4_budgets.csv")
+write.csv(S5_budgets, "Budgets/Investment/Run_5/S5_budgets.csv")
+
+#
 ### Harvest under maximum conflict ####
 
 # This is Brad's idea to get a better understanding of the power dynamics that are going on under the hood. This was in response to some unexpected results in the above first runs. The harvest under maximum conflict is a single value for each time step that is based on the manager and user budgets in each time step, and it is the maximum number of trees a user can harvest if the manager uses all of their budget to reduce culling and the user uses all of their budget/power to cull.
@@ -9421,3 +9716,523 @@ all_zoom <- ggplot(quants_all, aes(x=Time, y=Mean, group=Simulation))+
 
 ggsave("outputs/investment/scenarios/Plots/Run_4/Zoom_ribbons.png", all_zoom,
        dpi=300, width = 30, height = 20, units="cm")
+
+  ### FIFTH RUN ####
+
+# see explanation in "Create and save budgets > Run 5"
+
+# S1, S2, S3, and S5 are the same as run 4, except S5 is now called S4. S5 is the only new one
+
+#### SCENARIO 5 ####
+
+
+## Define manager budget
+
+# f function
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# plot.fourier function (but set not to actually plot)
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  # plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+  #     ylim = c(minval, maxval));
+  #for(i in 1:length(cf)){
+  # points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  #}
+  #points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  #abline(h = 500,lty = 3);
+  
+  return(trajectory)
+}
+
+# function to produce random waves made from 3 component waves
+random_wave <- function(f.0, dc.component, freq, delay, strength){
+  
+  acq.freq <- 100                    # data acquisition (sample) frequency (Hz)
+  time     <- 50                      # measuring time interval (time steps)
+  ts       <- seq(1,time,1)         # vector of sampling time-points (one sample per time step - manager budget) 
+  f.0 <- f.0                      # f.0 is the fundamental frequency of the complex wave
+  
+  dc.component <- dc.component                   # additive constant signal
+  component.freqs <- freq          # frequency of signal components (Hz)
+  component.delay <- delay         # delay of signal components (radians)
+  component.strength <- strength   # strength of signal components
+  
+  f <- function(t, w, cs, cf, cd) { 
+    ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+    return(ft);
+  }
+  
+  plot.fourier(f,f.0,ts=ts,cs=component.strength, cf=component.freqs, cd=component.delay)
+}
+
+# for plotting
+#par(mfrow=c(5,2))
+
+# number of waves
+reps <- 1:10
+
+# empty object for the trajectories of the random waves
+r_waves_traj2 <- NULL
+
+# set seed
+set.seed(123)
+
+# loop through reps and produce a random wave for each rep
+for(i in 1:length(reps)){
+  
+  f.0.rng <- seq(0.01,0.2,0.01)
+  f.0 <- sample(f.0.rng, 1, replace = FALSE)
+  
+  dc.component <- 500
+  freq  <- sample(1:5,3, replace = FALSE)
+  freq1 <- freq[1]
+  freq2 <- freq[2]
+  freq3 <- freq[3]
+  
+  delay  <- sample(0:180,3, replace = FALSE)
+  delay1 <- delay[1]
+  delay2 <- delay[2]
+  delay3 <- delay[3]
+  
+  str <- seq(1, 300, 1)
+  strength1 <- sample(str,1)
+  strength2 <- sample(str,1)
+  strength3 <- sample(str,1)
+  
+  r_waves_traj2[[i]] <- random_wave(f.0, dc.component, c(freq1,freq2,freq3), c(delay1,delay2,delay3), 
+                                    c(strength1,strength2,strength3))
+}  
+
+# name the list elements
+names <- c("MB5.1","MB5.2","MB5.3","MB5.4","MB5.5","MB5.6","MB5.7",
+           "MB5.8","MB5.9","MB5.10")
+
+names(r_waves_traj2) <- names
+
+# standardise to a total cumulative budget of 25,000
+r_waves_traj2 <- lapply(r_waves_traj2, function(x){25000*(x/sum(x))})
+
+# change all negative MB value to 0
+r_waves_traj2 <- lapply(r_waves_traj2, function(x){ifelse(x<0,0,x)})
+
+# extract to global environment
+list2env(r_waves_traj2, globalenv())
+
+
+
+
+### wave 1
+UB  <- 2000
+UBR <- 200
+
+MB <- MB5.1[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 100,
+  land_dim_2 = 100, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  lambda = 0,
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 100000, 
+  RESOURCE_ini = 100000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 30, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 75
+  UBR <- UB/10
+  MB <- MB5.1[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_1_summary <- data.frame(Scen5)
+
+
+### Wave 3
+
+UB  <- 2000
+UBR <- 200
+
+MB <- MB5.3[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 100,
+  land_dim_2 = 100, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  lambda = 0,
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 100000, 
+  RESOURCE_ini = 100000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 30, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 75
+  UBR <- UB/10
+  MB <- MB5.3[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_3_summary <- data.frame(Scen5)
+
+
+
+### Wave 5
+
+UB  <- 2000
+UBR <- 200
+
+MB <- MB5.5[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 100,
+  land_dim_2 = 100, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  lambda = 0,
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 100000, 
+  RESOURCE_ini = 100000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 30, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 75
+  UBR <- UB/10
+  MB <- MB5.5[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_5_summary <- data.frame(Scen5)
+
+
+
+### wave 7
+
+UB  <- 2000
+UBR <- 200
+
+MB <- MB5.7[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 100,
+  land_dim_2 = 100, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  lambda = 0,
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 100000, 
+  RESOURCE_ini = 100000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 30, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 75
+  UBR <- UB/10
+  MB <- MB5.7[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_7_summary <- data.frame(Scen5)
+
+
+### wave 9
+
+UB  <- 2000
+UBR <- 200
+
+MB <- MB5.9[1]
+
+
+Scen5_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 100,
+  land_dim_2 = 100, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0, 
+  lambda = 0,
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = UB, 
+  manager_budget = MB, 
+  usr_budget_rng = UBR,  
+  manage_target = 100000, 
+  RESOURCE_ini = 100000, 
+  culling = TRUE, 
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 30, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Scen5 <- matrix(data=NA, nrow=50, ncol=7)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                        usr_budget_rng = UBR, manager_budget = MB)
+  
+  Scen5[time_step, 1] <- time_step
+  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Scen5[time_step, 6] <- UB
+  Scen5[time_step, 7] <- MB
+  
+  Scen5_sim_old <- sim_new
+  UB <- UB + 75
+  UBR <- UB/10
+  MB <- MB5.9[time_step]
+}
+
+colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
+Scen5_9_summary <- data.frame(Scen5)
+
+
+scen5_summary_odd <- rbind(Scen5_1_summary,Scen5_3_summary,Scen5_5_summary,Scen5_7_summary,Scen5_9_summary)
+
+write.csv(scen5_summary_odd, file="outputs/investment/scenarios/Run_5/scen5_summary_odd.csv")
