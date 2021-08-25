@@ -10257,15 +10257,19 @@ scen5_odd <- read.csv("outputs/investment/scenarios/Run_5/scen5_summary_odd.csv"
 scen5_even <- read.csv("outputs/investment/scenarios/Run_5/scen5_summary_even.csv")
 
 # add simulation
-scen5_odd$Simulation <- rep(c("1","3","5","7","9"), each=50)
-scen5_even$Simulation <- rep(c("2","4","6","8"), each=50)
+scen5_odd$Simulation <- rep(c(1,3,5,7,9), each=50)
+scen5_even$Simulation <- rep(c(2,4,6,8,10), each=50)
+
 
 # merge
 scen5 <- rbind(scen5_odd, scen5_even)
 
 # re-order
 scen5 <- scen5 %>% arrange(Simulation)
+scen5$Simulation <- as.factor(scen5$Simulation)
+
 scen5 <- scen5[ ,-1]
+
 
 
 ## load in the results from S1:3, and S5 from run 4 above, but changing S5 to S4.
@@ -10354,7 +10358,9 @@ plot.budgets <- function(dat){
   plot1 <- ggplot(dat2, aes(x=Time, y=Manager_budget))+
     geom_line(size=1, color="dodgerblue3")+
     theme_classic()+
-    ylab("Manager budget")
+    ylab("Manager budget")+
+    theme(axis.title = element_text(size=15),
+          axis.text = element_text(size=12))
   
   return(plot1)
 }
@@ -10367,7 +10373,9 @@ plot.budgets2 <- function(dat){
   plot1 <- ggplot(dat, aes(x=Time, y=Manager_budget, group=Simulation, color=Simulation))+
     geom_line(size=1)+
     theme_classic()+
-    ylab("Manager budget")
+    ylab("Manager budget")+
+    theme(axis.title = element_text(size=15),
+          axis.text = element_text(size=12))
   
   
   return(plot1)
@@ -10438,17 +10446,21 @@ cull.cost.plot.all[[5]] <- cull.cost.plot.all[[5]] + ggtitle("Scenario 5")
 #ggsave("outputs/investment/scenarios/Plots/Run_5/cull_cost_plot_all_separate.png", cull.cost.plot.all, 
 #      width = 35, height = 25, dpi=300, units = "cm")
 
+
+
 # budget plots
 
 user_budget_p <- ggplot(scen1, aes(x=Time, y=User_budget))+
   geom_line(size=1, color="firebrick3")+
   theme_classic()+
-  ylab("User budget")
+  ylab("Community resources")+
+  theme(axis.title = element_text(size=15),
+        axis.text = element_text(size=12))
 
 budget.plot.all <- user_budget_p+scen1.budgetPlots+scen2.budgetPlots+scen3.budgetPlots+
   scen4.budgetPlots+scen5.budgetPlots
 
-budget.plot.all[[1]] <- budget.plot.all[[1]] + ggtitle("User budget")
+budget.plot.all[[1]] <- budget.plot.all[[1]] + ggtitle("All scenarios")
 budget.plot.all[[2]] <- budget.plot.all[[2]] + ggtitle("Scenario 1")
 budget.plot.all[[3]] <- budget.plot.all[[3]] + ggtitle("Scenario 2")
 budget.plot.all[[4]] <- budget.plot.all[[4]] + ggtitle("Scenario 3")
