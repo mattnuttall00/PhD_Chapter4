@@ -106,7 +106,7 @@ names(r_waves_traj2) <- names
 r_waves_traj2 <- lapply(r_waves_traj2, function(x){25000*(x/sum(x))})
 
 # change all negative MB value to 0
-r_waves_traj2 <- lapply(r_waves_traj2, function(x){ifelse(x<1,1,x)})
+r_waves_traj2 <- lapply(r_waves_traj2, function(x){ifelse(x<10,10,x)})
 
 # extract to global environment
 list2env(r_waves_traj2, globalenv())
