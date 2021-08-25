@@ -1,8 +1,6 @@
 require(GMSE)
 
 
-## Define manager budget
-
 # f function
 f <- function(t, w, cs, cf, cd) { 
   ft <- dc.component + sum( cs * sin(cf*w*t + cd));
@@ -173,21 +171,44 @@ Scen5 <- matrix(data=NA, nrow=50, ncol=7)
 # loop the simulation. 
 for(time_step in 1:50){
   
-  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
-                        usr_budget_rng = UBR, manager_budget = MB)
   
-  Scen5[time_step, 1] <- time_step
-  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
-  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
-  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
-  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
-  Scen5[time_step, 6] <- UB
-  Scen5[time_step, 7] <- MB
+  sim_new <- tryCatch(gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                                 usr_budget_rng = UBR, manager_budget = MB),
+                      error=function(err) NA)
   
-  Scen5_sim_old <- sim_new
-  UB <- UB + 75
-  UBR <- UB/10
-  MB <- MB5.1[time_step]
+  # if the trees go extinct
+  if(is.na(sim_new) == TRUE){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- 0
+    Scen5[time_step, 3] <- 0
+    Scen5[time_step, 4] <- NA
+    Scen5[time_step, 5] <- NA
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    print("Extinction")
+    
+    break
+  }
+  
+  # if tree do not go extinct
+  if(class(sim_new)=="list"){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+    Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+    Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+    Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    Scen5_sim_old <- sim_new
+    UB <- UB + 75
+    UBR <- UB/10
+    MB <- MB5.1[time_step]
+  }
+  
 }
 
 colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
@@ -195,8 +216,9 @@ Scen5_1_summary <- data.frame(Scen5)
 
 
 
-### Wave 3
 
+
+### wave 3
 UB  <- 2000
 UBR <- 200
 
@@ -252,21 +274,44 @@ Scen5 <- matrix(data=NA, nrow=50, ncol=7)
 # loop the simulation. 
 for(time_step in 1:50){
   
-  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
-                        usr_budget_rng = UBR, manager_budget = MB)
   
-  Scen5[time_step, 1] <- time_step
-  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
-  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
-  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
-  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
-  Scen5[time_step, 6] <- UB
-  Scen5[time_step, 7] <- MB
+  sim_new <- tryCatch(gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                                 usr_budget_rng = UBR, manager_budget = MB),
+                      error=function(err) NA)
   
-  Scen5_sim_old <- sim_new
-  UB <- UB + 75
-  UBR <- UB/10
-  MB <- MB5.3[time_step]
+  # if the trees go extinct
+  if(is.na(sim_new) == TRUE){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- 0
+    Scen5[time_step, 3] <- 0
+    Scen5[time_step, 4] <- NA
+    Scen5[time_step, 5] <- NA
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    print("Extinction")
+    
+    break
+  }
+  
+  # if tree do not go extinct
+  if(class(sim_new)=="list"){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+    Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+    Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+    Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    Scen5_sim_old <- sim_new
+    UB <- UB + 75
+    UBR <- UB/10
+    MB <- MB5.3[time_step]
+  }
+  
 }
 
 colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
@@ -274,8 +319,9 @@ Scen5_3_summary <- data.frame(Scen5)
 
 
 
-### Wave 5
 
+
+### wave 5
 UB  <- 2000
 UBR <- 200
 
@@ -331,21 +377,44 @@ Scen5 <- matrix(data=NA, nrow=50, ncol=7)
 # loop the simulation. 
 for(time_step in 1:50){
   
-  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
-                        usr_budget_rng = UBR, manager_budget = MB)
   
-  Scen5[time_step, 1] <- time_step
-  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
-  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
-  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
-  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
-  Scen5[time_step, 6] <- UB
-  Scen5[time_step, 7] <- MB
+  sim_new <- tryCatch(gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                                 usr_budget_rng = UBR, manager_budget = MB),
+                      error=function(err) NA)
   
-  Scen5_sim_old <- sim_new
-  UB <- UB + 75
-  UBR <- UB/10
-  MB <- MB5.5[time_step]
+  # if the trees go extinct
+  if(is.na(sim_new) == TRUE){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- 0
+    Scen5[time_step, 3] <- 0
+    Scen5[time_step, 4] <- NA
+    Scen5[time_step, 5] <- NA
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    print("Extinction")
+    
+    break
+  }
+  
+  # if tree do not go extinct
+  if(class(sim_new)=="list"){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+    Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+    Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+    Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    Scen5_sim_old <- sim_new
+    UB <- UB + 75
+    UBR <- UB/10
+    MB <- MB5.5[time_step]
+  }
+  
 }
 
 colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
@@ -353,8 +422,9 @@ Scen5_5_summary <- data.frame(Scen5)
 
 
 
-### wave 7
 
+
+### wave 7
 UB  <- 2000
 UBR <- 200
 
@@ -410,29 +480,53 @@ Scen5 <- matrix(data=NA, nrow=50, ncol=7)
 # loop the simulation. 
 for(time_step in 1:50){
   
-  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
-                        usr_budget_rng = UBR, manager_budget = MB)
   
-  Scen5[time_step, 1] <- time_step
-  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
-  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
-  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
-  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
-  Scen5[time_step, 6] <- UB
-  Scen5[time_step, 7] <- MB
+  sim_new <- tryCatch(gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                                 usr_budget_rng = UBR, manager_budget = MB),
+                      error=function(err) NA)
   
-  Scen5_sim_old <- sim_new
-  UB <- UB + 75
-  UBR <- UB/10
-  MB <- MB5.7[time_step]
+  # if the trees go extinct
+  if(is.na(sim_new) == TRUE){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- 0
+    Scen5[time_step, 3] <- 0
+    Scen5[time_step, 4] <- NA
+    Scen5[time_step, 5] <- NA
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    print("Extinction")
+    
+    break
+  }
+  
+  # if tree do not go extinct
+  if(class(sim_new)=="list"){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+    Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+    Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+    Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    Scen5_sim_old <- sim_new
+    UB <- UB + 75
+    UBR <- UB/10
+    MB <- MB5.7[time_step]
+  }
+  
 }
 
 colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
 Scen5_7_summary <- data.frame(Scen5)
 
 
-### wave 9
 
+
+### wave 9
 UB  <- 2000
 UBR <- 200
 
@@ -488,25 +582,49 @@ Scen5 <- matrix(data=NA, nrow=50, ncol=7)
 # loop the simulation. 
 for(time_step in 1:50){
   
-  sim_new <- gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
-                        usr_budget_rng = UBR, manager_budget = MB)
   
-  Scen5[time_step, 1] <- time_step
-  Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
-  Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
-  Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
-  Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
-  Scen5[time_step, 6] <- UB
-  Scen5[time_step, 7] <- MB
+  sim_new <- tryCatch(gmse_apply(get_res = "Full", old_list = Scen5_sim_old, user_budget=UB, 
+                                 usr_budget_rng = UBR, manager_budget = MB),
+                      error=function(err) NA)
   
-  Scen5_sim_old <- sim_new
-  UB <- UB + 75
-  UBR <- UB/10
-  MB <- MB5.9[time_step]
+  # if the trees go extinct
+  if(is.na(sim_new) == TRUE){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- 0
+    Scen5[time_step, 3] <- 0
+    Scen5[time_step, 4] <- NA
+    Scen5[time_step, 5] <- NA
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    print("Extinction")
+    
+    break
+  }
+  
+  # if tree do not go extinct
+  if(class(sim_new)=="list"){
+    
+    Scen5[time_step, 1] <- time_step
+    Scen5[time_step, 2] <- sim_new$basic_output$resource_results[1]
+    Scen5[time_step, 3] <- sim_new$basic_output$observation_results[1]
+    Scen5[time_step, 4] <- sim_new$basic_output$manager_results[3]
+    Scen5[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+    Scen5[time_step, 6] <- UB
+    Scen5[time_step, 7] <- MB
+    
+    Scen5_sim_old <- sim_new
+    UB <- UB + 75
+    UBR <- UB/10
+    MB <- MB5.9[time_step]
+  }
+  
 }
 
 colnames(Scen5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "User_budget", "Manager_budget")
 Scen5_9_summary <- data.frame(Scen5)
+
 
 
 scen5_summary_odd <- rbind(Scen5_1_summary,Scen5_3_summary,Scen5_5_summary,Scen5_7_summary,Scen5_9_summary)
