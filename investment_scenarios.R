@@ -10649,6 +10649,11 @@ S1_3_ribbon <- ggplot(quants_1_3, aes(x=Time, y=Mean, group=Scenario))+
               geom_ribbon(data=quants_1_3, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
               geom_line(size=1,aes(color=Scenario))+
               theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=15),
+                    legend.text = element_text(size=15),
+                    legend.title = element_text(size=15),
+                    legend.key.size = unit(1, 'cm'))+
               ylab("Number of trees")
 
 ggsave("outputs/investment/scenarios/Plots/Run_5/S1_3_ribbons.png", S1_3_ribbon,
@@ -10662,6 +10667,11 @@ S4_S5_ribbon <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
                 geom_ribbon(data=quants_4_5, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
                 geom_line(size=1,aes(color=Scenario))+
                 theme_classic()+
+                theme(axis.title = element_text(size=15),
+                      axis.text = element_text(size=15),
+                      legend.text = element_text(size=15),
+                      legend.title = element_text(size=15),
+                      legend.key.size = unit(1, 'cm'))+
                 ylab("Number of trees")
 
 ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon.png", S4_S5_ribbon,
