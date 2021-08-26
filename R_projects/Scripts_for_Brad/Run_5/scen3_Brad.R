@@ -2,7 +2,7 @@ require('GMSE')
 
 # Define manager budget
 s3 <- seq(0,50,1)
-MB3 <- 350*sin(0.5*e+0)+400
+MB3 <- 350*sin(0.5*s3+0)+400
 MB3 <- MB3[1:50]
 
 # standardise to a total cumulative budget of 25,000
