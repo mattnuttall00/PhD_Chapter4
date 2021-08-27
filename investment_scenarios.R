@@ -10967,35 +10967,12 @@ sum(is.na(scen4))
 sum(is.na(scen5))
 # scen3 & scen5
 
-# split scenario 3
-scen3_1 <- scen3 %>% filter(Simulation == "1")
-scen3_2 <- scen3 %>% filter(Simulation == "2")
-scen3_3 <- scen3 %>% filter(Simulation == "3")
-scen3_4 <- scen3 %>% filter(Simulation == "4")
-scen3_5 <- scen3 %>% filter(Simulation == "5")
-scen3_6 <- scen3 %>% filter(Simulation == "6")
-scen3_7 <- scen3 %>% filter(Simulation == "7")
-scen3_8 <- scen3 %>% filter(Simulation == "8")
-scen3_9 <- scen3 %>% filter(Simulation == "9")
-scen3_10 <- scen3 %>% filter(Simulation == "10")
-
-# split scenario 5
-scen5_1 <- scen5 %>% filter(Simulation == "1")
-scen5_2 <- scen5 %>% filter(Simulation == "2")
-scen5_3 <- scen5 %>% filter(Simulation == "3")
-scen5_4 <- scen5 %>% filter(Simulation == "4")
-scen5_5 <- scen5 %>% filter(Simulation == "5")
-scen5_6 <- scen5 %>% filter(Simulation == "6")
-scen5_7 <- scen5 %>% filter(Simulation == "7")
-scen5_8 <- scen5 %>% filter(Simulation == "8")
-scen5_9 <- scen5 %>% filter(Simulation == "9")
-
 
 # function to change NAs to 0's, and replace Time with the row numbers
 na.func <- function(dat){
   for(i in 1:nrow(dat)){
     if(is.na(dat$Time)[i]){
-      dat$Time[i]           <- row.names(dat)[i]
+      dat$Time[i]           <- dat$Time[i-1]+1
       dat$Trees[i]          <- 0
       dat$Trees_est[i]      <- 0
       dat$Cull_cost[i]      <- 0
@@ -11008,58 +10985,15 @@ na.func <- function(dat){
   return(dat)
 }
 
-
-na.func <- function(dat){
-  
-    if(is.na(dat$Time)[i]){
-      dat$Time[i]           <- row.names(dat)[i]
-      dat$Trees[i]          <- 0
-      dat$Trees_est[i]      <- 0
-      dat$Cull_cost[i]      <- 0
-      dat$Cull_count[i]     <- 0
-      dat$User_budget[i]    <- 0
-      dat$Manager_budget[i] <- 0
-    
-  }
-  return(dat)
-}
-
-scen3 <- apply(scen3, 2, na.func)
-
-
-# create lists
-scen3_list <- list(scen3_1,scen3_2,scen3_3,scen3_4,scen3_5,scen3_6,scen3_7,scen3_8,scen3_9,scen3_10)
-
-scen5_list <- list(scen5_1,scen5_2,scen5_3,scen5_4,scen5_5,scen5_6,scen5_7,scen5_8,scen5_9)
-
-# apply function to lists
-scen3_list <- lapply(scen3_list, na.func)
-scen5_list <- lapply(scen5_list, na.func)
-
-# rename lists
-names(scen3_list) <- c("scen3_1","scen3_2","scen3_3","scen3_4","scen3_5","scen3_6","scen3_7",
-                       "scen3_8","scen3_9","scen3_10")
-
-names(scen5_list) <- c("scen5_1","scen5_2","scen5_3","scen5_4","scen5_5","scen5_6",
-                       "scen5_7","scen5_8","scen5_9")
-
-# extract to environment
-list2env(scen3_list, globalenv())
-list2env(scen5_list, globalenv())
-
-# merge
-scen3_noNA <- rbind(scen3_1,scen3_2,scen3_3,scen3_4,scen3_5,scen3_6,
-                    scen3_7,scen3_8,scen3_9,scen3_10)
-
-scen5_noNA <- rbind(scen5_1,scen5_2,scen5_3,scen5_4,scen5_5,scen5_6,
-                    scen5_7,scen5_8,scen5_9)
-
+# remove NAs
+scen3 <- na.func(scen3)
+scen5 <- na.func(scen5)
 
 
 ### apply quantile function to all scenario dataframes
 
 # create new list with updated scen3 & scen5
-dat_list2 <- list(scen1,scen2,scen3_noNA,scen4,scen5_noNA)
+dat_list2 <- list(scen1,scen2,scen3,scen4,scen5)
 quants.ls <- lapply(dat_list2, quant.func)
 names(quants.ls) <- c("scen1_quants","scen2_quants","scen3_quants","scen4_quants","scen5_quants")
 
