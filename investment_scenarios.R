@@ -11011,34 +11011,60 @@ scen5_quants$Scenario <- "5"
 quants_all <- rbind(scen1_quants,scen2_quants,scen3_quants,scen4_quants,scen5_quants)
 
 
-# plot (facets)
+# Tree plot, all scenarios (facets), ribbon CIs
 all_facets_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Scenario))+
   geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
   geom_line(size=1,aes(color=Scenario))+
   facet_wrap(~Scenario)+
-  theme_classic()
+  theme_classic()+
+  theme(axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
+        legend.position = "none")+
+  ylab("Number of trees")
 
 ggsave("outputs/investment/scenarios/Plots/Run_5/All_facets_ribbons.png", all_facets_ribbon,
        dpi=300, width = 30, height = 20, units="cm")
 
 
-# plot no facets
+# Tree plot, all scenarios no facets, ribbon CIs
 all_ribbon <- ggplot(quants_all, aes(x=Time, y=Mean, group=Scenario))+
   geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
-  geom_line(size=1,aes(color=Scenario))+
+  geom_line(size=2,aes(color=Scenario))+
   theme_classic()+
+  theme(axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
+        legend.title = element_text(size=15),
+        legend.text = element_text(size=15),
+        legend.key.size = unit(1, 'cm'))+
   ylab("Number of trees")
 
 ggsave("outputs/investment/scenarios/Plots/Run_5/All_ribbons.png", all_ribbon,
        dpi=300, width = 30, height = 20, units="cm")
 
 
-# scenarios 1:3 no facets
+# Tree plot, all scenarios no facets, line CIs
+all_dashed <- ggplot(quants_all, aes(x=Time, y=Mean, group=Scenario))+
+              geom_ribbon(data=quants_all, aes(x=Time, ymin=LCL, ymax=UCL,color=Scenario, fill=NULL),alpha=0, size=1, linetype="longdash")+
+              geom_line(size=2,aes(color=Scenario))+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=15),
+                    legend.title = element_text(size=15),
+                    legend.text = element_text(size=15),
+                    legend.key.size = unit(1, 'cm'))+
+              ylab("Number of trees")
+ggsave("outputs/investment/scenarios/Plots/Run_5/All_dashed.png", all_dashed,
+       dpi=300, width = 30, height = 20, units="cm")
+
+
+
+
+# scenarios 1:3 no facets, ribbon CIs
 quants_1_3 <- quants_all %>% filter(Scenario=="1"|Scenario=="2"|Scenario=="3")
 
 S1_3_ribbon <- ggplot(quants_1_3, aes(x=Time, y=Mean, group=Scenario))+
   geom_ribbon(data=quants_1_3, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
-  geom_line(size=1,aes(color=Scenario))+
+  geom_line(size=2,aes(color=Scenario))+
   theme_classic()+
   theme(axis.title = element_text(size=15),
         axis.text = element_text(size=15),
@@ -11049,6 +11075,23 @@ S1_3_ribbon <- ggplot(quants_1_3, aes(x=Time, y=Mean, group=Scenario))+
 
 ggsave("outputs/investment/scenarios/Plots/Run_5/S1_3_ribbons.png", S1_3_ribbon,
        dpi=300, width = 30, height = 20, units="cm")
+
+
+# Scenarios 1:3 no facets, dashed CIs
+S1_3_dashed <- ggplot(quants_1_3, aes(x=Time, y=Mean, group=Scenario))+
+              geom_ribbon(data=quants_1_3, aes(x=Time, ymin=LCL, ymax=UCL,color=Scenario),alpha=0, size=1, linetype="longdash")+
+              geom_line(size=2,aes(color=Scenario))+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=15),
+                    legend.text = element_text(size=15),
+                    legend.title = element_text(size=15),
+                    legend.key.size = unit(1, 'cm'))+
+              ylab("Number of trees")
+
+ggsave("outputs/investment/scenarios/Plots/Run_5/S1_3_dashed.png", S1_3_dashed,
+       dpi=300, width = 30, height = 20, units="cm")
+
 
 
 # scenarios 4 & 5 no facet
