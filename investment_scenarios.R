@@ -5,6 +5,7 @@
 library('tidyverse')
 library('GMSE')
 library('patchwork')
+library('viridis')
 
 
 ############## LANDSCAPE DETAILS ##################
@@ -11059,21 +11060,41 @@ ggsave("outputs/investment/scenarios/Plots/Run_5/All_dashed.png", all_dashed,
 
 
 
-# scenarios 1:3 no facets, ribbon CIs
+# scenarios 1:3 no facets, ribbon CIs, viridis cols
 quants_1_3 <- quants_all %>% filter(Scenario=="1"|Scenario=="2"|Scenario=="3")
 
-S1_3_ribbon <- ggplot(quants_1_3, aes(x=Time, y=Mean, group=Scenario))+
-  geom_ribbon(data=quants_1_3, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
-  geom_line(size=2,aes(color=Scenario))+
-  theme_classic()+
-  theme(axis.title = element_text(size=15),
-        axis.text = element_text(size=15),
-        legend.text = element_text(size=15),
-        legend.title = element_text(size=15),
-        legend.key.size = unit(1, 'cm'))+
-  ylab("Number of trees")
+S1_3_ribbon_vir <- ggplot(quants_1_3, aes(x=Time, y=Mean, group=Scenario))+
+                geom_ribbon(data=quants_1_3, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
+                geom_line(size=2,aes(color=Scenario))+
+                theme_classic()+
+                theme(axis.title = element_text(size=15),
+                      axis.text = element_text(size=15),
+                      legend.text = element_text(size=15),
+                      legend.title = element_text(size=15),
+                      legend.key.size = unit(1, 'cm'))+
+                scale_color_viridis(option = "viridis", discrete = TRUE)+
+                scale_fill_viridis(option = "viridis", discrete = TRUE)+
+                ylab("Number of trees")
 
-ggsave("outputs/investment/scenarios/Plots/Run_5/S1_3_ribbons.png", S1_3_ribbon,
+ggsave("outputs/investment/scenarios/Plots/Run_5/S1_3_ribbons_vir.png", S1_3_ribbon_vir,
+       dpi=300, width = 30, height = 20, units="cm")
+
+
+# scenarios 1:3 no facets, ribbon CIs, brewer cols
+S1_3_ribbon_brw <- ggplot(quants_1_3, aes(x=Time, y=Mean, group=Scenario))+
+                    geom_ribbon(data=quants_1_3, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
+                    geom_line(size=2,aes(color=Scenario))+
+                    theme_classic()+
+                    theme(axis.title = element_text(size=15),
+                          axis.text = element_text(size=15),
+                          legend.text = element_text(size=15),
+                          legend.title = element_text(size=15),
+                          legend.key.size = unit(1, 'cm'))+
+                    scale_color_brewer(palette = "Set1")+
+                    scale_fill_brewer(palette = "Set1")+
+                    ylab("Number of trees")
+
+ggsave("outputs/investment/scenarios/Plots/Run_5/S1_3_ribbons_brw.png", S1_3_ribbon_brw,
        dpi=300, width = 30, height = 20, units="cm")
 
 
@@ -11094,19 +11115,80 @@ ggsave("outputs/investment/scenarios/Plots/Run_5/S1_3_dashed.png", S1_3_dashed,
 
 
 
-# scenarios 4 & 5 no facet
+# scenarios 4 & 5 no facet, ribbons, viridis
 quants_4_5 <- quants_all %>% filter(Scenario=="4"|Scenario=="5")
 
-S4_S5_ribbon <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
+S4_S5_ribbon_vir <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
   geom_ribbon(data=quants_4_5, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
-  geom_line(size=1,aes(color=Scenario))+
+  geom_line(size=2,aes(color=Scenario))+
   theme_classic()+
   theme(axis.title = element_text(size=15),
         axis.text = element_text(size=15),
         legend.text = element_text(size=15),
         legend.title = element_text(size=15),
         legend.key.size = unit(1, 'cm'))+
+  scale_color_viridis(option="plasma", discrete = TRUE)+
+  scale_fill_viridis(option="plasma", discrete = TRUE)+
   ylab("Number of trees")
+
+ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon_vir.png", S4_S5_ribbon_vir,
+     dpi=300, width = 30, height = 20, units="cm")
+
+
+# scenarios 4 & 5 no facet, ribbons, brewer
+quants_4_5 <- quants_all %>% filter(Scenario=="4"|Scenario=="5")
+
+S4_S5_ribbon_brw <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
+  geom_ribbon(data=quants_4_5, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
+  geom_line(size=2,aes(color=Scenario))+
+  theme_classic()+
+  theme(axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=15),
+        legend.key.size = unit(1, 'cm'))+
+  scale_color_brewer(palette = "Set2")+
+  scale_fill_brewer(palette = "Set2")+
+  ylab("Number of trees")
+
+ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon_brw.png", S4_S5_ribbon_brw,
+     dpi=300, width = 30, height = 20, units="cm")
+
+
+# scenarios 4 & 5 no facet, ribbons, manual
+quants_4_5 <- quants_all %>% filter(Scenario=="4"|Scenario=="5")
+
+S4_S5_ribbon_man <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
+  geom_ribbon(data=quants_4_5, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
+  geom_line(size=2,aes(color=Scenario))+
+  theme_classic()+
+  theme(axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=15),
+        legend.key.size = unit(1, 'cm'))+
+  scale_color_manual(values=c("lightseagreen", "tan2"))+
+  scale_fill_manual(values=c("lightseagreen", "tan2"))+
+  ylab("Number of trees")
+
+ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon_man.png", S4_S5_ribbon_man,
+     dpi=300, width = 30, height = 20, units="cm")
+
+# scenarios 4 & 5 no facet, dashed
+S4_S5_dash <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
+              geom_ribbon(data=quants_4_5, aes(x=Time, ymin=LCL, ymax=UCL,color=Scenario),alpha=0, size=1, linetype="longdash")+
+              geom_line(size=2,aes(color=Scenario))+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=15),
+                    legend.text = element_text(size=15),
+                    legend.title = element_text(size=15),
+                    legend.key.size = unit(1, 'cm'))+
+              ylab("Number of trees")
+
+
+
+
 
 ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon.png", S4_S5_ribbon,
        dpi=300, width = 30, height = 20, units="cm")
