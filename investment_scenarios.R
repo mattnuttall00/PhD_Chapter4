@@ -11395,6 +11395,25 @@ S3_budgets <- read.csv("Budgets/Investment/Run_5/S3_budgets.csv", header = T)
 S4_budgets <- read.csv("Budgets/Investment/Run_5/S4_budgets.csv", header = T)
 S5_budgets <- read.csv("Budgets/Investment/Run_5/S5_budgets.csv", header = T)
 
+# load S4 and S5 budgets from 100 runs
+
+# Scenario 4
+scen4 <- list.files(path = "./outputs/investment/scenarios/Run_5/100_reps/scen4",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
+
+scen4$Simulation <- rep(as.factor(1:100), each=50) 
+
+
+# Scenario 5
+scen5 <- list.files(path = "./outputs/investment/scenarios/Run_5/100_reps/scen5",
+                    pattern = "*.csv",
+                    full.names = T) %>% 
+  map_df(~read_csv(.,))
+
+scen5$Simulation <- rep(as.factor(1:100), each=50)
+
 # function to calculate harvest under maximum conflict
 HUMC.func <- function(dat){
   
@@ -11427,7 +11446,7 @@ p.S1.MaxH <- ggplot(S1_budgets, aes(x=Time, y=Max_harvest))+
             geom_line(size=1)+
             theme_classic()+
             theme(axis.title = element_text(size=15),
-                  axis.text = element_text(size=12))+
+                  axis.text = element_text(size=15))+
             ylab("Harvest under maximum conflict")
 
 # Add additional plots from S1 (produced in the "results" section above)
@@ -11444,7 +11463,7 @@ p.S2.MaxH <- ggplot(S2_budgets, aes(x=Time, y=Max_harvest))+
               geom_line(size=1)+
               theme_classic()+
               theme(axis.title = element_text(size=15),
-                    axis.text = element_text(size=12))+
+                    axis.text = element_text(size=15))+
               ylab("Harvest under maximum conflict")
 
 # Add additional plots from S2 (produced in the "results" section above)
@@ -11461,7 +11480,7 @@ p.S3.MaxH <- ggplot(S3_budgets, aes(x=Time, y=Max_harvest))+
   geom_line(size=1)+
   theme_classic()+
   theme(axis.title = element_text(size=15),
-        axis.text = element_text(size=12))+
+        axis.text = element_text(size=15))+
   ylab("Harvest under maximum conflict")
 
 # Add additional plots from S3 (produced in the "results" section above)
@@ -11478,7 +11497,7 @@ p.S4.MaxH <- ggplot(S4_budgets, aes(x=Time, y=Max_harvest))+
   geom_line(size=1)+
   theme_classic()+
   theme(axis.title = element_text(size=15),
-        axis.text = element_text(size=12))+
+        axis.text = element_text(size=15))+
   ylab("Harvest under maximum conflict")
 
 # Add additional plots from S4 (produced in the "results" section above)
@@ -11496,7 +11515,7 @@ p.S5.MaxH <- ggplot(S5_budgets, aes(x=Time, y=Max_harvest, group=Simulation, col
   geom_line(size=1)+
   theme_classic()+
   theme(axis.title = element_text(size=15),
-        axis.text = element_text(size=12))+
+        axis.text = element_text(size=15))+
   ylab("Harvest under maximum conflict")
 
 # Add additional plots from S5 (produced in the "results" section above)
@@ -11511,7 +11530,12 @@ p.S5.MaxH <- ggplot(S5_budgets, aes(x=Time, y=Max_harvest, group=Simulation, col
 ## plot all HUMC together
 
 # first take a mean for S4 & S5 to reduce it to a single line
-S4_mean <- S4_budgets %>% group_by(Time) %>% summarise_at(.,vars(Max_harvest),mean)
+
+# calculate HUMC and add to dataframes
+scen4 <- HUMC.func(scen4)
+scen5 <- HUMC.func(scen5)
+
+S4_mean <- scen4 %>% group_by(Time) %>% summarise_at(.,vars(Max_harvest),mean)
 S4_mean$Scenario <- "4"
 
 S5_mean <- S5_budgets %>% group_by(Time) %>% summarise_at(.,vars(Max_harvest),mean)
@@ -11524,11 +11548,14 @@ HUMC_all <- data.frame(Time = 1:50,
                                        S5_mean$Max_harvest),
                        Scenario = rep(c("1","2","3","4","5"), each=50))
 
+HUMC_all$Max_harvest <- ifelse(HUMC_all$Max_harvest < 0, 0, HUMC_all$Max_harvest)
+
+
 humc_all <- ggplot(HUMC_all, aes(x=Time, y=Max_harvest, group=Scenario, color=Scenario))+
   geom_line(size=1)+
   theme_classic()+
   theme(axis.title = element_text(size=15),
-        axis.text = element_text(size=12))+
+        axis.text = element_text(size=15))+
   ylab("Harvest under maximum conflict")
 
 ggsave("outputs/investment/scenarios/HUMC/Run_5/humc_all.png", humc_all, dpi=300, 
