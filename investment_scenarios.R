@@ -12,13 +12,13 @@ library('viridis')
 
 # Study period- 50 years
 
-# Landscape dimensions - 150 x 150 cells.  which results in 22,500 cells (or ha). With 20 villages, this results in 1,125 ha or 11.25km2 per village. This means the number of trees will be 1,125,000.
+# Landscape dimensions - 100 x 100 cells.  which results in 10,000 cells (or ha). With 30 villages, this results in 333.33 ha or 3.33km2 per village. The number of trees is 100,000
 
 # There is no public land. It does not serve any purpose in this study.
 
 # "Resources" are trees. The resources therefore do not move.
 
-# The density of trees in tropical forest landscapes vary hugely. In previous simulations I have assumed 50 stems/ha which is low, but not implausible (e.g. deciduous dipterocarp woodland). A reference for this value can be found here:https://www.jstor.org/stable/44521915. I am keeping this density of trees as it is for now, as this value means that there are already 1,125,000 trees on the landscape, and increasing them will increase run time and reduce the overall effect of deforestation. Note that the trees are distributed randomly across the landscape, and so there will not be exactly 50/cell. This reflects reality. 
+# The density of trees in tropical forest landscapes vary hugely. In previous simulations I have assumed 50 stems/ha which is low, but not implausible (e.g. deciduous dipterocarp woodland). A reference for this value can be found here:https://www.jstor.org/stable/44521915. This resulted in >1M trees, which meant that the differences in trees lost between scenarios, and the total number of trees lost, were too low. In the final scenarios, the number of trees was set to 100,000. Note that the trees are distributed randomly across the landscape, and so there will not be exactly 50/cell. This reflects reality. 
 
 # Trees in a cell reduce the farmer's yield. The amount a tree reduces yield is governed by an exponential function: yield = (1 - % yield reduction per tree) ^ remaining trees. I want a farmer's yield to be reduced by a significant amount if all trees in a cell are standing. But the trees do not completely eliminate yield. This is a balance between the farmer being able to farm and gain some yield even when there are trees on their cell, but also providing an incentive to cull where possible. I have set each tree on a cell to reduce yield by 8%. See the N1:N1f scenario comparisons which were used to decide on the parameter values for res_consume and tendcrop_yield
 
@@ -32,7 +32,7 @@ library('viridis')
 
 # The max age of trees is set high - 1000. This is to reduce natural death caused by old age (this should now be obsolete)
 
-# The observation process is set to density-based sampling, with 1 observation per time step. The manager can move in any direction. Currently the manager can see 10 cells, and move 50 cells. In previous simulations (see "land_tenure_gmse.R" script) this has resulted in observation error of a few percent (max error ~2.3%). Realistically, forest cover monitoring is very accurate thanks to remote sensing. Nevertheless, I have decided to remove any observation error. 
+# The observation process is set to density-based sampling, with 1 observation per time step. The manager can move in any direction. Currently the manager can see 150 cells, and move 50 cells. We decided to remove any observation error. 
 
 # There is no minimum age for resources to be acted upon i.e. all trees in the landscape can be observed/culled
 
@@ -59,11 +59,11 @@ library('viridis')
 # N3 - Optimistic Null - Manager budget increases linearly over time, user budget remains constant
 
 
-# 1 - Pessimistic Null - Manager budget remains constant, user budgets increase linearly 
-# 2 - Optimistic Null - Manager and user budgets both increase linearly, with the same slope
+# 1 - Manager budget remains constant, user budgets increase linearly 
+# 2 - Manager and user budgets both increase linearly (different slopes and starting values)
 # 3 - Sine wave - Manager budget increases and decreases in a predictable/regular way above and below a mean (like a sine wave), user budget increases linearly
-# 4 - sine wave - As above, but the wavelength is shorter (higher frequency) and the amplitude is smaller
-# 5 - Random complex wave(s) - Manager budget increases and decreases unpredictably (using Fourier series to create random complex waves), user budget increases linearly. There are currently 10 waves that constitute this scenario
+# 4 - Random complex wave(s), but with small variation which results in a "core" budget i.e., the manager budget doesn't drop too low
+# 5 - Random complex wave(s) - As above, but with high variation i.e., no "core" budget so the manager budget can drop very low, but also go very high
 
 
 ## below there are more scenarios than I have listed above. These were run to work out some of the parameter values (e.g. res_consume and tend_crop_yield)
@@ -72,7 +72,9 @@ library('viridis')
 
 ## The original runs of N1 had the landscape set at 200x200 cells, 2 million trees, res_consume set to 0.05, and tend_crop_yield set to 0.02, and 40% public land. This was the set up used to run all the comparisons below between N1a:N1f. All of the comparison plots etc. saved in the N1 comparison folder will be using this set up. 
 
-# Now though, I have changed the set up to reflect the final conclusions and the new landscape set up that all of the null scenarios will use. This is a landscape of 150x150 cells which results in 22,500 cells (or ha). With 20 villages, this results in 1,125 ha or 11.25km2 per village. This means the number of trees will be 1,125,000. Res_consume will be 0.08 and tend_crop_yield will be 0.01. There will be no public land. 
+# Then I changed the set up to a landscape of 150x150 cells which results in 22,500 cells (or ha). With 20 villages, this results in 1,125 ha or 11.25km2 per village. This means the number of trees will be 1,125,000. Res_consume will be 0.08 and tend_crop_yield will be 0.01. There will be no public land.
+
+# The final simulations though, have 100x100 cells, 30 villages, and 100,000 trees (see landcape section above). The below code has therefore been changed to produce the final N1
 
 
 # This null scenario has the manager and user budgets remaining static over the entire study period
@@ -80,12 +82,12 @@ library('viridis')
 
 N1 <- gmse(
   time_max = 50,
-  land_dim_1 = 150,
-  land_dim_2 = 150, # landscape is 40,000ha or 400km2
+  land_dim_1 = 100,
+  land_dim_2 = 100, # landscape is 40,000ha or 400km2
   res_movement = 0, # trees don't move 
   remove_pr = 0, # Assume no death 
   lambda = 0, # assume no growth
-  agent_view = 10, 
+  agent_view = 150, 
   agent_move = 50, 
   res_birth_K = 1, # must be positive value, but I want it small i.e. no real recruitment
   res_death_K = 5000000, # carrying capacity set to way above starting number of resources
@@ -104,15 +106,15 @@ N1 <- gmse(
   move_agents = TRUE, 
   max_ages = 1000, 
   minimum_cost = 10, 
-  user_budget = 200, 
-  manager_budget = 200, 
-  usr_budget_rng = 20, # introduce variation around the mean user budget (removes step pattern) 
-  manage_target = 1125000, 
-  RESOURCE_ini = 1125000, 
+  user_budget = 500, 
+  manager_budget = 500, 
+  usr_budget_rng = 50, # introduce variation around the mean user budget (removes step pattern) 
+  manage_target = 100000, 
+  RESOURCE_ini = 100000, 
   culling = TRUE, 
   tend_crops = TRUE,
   tend_crop_yld = 0.01, # tending crops increases yield by 1% - less than that of culling trees
-  stakeholders = 20, 
+  stakeholders = 30, 
   land_ownership = TRUE, 
   public_land = 0, 
   manage_freq = 1, 
@@ -525,7 +527,7 @@ rm(N1f)
 # Here I want to compare the differences in yields at each time step between N1, where res_consume is 0.05 and tend_crops_yld is 0.02, N1a, where res_consume and tend_crop_yld are equal, N1b where res_consume is 0.08 and tend_crop_yld is 0.02, N1c where res_consume is 0.1 and tend_crop_yld is 0.02, N1d where res_consume is 0.08 and tend_crop_yld is 0.01, N1e where res_consume is 0.05 and tend_crop_yld is 0.01, and N1f where res_consume is 0.06 and tend_crop_yld is 0.01. 
 
 # No need to make the dataframe each time. Load the pre-made dataframe
-yield.df <- read.csv("outputs/investment/null_scenarios/N1/yield_df_N1-N1b.csv")
+yield.df <- read.csv("outputs/investment/null_scenarios/N1/N1_comparison_res_versus_tend/yield_df_N1-N1f.csv")
 
 
 # This was just me working out how to find and extraact the yield from the simulation output object. Extract total yield for all cells from each timestep for all sims. This needs the simulation objects to be in the environment, so won't work unles you run all of the sims again
@@ -551,7 +553,7 @@ N1f_summary <- read.csv("outputs/investment/null_scenarios/N1/N1f_summary.csv", 
 # create dataframe
 sim <- c("N1","N1a","N1b", "N1c", "N1d","N1e","N1f")
 yield.df <- data.frame(time_step = 1:50,
-                       sim = rep(sim, each=50),
+                       Simulation = rep(sim, each=50),
                        available_yld = 24000,
                        sim_yield = c(N1_summary$crop_yield, N1a_summary$crop_yield,
                                      N1b_summary$crop_yield, N1c_summary$crop_yield,
@@ -565,72 +567,106 @@ yield.df <- data.frame(time_step = 1:50,
 # add % yield to df
 yield.df$perc_yld <- yield.df$sim_yield/yield.df$available_yld*100
 
+# rename sim columns
+yield.df <- yield.df %>% rename(Simulation = sim)
+
 # save dataframe
 #write.csv(yield.df, file="outputs/investment/null_scenarios/N1/yield_df_N1-N1f.csv")
 
 
 # first make a plot with all of the different sims and the parameter values
-sim.para <- data.frame(sim = c("N1","N1a","N1b", "N1c", "N1d","N1e","N1f"),
+sim.para <- data.frame(Simulation = c("N1","N1a","N1b", "N1c", "N1d","N1e","N1f"),
                        res_consume = c(0.05,0.05,0.08,0.1,0.08,0.05,0.06),
                        tend_crop_yield = c(0.02,0.05,0.02,0.02,0.01,0.01,0.01))
 
-p.sims <- ggplot(sim.para, aes(x=res_consume, y=tend_crop_yield, color=sim))+
+p.sims <- ggplot(sim.para, aes(x=res_consume, y=tend_crop_yield, color=Simulation))+
           geom_point(size=7)+
           theme_classic()+
           theme(axis.title = element_text(size=17),
                 axis.text = element_text(size=15),
-                legend.text = element_text(size=15))
+                legend.text = element_text(size=15),
+                legend.title = element_text(size=15))
 
-
+#ggsave("outputs/investment/null_scenarios/N1/N1_comparison_res_versus_tend/param_values.png", p.sims,
+ #      width = 25, height=20, unit="cm", dpi=300)
 
 # plot
-p1 <- ggplot(yield.df, aes(x=time_step, y=trees, group=sim, color=sim))+
+p1 <- ggplot(yield.df, aes(x=time_step, y=trees, group=Simulation, color=Simulation))+
       geom_line(size=2)+
       theme_classic()+
       ylab("Number of trees")+
-      xlab("Time step")
+      xlab("Time step")+
+      theme(legend.text = element_text(size=15),
+            legend.title = element_text(size=15),
+            axis.text = element_text(size=15),
+            axis.title = element_text(size=15))
+
+#ggsave("outputs/investment/null_scenarios/N1/N1_comparison_res_versus_tend/trees_comparison.png", p1,
+ #     width = 25, height=20, unit="cm", dpi=300)
+
 # N1a results in the fewest trees being lost, which makes sense as N1a has no incentive to fell trees (equal parameter values). N1 and N1b:f are all fairly similar in their loss of trees. Interestingly, the simulation with the highest res_consume (N1c) does not end up with the fewest trees, and that must be because tend_crop_yield is higher than some of the others and so users will be more likely to choose to tend crops when costs of felling are very high. The simulation with the most trees lost is N1d, where tend_crop_yield is very low (0.01) and res_consume is quite high (0.08). This is closely followed by N1f which although has a lower res_consume than N1b and N1c, it also has a lower tend_crop_yield. This quite nicely shows the interaction between the two parameters I think. Essentially, I think this shows that small incremental changes in tend_crop_yield are actually more influential than similar increases in res_consume. 
  
 
-p2 <- ggplot(yield.df, aes(x=time_step, y=perc_yld, group=sim, color=sim))+
+p2 <- ggplot(yield.df, aes(x=time_step, y=perc_yld, group=Simulation, color=Simulation))+
       geom_line(size=2)+
       theme_classic()+
       ylab("% Yield")+
-      xlab("Time step")
+      xlab("Time step")+
+      theme(legend.text = element_text(size=15),
+            legend.title = element_text(size=15),
+            axis.text = element_text(size=15),
+            axis.title = element_text(size=15))
+
+ggsave("outputs/investment/null_scenarios/N1/N1_comparison_res_versus_tend/yield_comparison.png", p2,
+        width = 25, height=20, unit="cm", dpi=300)
+
 # Yield is lowest in N1c, as this simulation has the highest value for res_consume (0.1), followed by N1b and N1d (0.08). N1f then sits on it's own in the middle (0.06). The highest yields are for N1, N1a, and N1e, where res_consume is 0.05 for all. For this last group, we see that N1e is increasing slightly faster, as tend_crop_yld is set lower than N1 and N1a, and so users are more keen to fell trees as tending crops has less value. 
 
 
 ## more comparison plots between N1, N1a, N1b, N1c, N1d, N1e, N1f
 
 # combine the simulation summaries for easier plotting
-N1_summary$sim  <- "N1"
-N1a_summary$sim <- "N1a"
-N1b_summary$sim <- "N1b"
-N1c_summary$sim <- "N1c"
-N1d_summary$sim <- "N1d"
-N1e_summary$sim <- "N1e"
-N1f_summary$sim <- "N1f"
+N1_summary$Simulation  <- "N1"
+N1a_summary$Simulation <- "N1a"
+N1b_summary$Simulation <- "N1b"
+N1c_summary$Simulation <- "N1c"
+N1d_summary$Simulation <- "N1d"
+N1e_summary$Simulation <- "N1e"
+N1f_summary$Simulation <- "N1f"
 Nx_summary <- rbind(N1_summary, N1a_summary, N1b_summary, N1c_summary, N1d_summary, N1e_summary, N1f_summary)
 
 # save
 #write.csv(Nx_summary, file="outputs/investment/null_scenarios/N1/Nx_summary.csv")
 
 # load
-Nx_summary <- read.csv("outputs/investment/null_scenarios/N1/Nx_summary.csv")
+Nx_summary <- read.csv("outputs/investment/null_scenarios/N1/N1_comparison_res_versus_tend/Nx_summary.csv")
+Nx_summary <- Nx_summary %>% rename(Simulation = sim)
 
 # number of cull actions
-p_cull <- ggplot(Nx_summary, aes(x=time_step, y=act_culling, group=sim, colour=sim))+
+p_cull <- ggplot(Nx_summary, aes(x=time_step, y=act_culling, group=Simulation, colour=Simulation))+
           geom_line(size=1.5)+
           xlab("Time step")+
           ylab("Number of cull actions")+
-          theme_classic()
+          theme_classic()+
+          theme(legend.text = element_text(size=15),
+                legend.title = element_text(size=15),
+                axis.text = element_text(size=15),
+                axis.title = element_text(size=15))
+
+ggsave("outputs/investment/null_scenarios/N1/N1_comparison_res_versus_tend/cull_comparison.png", p_cull,
+       width = 25, height=20, unit="cm", dpi=300)
+
 # This plot has changed significantly since the introduction of the new res_death_type. The simulations do appear to be broadly split between N1 and N1a, and the rest. N1 and N1a show much more variation in the number of cull actions, with the number of cull actions regulalry dropping to 0. N1a, which has the two parameters set equally at 0.05, we see regular spells of 0 cull actions, where the users are choosing to tend crops (as that produces the same benefits in terms of yield). This happens less frequently with N1, and in N1 there are no occasions when number of cull actions remain at 0 for more than a single time step. This is becuase tend_crop_yield is lower than res_consume, and so it is more beneficial to fell trees. For all of the other simualtions though, there appears to be a minimum number of culls below which they never drop (just over 100).  Even N1e, which is very similar to N1 in terms of parameters, never drops below a certain value of cull actions.   
 
-p_cost <- ggplot(Nx_summary, aes(x=time_step, y=cost_culling, group=sim, colour=sim))+
+p_cost <- ggplot(Nx_summary, aes(x=time_step, y=cost_culling, group=Simulation, colour=Simulation))+
           geom_line(size=1.5)+
           xlab("Time step")+
           ylab("Cost of cull actions")+
-          theme_classic()
+          theme_classic()+
+          theme(legend.text = element_text(size=15),
+                legend.title = element_text(size=15),
+                axis.text = element_text(size=15),
+                axis.title = element_text(size=15))
 # It's quite difficult to see what is happening in this plot, but as would be expected the manager is adapting the cost of culling regulalry to try and prevent culling, which is being attempted in all scenarios. 
 
 N1_Nf_tests <- p.sims / (p1 + p2) / (p_cull + p_cost)
