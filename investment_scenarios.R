@@ -11373,6 +11373,29 @@ ggsave("outputs/investment/scenarios/Plots/Run_5/Zoom_ribbons.png", all_zoom,
 
 
 
+### results for Table 2 in chapter
+df1 <- data.frame(scenario = c("1","2","3","4","5"),
+                  mean = c(quants_all$Mean[quants_all$Scenario=="1" & quants_all$Time==50], 
+                           quants_all$Mean[quants_all$Scenario=="2" & quants_all$Time==50],
+                           quants_all$Mean[quants_all$Scenario=="3" & quants_all$Time==50],
+                           quants_all$Mean[quants_all$Scenario=="4" & quants_all$Time==50],
+                           quants_all$Mean[quants_all$Scenario=="5" & quants_all$Time==50]),
+                  LCL = c(quants_all$LCL[quants_all$Scenario=="1" & quants_all$Time==50], 
+                          quants_all$LCL[quants_all$Scenario=="2" & quants_all$Time==50],
+                          quants_all$LCL[quants_all$Scenario=="3" & quants_all$Time==50],
+                          quants_all$LCL[quants_all$Scenario=="4" & quants_all$Time==50],
+                          quants_all$LCL[quants_all$Scenario=="5" & quants_all$Time==50]),
+                  UCL = c(quants_all$UCL[quants_all$Scenario=="1" & quants_all$Time==50],
+                           quants_all$UCL[quants_all$Scenario=="2" & quants_all$Time==50],
+                           quants_all$UCL[quants_all$Scenario=="3" & quants_all$Time==50],
+                           quants_all$UCL[quants_all$Scenario=="4" & quants_all$Time==50],
+                           quants_all$UCL[quants_all$Scenario=="5" & quants_all$Time==50]))
+
+# extinctions 
+
+
+
+
 ## Harvest under max conflict - run 5 ####
 
 
