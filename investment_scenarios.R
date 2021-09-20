@@ -11408,57 +11408,66 @@ quants_all_cull <- rbind(scen1_quants_cull,scen2_quants_cull,scen3_quants_cull,
 
 
 cull_count_s1 <- ggplot(scen1_quants_cull, aes(x=Time, y=Mean))+
-                geom_line(size=1)+
-                geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                geom_line(size=1, color="chartreuse4")+
+                geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3, fill="chartreuse4")+
                 theme_classic()+
                 theme(axis.text = element_text(size=15),
                       axis.title = element_text(size=15))+
                 ylab("Count of felling actions")+
                 xlab("")+
+                ylim(0,9000)+
                 ggtitle("Scenario 1")
                 
 
 cull_count_s2 <- ggplot(scen2_quants_cull, aes(x=Time, y=Mean))+
-                  geom_line(size=1)+
-                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                  geom_line(size=1, color="chartreuse4")+
+                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3, fill="chartreuse4")+
                   theme_classic()+
                   theme(axis.text = element_text(size=15),
                         axis.title = element_text(size=15))+
                   ggtitle("Scenario 2")+
                   xlab("")+
+                  ylim(0,9000)+
                   ylab("")
 
 cull_count_s3 <- ggplot(scen3_quants_cull, aes(x=Time, y=Mean))+
-                  geom_line(size=1)+
-                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                  geom_line(size=1, color="chartreuse4")+
+                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3, fill="chartreuse4")+
                   theme_classic()+
                   theme(axis.text = element_text(size=15),
                         axis.title = element_text(size=15))+
                   ggtitle("Scenario 3")+
                   xlab("Time")+
+                  ylim(0,9000)+
                   ylab("")
 
 cull_count_s4 <- ggplot(scen4_quants_cull, aes(x=Time, y=Mean))+
-                  geom_line(size=1)+
-                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                  geom_line(size=1, color="chartreuse4")+
+                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3, fill="chartreuse4")+
                   theme_classic()+
                   theme(axis.text = element_text(size=15),
                         axis.title = element_text(size=15))+
                   ggtitle("Scenario 4")+
                   xlab("Time")+
+                  ylim(0,9000)+
                   ylab("Count of felling actions")
 
 cull_count_s5 <- ggplot(scen5_quants_cull, aes(x=Time, y=Mean))+
-                  geom_line(size=1)+
-                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                  geom_line(size=1, color="chartreuse4")+
+                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3, fill="chartreuse4")+
                   theme_classic()+
                   theme(axis.text = element_text(size=15),
                         axis.title = element_text(size=15))+
                   ggtitle("Scenario 5")+
                   xlab("Time")+
+                  ylim(0,9000)+
                   ylab("")
 
 
+cull_count_quants_p <- cull_count_s1 + cull_count_s2 + cull_count_s3 + cull_count_s4 + cull_count_s5
+
+ggsave("outputs/investment/scenarios/Plots/Run_5/cull_counts_all.png", cull_count_quants_p,
+       width = 25, height = 20, units="cm", dpi=300)
 
 
 ### results for Table 2 in chapter
@@ -11491,6 +11500,29 @@ s2_ex <- ext.func(scen2)
 s3_ex <- ext.func(scen3)
 s4_ex <- ext.func(scen4)
 S5_ex <- ext.func(scen5)
+
+
+# Scenario 4 and 5 budgets
+scen4_budget_all <- ggplot(scen4, aes(x=Time, y=Manager_budget))+
+                      geom_line()+
+                      facet_wrap(~Simulation)+
+                      theme_classic()+
+                      theme(axis.text = element_text(size=12),
+                            axis.title = element_text(size=15))+
+                      scale_x_continuous(breaks = c(1,25,50))+
+                      ylab("Manager budget")
+
+scen5_budget_all <- ggplot(scen5, aes(x=Time, y=Manager_budget))+
+                    geom_line()+
+                    facet_wrap(~Simulation)+
+                    theme_classic()+
+                    theme(axis.text = element_text(size=12),
+                          axis.title = element_text(size=15))+
+                    scale_x_continuous(breaks = c(1,25,50))+
+                    ylab("Manager budget")
+
+ggsave("outputs/investment/scenarios/Plots/Run_5/scen4_manager_budget_all.png", scen4_budget_all, width=30, height=25, units="cm", dpi=300)
+ggsave("outputs/investment/scenarios/Plots/Run_5/scen5_manager_budget_all.png", scen5_budget_all, width=30, height=25, units="cm", dpi=300)
 
 
 ## Harvest under max conflict - run 5 ####
@@ -11679,7 +11711,7 @@ humc_all <- ggplot(HUMC_all, aes(x=Time, y=Max_harvest, group=Scenario, color=Sc
   ylab("Harvest under maximum conflict")
 
 ggsave("outputs/investment/scenarios/HUMC/Run_5/humc_all.png", humc_all, dpi=300, 
-       width = 30, height=20, units="cm")
+       width = 25, height=20, units="cm")
 
 
 ## floor all of the Max_harvest values (as users can't harvest half a tree)
