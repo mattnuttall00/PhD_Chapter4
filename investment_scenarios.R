@@ -11107,7 +11107,7 @@ scen5_plots <- user_budget_p + scen5.budgetPlots + scen5.countPlot + scen5.costP
 
 ### get mean and error bars for each scenario
 
-# Function to extract 50, 2.5, and 97.5% quantiles from each scenario
+# Function to extract 50, 2.5, and 97.5% percentiles for tree count from each scenario
 quant.func <- function(dat){
   wide.dat <- pivot_wider(dat,id_cols = Time, names_from = Simulation, values_from = Trees)
   wide.dat <- wide.dat[ ,-1]
@@ -11122,6 +11122,21 @@ quant.func <- function(dat){
   return(quant.df)
 }
 
+# Function to extract 50, 2.5, and 97.5 percentiles for cull count from each scenario
+quant.func.cull <- function(dat){
+  wide.dat <- pivot_wider(dat,id_cols = Time, names_from = Simulation, values_from = Cull_count)
+  wide.dat <- wide.dat[ ,-1]
+  Mean.q   <- apply(wide.dat,1,quantile,probs=0.5)
+  LCL.q    <- apply(wide.dat,1,quantile,probs=0.025)
+  UCL.q    <- apply(wide.dat,1,quantile,probs=0.975)
+  
+  quant.df <- data.frame(Time = 1:50,
+                         Mean = Mean.q,
+                         LCL = LCL.q,
+                         UCL = UCL.q)
+  return(quant.df)
+  
+}
 
 ## If the trees go extinct during a simulation, the simulation ends, i.e., all subsequent rows are NAs for all parameters. Therefore I need to remove the NA rows in all of the dataframes before running the below function, otherwise it throws an error
 
@@ -11156,7 +11171,7 @@ scen3 <- na.func(scen3)
 scen5 <- na.func(scen5)
 
 
-### apply quantile function to all scenario dataframes
+### apply tree count quantile function to all scenario dataframes
 
 # create new list with updated scen3 & scen5
 dat_list2 <- list(scen1,scen2,scen3,scen4,scen5)
@@ -11351,10 +11366,6 @@ S4_S5_dash <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
                     legend.key.size = unit(1, 'cm'))+
               ylab("Number of trees")
 
-
-
-
-
 ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon.png", S4_S5_ribbon,
        dpi=300, width = 30, height = 20, units="cm")
 
@@ -11369,6 +11380,38 @@ all_zoom <- ggplot(quants_all, aes(x=Time, y=Mean, group=Scenario))+
 
 ggsave("outputs/investment/scenarios/Plots/Run_5/Zoom_ribbons.png", all_zoom,
        dpi=300, width = 30, height = 20, units="cm")
+
+
+
+
+### apply cull count quantile function to all scenario dataframes
+
+# create new list with updated scen3 & scen5
+dat_list3 <- list(scen1,scen2,scen3,scen4,scen5)
+quants.ls <- lapply(dat_list3, quant.func.cull)
+names(quants.ls) <- c("scen1_quants_cull","scen2_quants_cull","scen3_quants_cull",
+                      "scen4_quants_cull","scen5_quants_cull")
+
+# extract to global env
+list2env(quants.ls, globalenv())
+
+# add scenario
+scen1_quants_cull$Scenario <- "1"
+scen2_quants_cull$Scenario <- "2"
+scen3_quants_cull$Scenario <- "3"
+scen4_quants_cull$Scenario <- "4"
+scen5_quants_cull$Scenario <- "5"
+
+# merge 
+quants_all_cull <- rbind(scen1_quants_cull,scen2_quants_cull,scen3_quants_cull,
+                         scen4_quants_cull,scen5_quants_cull)
+
+
+cull_count_p <- ggplot(quants_all_cull, aes(x=Time, y=Mean, group=Scenario, color=Scenario))+
+                geom_line(size=1)+
+                geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL, fill=Scenario),alpha=0.3)+
+                facet_wrap(~Scenario)
+
 
 
 
@@ -11392,8 +11435,17 @@ df1 <- data.frame(scenario = c("1","2","3","4","5"),
                            quants_all$UCL[quants_all$Scenario=="5" & quants_all$Time==50]))
 
 # extinctions 
+ext.func <- function(dat){
+  x <- dat %>% filter(Trees < 100) 
+  xx <- length(unique(x$Simulation))
+  return(xx)
+}
 
-
+s1_ex <- ext.func(scen1)
+s2_ex <- ext.func(scen2)
+s3_ex <- ext.func(scen3)
+s4_ex <- ext.func(scen4)
+S5_ex <- ext.func(scen5)
 
 
 ## Harvest under max conflict - run 5 ####
