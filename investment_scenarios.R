@@ -11407,11 +11407,56 @@ quants_all_cull <- rbind(scen1_quants_cull,scen2_quants_cull,scen3_quants_cull,
                          scen4_quants_cull,scen5_quants_cull)
 
 
-cull_count_p <- ggplot(quants_all_cull, aes(x=Time, y=Mean, group=Scenario, color=Scenario))+
+cull_count_s1 <- ggplot(scen1_quants_cull, aes(x=Time, y=Mean))+
                 geom_line(size=1)+
-                geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL, fill=Scenario),alpha=0.3)+
-                facet_wrap(~Scenario)
+                geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                theme_classic()+
+                theme(axis.text = element_text(size=15),
+                      axis.title = element_text(size=15))+
+                ylab("Count of felling actions")+
+                xlab("")+
+                ggtitle("Scenario 1")
+                
 
+cull_count_s2 <- ggplot(scen2_quants_cull, aes(x=Time, y=Mean))+
+                  geom_line(size=1)+
+                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                  theme_classic()+
+                  theme(axis.text = element_text(size=15),
+                        axis.title = element_text(size=15))+
+                  ggtitle("Scenario 2")+
+                  xlab("")+
+                  ylab("")
+
+cull_count_s3 <- ggplot(scen3_quants_cull, aes(x=Time, y=Mean))+
+                  geom_line(size=1)+
+                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                  theme_classic()+
+                  theme(axis.text = element_text(size=15),
+                        axis.title = element_text(size=15))+
+                  ggtitle("Scenario 3")+
+                  xlab("Time")+
+                  ylab("")
+
+cull_count_s4 <- ggplot(scen4_quants_cull, aes(x=Time, y=Mean))+
+                  geom_line(size=1)+
+                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                  theme_classic()+
+                  theme(axis.text = element_text(size=15),
+                        axis.title = element_text(size=15))+
+                  ggtitle("Scenario 4")+
+                  xlab("Time")+
+                  ylab("Count of felling actions")
+
+cull_count_s5 <- ggplot(scen5_quants_cull, aes(x=Time, y=Mean))+
+                  geom_line(size=1)+
+                  geom_ribbon(aes(x=Time, ymin=LCL, ymax=UCL),alpha=0.3)+
+                  theme_classic()+
+                  theme(axis.text = element_text(size=15),
+                        axis.title = element_text(size=15))+
+                  ggtitle("Scenario 5")+
+                  xlab("Time")+
+                  ylab("")
 
 
 
