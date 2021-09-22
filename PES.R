@@ -155,7 +155,7 @@ for(time_step in 1:30){
 
 colnames(Test_4) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "Feed_cost", "Feed_count")
 Test_4_summary <- data.frame(Test_4)
-
+write.csv(Test_4_summary, file="outputs/pes/test_runs/Test_4_summary.csv")
 
 
 ### Test 5 ####
@@ -230,6 +230,7 @@ for(time_step in 1:30){
 
 colnames(Test_5) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "Feed_cost", "Feed_count")
 Test_5_summary <- data.frame(Test_5)
+write.csv(Test_5_summary, file="outputs/pes/test_runs/Test_5_summary.csv")
 
 
 ### Test 6 ####
@@ -304,6 +305,7 @@ for(time_step in 1:30){
 
 colnames(Test_6) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "Feed_cost", "Feed_count")
 Test_6_summary <- data.frame(Test_6)
+write.csv(Test_6_summary, file="outputs/pes/test_runs/Test_6_summary.csv")
 
 
 ### Test 7 ####
@@ -378,3 +380,60 @@ for(time_step in 1:30){
 
 colnames(Test_7) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "Feed_cost", "Feed_count")
 Test_7_summary <- data.frame(Test_7)
+write.csv(Test_7_summary, file="outputs/pes/test_runs/Test_7_summary.csv")
+
+### Results tests 4:10 ####
+
+# load in results 
+test4 <- read.csv(file="outputs/pes/test_runs/Test_4_summary.csv")
+test5 <- read.csv(file="outputs/pes/test_runs/Test_5_summary.csv")
+test6 <- read.csv(file="outputs/pes/test_runs/Test_6_summary.csv")
+test7 <- read.csv(file="outputs/pes/test_runs/Test_7_summary.csv")
+test8 <- read.csv(file="outputs/pes/test_runs/Test_8_summary.csv")
+test9 <- read.csv(file="outputs/pes/test_runs/Test_9_summary.csv")
+test10 <- read.csv(file="outputs/pes/test_runs/Test_10_summary.csv")
+
+# add perceive_feeding
+test4$perc_feed <- "-0.5"
+test8$perc_feed <- "-0.45"
+test5$perc_feed <- "-0.4"
+test9$perc_feed <- "-0.35"
+test6$perc_feed <- "-0.3"
+test10$perc_feed <- "-0.25"
+test7$perc_feed <- "-0.2"
+
+# merge
+test_all <- rbind(test4,test8,test5,test9,test6,test10,test7)
+test_all <- test_all[, -1]
+
+# calculate what percentage of all actions were feeding and culling
+test_all$feed_percent <- (test_all[,7] / (test_all[,7] + test_all[,5]))*100
+test_all$cull_percent <- ifelse(test_all$feed_percent==100,0,100-test_all$feed_percent)
+
+## plots
+
+# proportion of action that were feeding
+prop_feed <- ggplot(test_all, aes(x=Time, y=feed_percent, group=perc_feed, color=perc_feed))+
+              geom_line(size=1)+
+              theme_classic()+
+              facet_wrap(~perc_feed)
+
+# cost of feeding
+cost_feed <- ggplot(test_all, aes(x=Time, y=Feed_cost, group=perc_feed, color=perc_feed))+
+              geom_line(size=1)+
+              theme_classic()+
+              facet_wrap(~perc_feed)
+
+# proportion of actions that were culling
+prop_cull <- ggplot(test_all, aes(x=Time, y=cull_percent, group=perc_feed, color=perc_feed))+
+              geom_line(size=1)+
+              theme_classic()+
+              facet_wrap(~perc_feed)
+
+# cost of culling
+cost_cull <- ggplot(test_all, aes(x=Time, y=Cull_cost, group=perc_feed, color=perc_feed))+
+              geom_line(size=1)+
+              theme_classic()+
+              facet_wrap(~perc_feed)
+
+prop_feed + cost_feed + prop_cull + cost_cull
