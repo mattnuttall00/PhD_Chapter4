@@ -83,7 +83,7 @@ Test_3$user_results
 # Users now choose to take the PES payments instead of culling
 
 
-### Test 4 ####
+### Test 4, -0.5 ####
 
 # now I will run it over multiple time steps, with a static perceive_feed, set at -0.5
 
@@ -158,7 +158,7 @@ Test_4_summary <- data.frame(Test_4)
 write.csv(Test_4_summary, file="outputs/pes/test_runs/Test_4_summary.csv")
 
 
-### Test 5 ####
+### Test 5, -0.4 ####
 
 # now I will run it over multiple time steps, with a static perceive_feed, set at -0.4
 
@@ -233,7 +233,7 @@ Test_5_summary <- data.frame(Test_5)
 write.csv(Test_5_summary, file="outputs/pes/test_runs/Test_5_summary.csv")
 
 
-### Test 6 ####
+### Test 6, -0.3 ####
 
 # now I will run it over multiple time steps, with a static perceive_feed, set at -0.3
 
@@ -308,7 +308,7 @@ Test_6_summary <- data.frame(Test_6)
 write.csv(Test_6_summary, file="outputs/pes/test_runs/Test_6_summary.csv")
 
 
-### Test 7 ####
+### Test 7, -0.2 ####
 
 # now I will run it over multiple time steps, with a static perceive_feed, set at -0.2
 
@@ -679,8 +679,11 @@ for(time_step in 1:50){
 colnames(Test_12) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "Feed_cost", "Feed_count")
 Test_12_summary <- data.frame(Test_12)
 Test_12_summary$perceive_feed <- perc_f
-write.csv(Test_12_summary, file="outputs/pes/test_runs/Test_12_summary.csv")
+#write.csv(Test_12_summary, file="outputs/pes/test_runs/Test_12_summary.csv")
 
+
+# load results
+Test_12_summary <- read.csv("outputs/pes/test_runs/Test_12_summary.csv")
 
 count_value <- ggplot(Test_12_summary, aes(x=perceive_feed, y=Feed_count))+
   geom_line(size=1)+
@@ -729,3 +732,7 @@ fell_cost <- ggplot(Test_12_summary, aes(x=perceive_feed, y=Cull_cost))+
   ggtitle("d")
 
 test12_plots <- count_value + feed_cost + fell_count + fell_cost
+
+
+ggplot(Test_12_summary, aes(x=Time, y=Feed_count))+
+  geom_line()
