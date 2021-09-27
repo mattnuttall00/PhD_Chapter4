@@ -736,3 +736,147 @@ test12_plots <- count_value + feed_cost + fell_count + fell_cost
 
 ggplot(Test_12_summary, aes(x=Time, y=Feed_count))+
   geom_line()
+
+### Test 13 ####
+
+# following Brad's suggestion, I am going to vary perceive_feed much more than above, to an extreme of -20
+
+perc_f <- seq(0,-20, length.out = 50)
+
+PF <- perc_f[1]
+
+Test_13_sim_old <- gmse_apply(
+  res_mod = resource,
+  obs_mod = observation,
+  man_mod = manager,
+  use_mod = user,
+  get_res = "FUll",
+  time_max = 50,
+  land_dim_1 = 100,
+  land_dim_2 = 100, 
+  res_movement = 0, 
+  agent_view = 150, 
+  agent_move = 50, 
+  res_move_type = 0, 
+  res_death_type = 0,
+  lambda = 0,
+  observe_type = 2, 
+  times_observe = 1, 
+  obs_move_type = 1, 
+  res_min_age = 0, 
+  res_move_obs = FALSE, 
+  plotting = FALSE, 
+  res_consume = 0.08, 
+  
+  # all genetic algorithm parameters left to default
+  
+  move_agents = TRUE, 
+  max_ages = 1000, 
+  minimum_cost = 10, 
+  user_budget = 1000, 
+  manager_budget = 1000, 
+  usr_budget_rng = 100,  
+  manage_target = 100000, 
+  RESOURCE_ini = 100000, 
+  culling = TRUE,
+  feeding = TRUE,
+  perceive_feed = PF,
+  tend_crops = TRUE,
+  tend_crop_yld = 0.01, 
+  stakeholders = 30, 
+  land_ownership = TRUE, 
+  public_land = 0, 
+  manage_freq = 1, 
+  group_think = FALSE
+)
+
+# matrix for results
+Test_13 <- matrix(data=NA, nrow=50, ncol=8)
+
+# loop the simulation. 
+for(time_step in 1:50){
+  
+  sim_new <- gmse_apply(get_res = "Full", old_list = Test_13_sim_old, perceive_feed = PF)
+  
+  Test_13[time_step, 1] <- time_step
+  Test_13[time_step, 2] <- sim_new$basic_output$resource_results[1]
+  Test_13[time_step, 3] <- sim_new$basic_output$observation_results[1]
+  Test_13[time_step, 4] <- sim_new$basic_output$manager_results[3]
+  Test_13[time_step, 5] <- sum(sim_new$basic_output$user_results[,3])
+  Test_13[time_step, 6] <- sim_new$basic_output$manager_results[5]
+  Test_13[time_step, 7] <- sum(sim_new$basic_output$user_results[,5])
+  Test_13[time_step, 8] <- sim_new$AGENTS[2,21]
+  
+  
+  Test_13_sim_old <- sim_new
+  PF <- perc_f[time_step]
+  print(PF)
+}
+
+colnames(Test_13) <- c("Time", "Trees", "Trees_est", "Cull_cost", "Cull_count", "Feed_cost", "Feed_count",
+                       "Perceive_feed")
+Test_13_summary <- data.frame(Test_13)
+Test_13_summary$perceive_feed <- perc_f
+#write.csv(Test_13_summary, file="outputs/pes/test_runs/Test_13_summary.csv")
+
+
+sim_new$AGENTS
+
+# load results
+Test_13_summary <- read.csv("outputs/pes/test_runs/Test_12_summary.csv")
+
+count_value <- ggplot(Test_13_summary, aes(x=perceive_feed, y=Feed_count))+
+                geom_line(size=1)+
+                theme_classic()+
+                theme(axis.title = element_text(size=15),
+                      axis.text = element_text(size=15),
+                      plot.title = element_text(size=20))+
+                ylab("Count of PES actions")+
+                xlab("perceive_feed value")+
+                scale_x_reverse()+
+                ggtitle("a")
+
+feed_cost <- ggplot(Test_13_summary, aes(x=perceive_feed, y=Feed_cost))+
+              geom_line(size=1)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=15),
+                    plot.title = element_text(size=20))+
+              ylab("Cost of PES actions")+
+              xlab("perceive_feed value")+
+              scale_x_reverse()+
+              ylim(0,110)+
+              ggtitle("b")
+
+fell_count <- ggplot(Test_13_summary, aes(x=perceive_feed, y=Cull_count))+
+              geom_line(size=1)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=15),
+                    plot.title = element_text(size=20))+
+              ylab("Count of felling actions")+
+              xlab("perceive_feed value")+
+              scale_x_reverse()+
+              ggtitle("c")
+
+fell_cost <- ggplot(Test_13_summary, aes(x=perceive_feed, y=Cull_cost))+
+              geom_line(size=1)+
+              theme_classic()+
+              theme(axis.title = element_text(size=15),
+                    axis.text = element_text(size=15),
+                    plot.title = element_text(size=20))+
+              ylab("Cost of felling actions")+
+              xlab("perceive_feed value")+
+              scale_x_reverse()+
+              ylim(0,110)+
+              ggtitle("d")
+
+test13_plots <- count_value + feed_cost + fell_count + fell_cost
+
+
+ggplot(Test_13_summary, aes(x=Time, y=Feed_count))+
+  geom_line()
+
+### Test 14 ####
+
+# Test 13 did not work - the users are still not choosing to take PES over felling. Below I will test the static
