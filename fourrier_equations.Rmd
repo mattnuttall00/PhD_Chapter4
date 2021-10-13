@@ -1,0 +1,126 @@
+---
+title: "Funding cycle simulations"
+author: "Brad Duthie"
+date: "12/10/2021"
+output: pdf_document
+---
+
+```{r}
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+```
+
+
+The goal here is to generate some function of budget over time. What we want is some way to have the budget go through high and low periods, but not in a way that would be recognised as predictable. That is, we do not want the budget to simply oscillate over time as would be the case if we just made budget a function of a sine wave. To give some degree of irregularity to the budget, we can use a Fourier series approach to creating irregular curves by adding sine waves of different frequency ($f$), delay ($\varphi$), and strength ($A$). There is a distinction mate between 'fundamental frequency' and 'wave frequency', but I do not understand what is meant by this or where it appears in the code. I will just use 'frequency'. Individual sine waves are generated from these parameter values as below,
+
+$$b(t) = A \sin\left(\frac{2 \pi}{T}tf + \varphi\right).$$
+
+In the above, $T$ is the total number of time steps ($t$). What we have done is sampled random values for four different sign wave frequencies ($f_{i}$), delay ($\varphi_{i}$), and strength ($A_{i}$). Frequency values are sampled are sampled from a uniform distribution for frequency,
+
+$$f_{i} \sim U(0.01, 0.08).$$
+
+We can express the probability density function, if desired, like this,
+
+$$  f_{i}(x)=\begin{cases}
+  \frac{1}{0.08 - 0.01} & \mathrm{for}\ 0.01 \le x \le 0.08, \\
+  0 & \mathrm{for}\ x<0.01\ \mathrm{or}\ 0.08>b
+  \end{cases}.$$
+  
+Delay values are similarly sampled from a uniform distribution (unless this was a discrete distribution?),
+
+$$\varphi_{i} \sim U(0, 180).$$
+  
+The probability density function is below,
+
+$$  \varphi_{i}(x)=\begin{cases}
+  \frac{1}{180} & \mathrm{for}\ 0 \le x \le 180, \\
+  0 & \mathrm{for}\ x<0\ \mathrm{or}\ 180>b
+  \end{cases}.$$
+
+Lastly, strength (amplitude) values are sampled from a uniform distribution between 1 and 150 (again, assuming that this was not discrete),
+
+$$A_{i} \sim U(1, 150).$$
+
+The probability density function is below,
+
+$$  A_{i}(x)=\begin{cases}
+  \frac{1}{150-1} & \mathrm{for}\ 1 \le x \le 150, \\
+  0 & \mathrm{for}\ x<1\ \mathrm{or}\ 150>b
+  \end{cases}.$$
+  
+  
+The sampling of each $f_{i}$, $\varphi_{i}$, and $A_{i}$ was then done four times to make four unique sine waves ($b_{i}(t)$),
+
+$$b_{i}(t) = A_{i} \sin\left(\frac{2 \pi}{T}tf_{i} + \varphi_{i}\right).$$
+
+These sign waves were then summed and then added to a constant $C = 500$ (assuming that this constant value does not change?) to determine the manager budget in a time step $B(t)$,
+
+$$B(t) = C + \sum_{i = 1}^{4} b_{i}(t)$$
+The consequence of this is an irregular oscillation of budget over time. The figure below shows the budget $B$ (black line), determined by the sum of the four $b_{i}(t)$ (coloured lines).
+
+```{r, echo = FALSE}
+# Here is a rewrite of the initial code, which might give a bit more information
+# and allow you to see the component frequencies underlying the whole curve
+acq.freq <- 100                    # data acquisition frequency (Hz)
+time     <- 50                      # measuring time interval (seconds)
+ts       <- seq(0,time,1/acq.freq) # vector of sampling time-points (s) 
+f.0      <- 1/time                 # fundamental frequency (Hz)
+
+dc.component       <- 500
+component.freqs    <- c(5,7,3)          # frequency of signal components (Hz)
+component.delay    <- c(35,0,20)          # delay of signal components (radians)
+component.strength <- c(2.5,2.5,5.75)  # strength of signal components
+
+f <- function(t, w, cs, cf, cd) { 
+  ft <- dc.component + sum( cs * sin(cf*w*t + cd));
+  return(ft);
+}
+
+# Before, this was using a trick in R that allowed the author to define the
+# function from within 'sapply'. I'm not a fan of this, nor do I think that
+# The use of sapply is terribly instructive. I've recoded to show how the
+# function 'f' itself is passed to the function below and used inside 'lapply',
+# Which essentially applies the function to all elements in ts and makes a list
+plot.fourier <- function(f_function, f.0, ts, cs, cf, cd) {
+  w <- 2*pi*f.0
+  traj_list    <- lapply(ts, f_function, w = w, cs = cs, cf = cf, cd = cd);
+  trajectory   <- unlist(x = traj_list);
+  minval       <- min(trajectory);
+  maxval       <- max(trajectory);
+  trajectory_c <- NULL; # For the components
+  for(i in 1:length(cf)){
+    traj_list         <- lapply(ts, f, w = w, cs = cs[i], cf = cf[i], 
+                                cd = cd[i]);
+    trajectory_c[[i]] <- unlist(x = traj_list);
+    # Don't worry about these maxval and minval lines line -- just to help plot
+    if(minval > min(trajectory_c[[i]])){
+      minval <- min(trajectory_c[[i]])
+    }
+    if(maxval < max(trajectory_c[[i]])){
+      maxval <- max(trajectory_c[[i]])
+    }
+  }
+  plot(x = ts, y = trajectory, type="l", xlab = "time", ylab = "f(t)", lwd = 2,
+       ylim = c(minval, maxval));
+  for(i in 1:length(cf)){
+    points(x = ts, y = trajectory_c[[i]], type = "l", lwd = 0.35, col = i + 1);  
+  }
+  points(x = ts, y = trajectory, type="l", lwd = 2); # put to foreground
+  abline(h = 500,lty = 3);
+}
+
+# Maybe we don't want it to come down so hard though? Reducing the other amps
+
+new_freqs    <- c(5, 7, 3, 0.5)        # frequency of signal components (Hz)
+new_delay    <- c(35, 0, 20, 0)       # delay of signal components (radians)
+new_strength <- c(1, 1, 2, 7)  # strength of signal components
+
+plot.fourier(f = f, f.0 = f.0, ts = ts, cs = new_strength, cf = new_freqs, 
+             cd = new_delay);
+```
+
+
+
+
