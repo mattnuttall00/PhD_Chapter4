@@ -2,7 +2,7 @@
 title: "Funding cycle simulations"
 author: "Brad Duthie"
 date: "12/10/2021"
-output: pdf_document
+output: word_document
 ---
 
 ```{r}
@@ -119,6 +119,16 @@ new_strength <- c(1, 1, 2, 7)  # strength of signal components
 
 plot.fourier(f = f, f.0 = f.0, ts = ts, cs = new_strength, cf = new_freqs, 
              cd = new_delay);
+
+
+
+# only 3 sine waves
+new_freqs    <- c(5, 7, 3)        # frequency of signal components (Hz)
+new_delay    <- c(35, 0, 20)       # delay of signal components (radians)
+new_strength <- c(1, 1, 2)  # strength of signal components
+
+plot.fourier(f = f, f.0 = f.0, ts = ts, cs = new_strength, cf = new_freqs, 
+             cd = new_delay)
 ```
 
 
