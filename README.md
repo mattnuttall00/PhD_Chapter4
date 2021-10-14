@@ -1,2 +1,2 @@
 # PhD_Chapter3
-Project repo for chapter 3 and possibly 4 of my PhD
+Project repo for chapter 4 of my PhD which uses GMSE to simulate conservation investment strategies
