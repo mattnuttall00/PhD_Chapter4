@@ -1640,7 +1640,7 @@ ggsave("outputs/investment/null_scenarios/N3/N3_custom_plots.png", N3_custom_plo
 
 
 ### Create and save budgets ####
-## Run 1 ####
+  ## Run 1 ####
 
 
 # these are the budgets used in the first run of 10 reps per scenario, above
@@ -1864,7 +1864,7 @@ write.csv(S4_budgets, "Budgets/Investment/Run_1/S4_budgets.csv")
 write.csv(S5_budgets, "Budgets/Investment/Run_1/S5_budgets.csv")
 
 
-## Run 2 ####
+  ## Run 2 ####
 
 
 # Here I want to create the user and manager budgets and save them so I have them as CSV's
@@ -2084,7 +2084,7 @@ write.csv(S3_budgets, "Budgets/Investment/Run_2/S3_budgets.csv")
 write.csv(S4_budgets, "Budgets/Investment/Run_2/S4_budgets.csv")
 write.csv(S5_budgets, "Budgets/Investment/Run_2/S5_budgets.csv")
 
-## Run 3 ####
+  ## Run 3 ####
 
 # Here I want to create the user and manager budgets and save them so I have them as CSV's
 
@@ -2323,7 +2323,7 @@ ggplot(budgets_all, aes(x=Time, y=Manager_budget, group=Scenario))+
 
 
 
-## Run 4 ####
+  ## Run 4 ####
 
 # In run 3 I have increased the user budget a LOT, to try and make the scenarios more extreme and increase tree loss. I have successfully increased tree loss, but the scenarios are still basically identical. Here I am going to try and make the senarios more extreme and different from one another. I will have to sacrifice reality a bit.
 
@@ -2572,7 +2572,7 @@ ggplot(budgets_all, aes(x=Time, y=Manager_budget, group=Scenario))+
 
 
 #
-## Run 5 ####
+  ## Run 5 ####
 
 # after a chat with Nils, we have decided on a slightly different approach. We are goin to remove S4, as it is not really contributing much. Thinking about the results, and the message, we are going to have two clean, clear plots. The first one is going to have just S1, S2, and S3. The results are nicely different, and the differences are easy to see. We can talk easily about the issues with S2 and S3. With S2, if you start by underfunding a project, even though the manager budget increases well beyond the MB in S1, you are constantly playing catch up and the two scenarios don't get close to one another until after the 50 years. This sends a clear warning to funders about early funding. Scenario 3 shows that in periods of high funding, you are able to play catchup with S1 a bit, but the longer it goes on, the worse the impacts of the troughs. Also, if a projet is only monitoring for say, 5 years, then you don't know where on that rajectory you are, and this could lead to a false sense of success.
 
@@ -11339,7 +11339,8 @@ ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon_brw.png", S4_S5_ri
 quants_4_5 <- quants_all %>% filter(Scenario=="4"|Scenario=="5")
 
 S4_S5_ribbon_man <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
-  geom_ribbon(data=quants_4_5, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario),alpha=0.3)+
+  geom_ribbon(data=quants_4_5, aes(x=Time, ymin=LCL, ymax=UCL,fill=Scenario, alpha=Scenario))+
+  scale_alpha_manual(breaks = c(4,5), values = c(1, 0.4))+
   geom_line(size=2,aes(color=Scenario))+
   theme_classic()+
   theme(axis.title = element_text(size=15),
@@ -11347,11 +11348,28 @@ S4_S5_ribbon_man <- ggplot(quants_4_5, aes(x=Time, y=Mean, group=Scenario))+
         legend.text = element_text(size=15),
         legend.title = element_text(size=15),
         legend.key.size = unit(1, 'cm'))+
-  scale_color_manual(values=c("lightseagreen", "tan2"))+
-  scale_fill_manual(values=c("lightseagreen", "tan2"))+
+  scale_color_manual(values=c("steelblue4", "lightgoldenrod4"))+
+  scale_fill_manual(values=c("steelblue3", "lightgoldenrod2"))+
   ylab("Number of trees")
 
-ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon_man.png", S4_S5_ribbon_man,
+# try and plot as separate geoms
+s4 <- quants_4_5 %>% filter(Scenario==4)
+s5 <- quants_4_5 %>% filter(Scenario==5)
+
+ggplot()+
+  geom_ribbon(data=s4, aes(x=Time, ymin=LCL, ymax=UCL), size=1, alpha=1, fill="steelblue3")+
+  geom_ribbon(data=s5, aes(x=Time, ymin=LCL, ymax=UCL), size=1, alpha=0.5, fill="lightgoldenrod2")+
+  geom_line(data=s4, aes(x=Time, y=Mean),size=2, color="steelblue4")+
+  geom_line(data=s5, aes(x=Time, y=Mean),size=2, color="lightgoldenrod4")+
+  theme_classic()+
+  theme(axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=15),
+        legend.key.size = unit(1, 'cm'))+
+  ylab("Number of trees")
+
+ggsave("outputs/investment/scenarios/Plots/Run_5/S4_S5_ribbon_man_2.png", S4_S5_ribbon_man,
      dpi=300, width = 30, height = 20, units="cm")
 
 # scenarios 4 & 5 no facet, dashed
